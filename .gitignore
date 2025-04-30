@@ -1,0 +1,5 @@
+ampl.linux-intel64
+venv
+__pycache__
+.ssh
+.vscode

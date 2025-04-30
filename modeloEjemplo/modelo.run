@@ -1,0 +1,287 @@
+reset ;
+model modelo.mod ;
+data a-Instancia1.dat ;
+
+/* GUROBI */
+option solver "./gurobi" ;
+# option gurobi_options 'threads= 3' ;
+# option solver_msg 0 ;
+# option DisplayInterval 1 ;
+# option gurobi_options 'outlev 1 logfreq 1 timing 1' ;
+# option presolve 10 ;
+# option show_stats 1 ;
+option gurobi_options 'timelim = 3600' ;
+
+set MM := M ordered ;
+for {(i,j) in A, m in MM}{
+  if m == last (MM) then {
+    let TI[i,j,m] := TTI[m] ;
+    let TF[i,j,m] := TTF[m] ;
+  } else {
+    let TI[i,j,m] := TTI[m] ;
+    let TF[i,j,m] := TTF[m] - 0.00000001 ;
+  }
+}
+
+let Mi := first( MM );
+let Mf := last ( MM );
+display Mf;
+display Mi;
+
+printf "\n\n::::::::::::::::::::::::::: Descripcion de la Instancia :::::::::::::::::::::::::::\n\n" ;
+printf "Deposito   : %s \n", o ;
+printf "N° Clientes      : %s \n", card (R) ;
+
+printf "Clientes   : " ;
+for {i in R}{
+  printf "%s ", i ;
+}
+printf "\n" ;
+
+printf "N° Camiones      : %s \n", card (K) ;
+printf "Cap. camiones    : %s \n", b ;
+printf "Horizonte Plani. : %s - %s \n", min {m in M} TTI[m], max {m in M} TTF[m] ;
+printf "\n\n\n" ;
+
+param oo ;
+param bandera ;
+
+param Ttotal default 0 ;
+
+param TCPU1{objetivos}   default 0 ;
+param MVF{objetivos}     default 0 ;
+param PVF{objetivos}     default 0 ;
+param f1{objetivos}      default 0 ;
+param f2{objetivos}      default 0 ;
+
+param TCPU2{ejecuciones} default 0 ;
+param FN1{ejecuciones}   default 0 ;
+param FN2{ejecuciones}   default 0 ;
+param F1{ejecuciones}    default 0 ;
+param F2{ejecuciones}    default 0 ;
+param BT1{ejecuciones}   default 0 ;
+param BT2{ejecuciones}   default 0 ;
+
+
+############################################################################################
+############################# Busqueda del mejor y peor valor ##############################
+############################################################################################
+
+for {gg in objetivos}{
+
+  printf "  Objetivo ::::::: %s\n", gg ;
+
+  let g := gg ;
+
+  objective FO1 ;
+  let Ttotal := time() ;
+  solve ;
+  let TCPU1[gg] := time() - Ttotal ;
+
+
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  printf "\n\n"   ;
+  display F ;
+
+  for {k in K: sum {(i,j) in A, m in M} x[i,j,m,k] > 0}{
+    let oo      := o ;
+    let bandera := 0 ;
+
+    printf "Id      : %s \n", k - 1 ;
+    printf "Aporte f1     : %.2f \n", sum {(i,j) in A, m in M} (c[i,j,m])*x[i,j,m,k]  + sum{i in R, m1 in M} (cc[i,m1]) * z[i,m1,k] ;
+    printf "Aporte f2     : %.2f \n", sum {j in R, m1 in M} tf[j,m1]*z[j,m1,k] ;
+    printf "T. Inicio     : %.2f \n", T[o,k] ;
+    printf "T. Termino    : %.2f \n", T[s,k] ;
+    printf "T. Restante   : %.2f \n", TTF[ last (MM)] - T[s,k] ;
+    printf "Cap. Restante : %.0f \n", b - sum {i in N} d[i]*y[i,k] ;
+    printf "Ruta    : %s - ", oo ;
+
+    for {h in N: bandera = 0 }{
+      for {j in N, m in M: (oo, j) in A and x[oo,j,m,k] = 1 and bandera = 0 }{
+        if j == s then {
+          printf "%s \n", o ;
+          let bandera := 1 ;
+          break ;
+        } else {
+          printf "%s - ", j ;
+          let oo := j ;
+        }
+      }
+    }
+    printf "\n\n"   ;
+
+    let oo      := o ;
+    let bandera := 0 ;
+    for {h in N: bandera = 0 }{
+      for {j in N, m in M: (oo, j) in A and x[oo,j,m,k] = 1 and bandera = 0 }{
+        if j == s then {
+          printf "Arco    : %s - %s \n", oo, o ;
+          printf "Tiempo inicio : %s \n", T[oo,k]    ;
+          printf "Tiempo viaje  : %s \n", t[oo,j,m]  ;
+          printf "Costo viaje   : %s \n", c[oo,j,m]  ;
+          printf "\n" ;
+          let bandera := 1 ;
+          break ;
+        } else {
+          printf "Arco    : %s - %s \n", oo, j ;
+          printf "Intervalo salida : %s \n", m ;
+          printf "Tiempo inicio : %s \n", T[oo,k]    ;
+          printf "Tiempo viaje  : %s \n", t[oo,j,m]  ;
+          printf "Costo viaje   : %s \n", c[oo,j,m]  ;
+          printf "Tiempo aten   : %s \n", sum{m1 in M} z[j,m1,k]*tt[j,m1]    ;
+          printf "Costo aten    : %s \n", sum{m1 in M} z[j,m1,k]*cc[j,m1]    ;
+          printf "Tasa fallo    : %s \n", sum{m1 in M} z[j,m1,k]*tf[j,m1]    ;
+
+          for{m1 in M: z[j,m1,k] = 1}
+              printf "Intervalo llegada: %s \n", m1 ;
+
+          printf "\n" ;
+          let oo := j ;
+        }
+      }
+    }
+    printf "\n"     ;
+
+  }
+  printf "\n"       ;
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  for {i in objetivos}{
+    if F[i] < MV[i] then {
+      let MV[i] := F[i] ;
+    }
+    if F[i] > PV[i] then {
+      let PV[i] := F[i] ;
+    }
+  }
+  for {i in objetivos}{
+    let MVF[i] := MV[i] ;
+    let PVF[i] := PV[i] ;
+  }
+
+  let f1[gg] := F[1] ;
+  let f2[gg] := F[2] ;
+
+  reset data x, y, T, F ;
+}
+
+
+# Ajuste pequeño
+for {i in objetivos}{
+  let PV[i]  := PV[i] * 2  ;
+  let PVF[i] := PV[i] ;
+}
+
+
+############################################################################################
+############################ Busqueda de la frontera de pareto #############################
+############################################################################################
+
+for {gg in ejecuciones}{
+
+  printf "==> Ejecucion ::::::: %s\n", gg ;
+
+  for {i in objetivos}{
+    let betha[i] := sigma[gg,i] ;
+  }
+
+  objective FO2 ;
+  let Ttotal := time() ;
+  solve ;
+  let TCPU2[gg] := time() - Ttotal ;
+
+
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  printf "\n\n" ;
+  display F ;
+
+  for {k in K: sum {(i,j) in A, m in M} x[i,j,m,k] > 0}{
+    let oo      := o ;
+    let bandera := 0 ;
+
+    printf "Id      : %s \n", k - 1 ;
+    printf "Aporte f1     : %.2f \n", sum {(i,j) in A, m in M} (c[i,j,m] + cc[j,m])*x[i,j,m,k] ;
+    printf "Aporte f2     : %.2f \n", sum {(i,j) in A, m in M} tf[j,m]*x[i,j,m,k] ;
+    printf "T. Inicio     : %.2f \n", T[o,k] ;
+    printf "T. Termino    : %.2f \n", T[s,k] ;
+    printf "T. Restante   : %.2f \n", TTF[ last (MM)] - T[s,k] ;
+    printf "Cap. Restante : %.0f \n", b - sum {i in N} d[i]*y[i,k] ;
+    printf "Ruta    : %s - ", oo ;
+
+    for {h in N: bandera = 0 }{
+      for {j in N, m in M: (oo, j) in A and x[oo,j,m,k] = 1 and bandera = 0 }{
+        if j == s then {
+          printf "%s \n", o ;
+          let bandera := 1 ;
+          break ;
+        } else {
+          printf "%s - ", j ;
+          let oo := j ;
+        }
+      }
+    }
+    printf "\n\n" ;
+
+    let oo      := o ;
+    let bandera := 0 ;
+    for {h in N: bandera = 0 }{
+      for {j in N, m in M: (oo, j) in A and x[oo,j,m,k] = 1 and bandera = 0 }{
+        if j == s then {
+          printf "Arco    : %s - %s \n", oo, o ;
+          printf "Tiempo inicio : %s \n", T[oo,k]    ;
+          printf "Tiempo viaje  : %s \n", t[oo,j,m]  ;
+          printf "Costo viaje   : %s \n", c[oo,j,m]  ;
+          printf "\n"        ;
+          let bandera := 1         ;
+          break              ;
+        } else {
+          printf "Arco    : %s - %s \n", oo, j ;
+          printf "Intervalo salida : %s \n", m ;
+          printf "Tiempo inicio : %s \n", T[oo,k]    ;
+          printf "Tiempo viaje  : %s \n", t[oo,j,m]  ;
+          printf "Costo viaje   : %s \n", c[oo,j,m]  ;
+          printf "Tiempo aten   : %s \n", sum{m1 in M} z[j,m1,k]*tt[j,m1]    ;
+          printf "Costo aten    : %s \n", sum{m1 in M} z[j,m1,k]*cc[j,m1]    ;
+          printf "Tasa fallo    : %s \n", sum{m1 in M} z[j,m1,k]*tf[j,m1]    ;
+
+          for{m1 in M: z[j,m1,k] = 1}
+              printf "Intervalo llegada: %s \n", m1;
+
+          printf "\n" ;
+          let oo := j ;
+        }
+      }
+    }
+    printf "\n"     ;
+  }
+  printf "\n"       ;
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+  # //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  let FN1[gg] := (F[1] - PV[1])/(MV[1] - PV[1]) ;
+  let FN2[gg] := (F[2] - PV[2])/(MV[2] - PV[2]) ;
+  let F1[gg] := F[1] ;
+  let F2[gg] := F[2] ;
+  let BT1[gg] := sigma[gg,1] ;
+  let BT2[gg] := sigma[gg,2] ;
+
+  reset data x, y, T, F ;
+}
+
+
+############################################################################################
+################################ Resultados por instancia ##################################
+############################################################################################
+
+printf "\n\n" ;
+display MVF, PVF, TCPU1, f1, f2 ;
+display FN1, FN2, F1, F2, TCPU2 ;

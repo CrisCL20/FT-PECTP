@@ -1,0 +1,119 @@
+reset ;
+model modelo.mod ;
+data instance.dat;
+
+option solver "./gurobi" ;
+# option gurobi_options 'threads= 3' ;
+# option solver_msg 0 ;
+# option DisplayInterval 1 ;
+# option gurobi_options 'outlev 1 logfreq 1 timing 1' ;
+# option presolve 10 ;
+# option show_stats 1 ;
+#option gurobi_options 'timelim = 3600' ;
+option gurobi_options 'timelim=7200 threads=4 mipgap=0.05 nonconvex=2';
+option gentimes 1 ;
+
+param Ttotal default 0 ;
+
+param TCPU1{objetivos}   default 0 ;
+param MVF{objetivos}     default 0 ;
+param PVF{objetivos}     default 0 ;
+param f1{objetivos}      default 0 ;
+param f2{objetivos}      default 0 ;
+
+param TCPU2{ejecuciones} default 0 ;
+param FN1{ejecuciones}   default 0 ;
+param FN2{ejecuciones}   default 0 ;
+param F1{ejecuciones}    default 0 ;
+param F2{ejecuciones}    default 0 ;
+param BT1{ejecuciones}   default 0 ;
+param BT2{ejecuciones}   default 0 ;
+
+for {c in C, r in R, t in T: D0[r,t] = 1} {
+    fix x[c,r,t] := 0;
+}
+
+for {c in C, t in T diff Tc[c], r in R diff Rc[c]} {
+    fix x[c,r,t] := 0;
+}
+
+for {s in S, m in M diff Ms[s], f in Fm[m], p in P[m,f], c in Cmfp[m,f,p]} {
+    fix n[s,m] := 0;
+    fix a_smfpc[s,m,f,p,c] := 0;
+    fix m_smf[s,m,f] := 0;
+    fix b_smfp[s,m,f,p] := 0;
+}
+
+
+#for {s in S, (c1, c2) in C_CS[s], r1 in Rc[c1], r2 in Rc[c2], t1 in T, t2 in T : D1[t1,t2] = 1 } {
+#    fix gamma_scrt[s,c1,r1,t1] := 0;
+#    fix gamma_scrt[s,c2,r2,t2] := 0;
+#    fix beta[s,c1,t1] := 0;
+#    fix beta[s,c2,t2] := 0;
+#}
+
+for {gg in objetivos}{
+
+  printf "  Objetivo ::::::: %s\n", gg ;
+
+  let g := gg ;
+  
+
+
+
+  objective FO1 ;
+  let Ttotal := time() ;
+  #display S, R, C, F, T, Cel, sigma ;
+  solve ;
+  let TCPU1[gg] := time() - Ttotal ;
+
+  for {i in objetivos}{
+    if FO[i] < MV[i] then {
+      let MV[i] := FO[i] ;
+    }
+    if FO[i] > PV[i] then {
+      let PV[i] := FO[i] ;
+    }
+  }
+  for {i in objetivos}{
+    let MVF[i] := MV[i] ;
+    let PVF[i] := PV[i] ;
+  }
+
+  let f1[gg] := FO[1] ;
+  let f2[gg] := FO[2] ;
+
+  reset data yR, yT, g_m, q_mf, w_mfp, alpha, gamma_scrt, beta, h, FO ;
+}
+
+for {i in objetivos}{
+  let PV[i]  := PV[i] * 2 + 1;
+  let PVF[i] := PV[i] ;
+}
+
+for {gg in ejecuciones}{
+
+  printf "==> Ejecucion ::::::: %s\n", gg ;
+
+  for {i in objetivos}{
+    let betha[i] := sigma[gg,i] ;
+  }
+
+  objective FO2 ;
+  let Ttotal := time() ;
+  solve ;
+  let TCPU2[gg] := time() - Ttotal ;
+
+  let FN1[gg] := (FO[1] - PV[1])/(MV[1] - PV[1]) ;
+  let FN2[gg] := (FO[2] - PV[2])/(MV[2] - PV[2]) ;
+  let F1[gg] := FO[1] ;
+  let F2[gg] := FO[2] ;
+  let BT1[gg] := sigma[gg,1] ;
+  let BT2[gg] := sigma[gg,2] ;
+
+  reset data yR, yT, g_m, q_mf, w_mfp, alpha, gamma_scrt, beta, h, FO ;
+}
+
+printf "\n\n" ;
+display MVF, PVF, TCPU1, f1, f2 ;
+display FN1, FN2, F1, F2, TCPU2
