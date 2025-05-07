@@ -4,37 +4,40 @@ set S; # cjto de estudiantes
 set C; # cjo de clases
 set M; # cjto de modulos
 set L; # bloques de tiempo disponibles
-set T; # cjto de horarios con cada elemento un cjto de bloques
-set L_in_T {T} within L; # especificación de cada uno de los horarios en T
+#set T; # cjto de horarios con cada elemento un cjto de bloques
+#set L_in_T {T} within L; # especificación de cada uno de los horarios en T
 set R; # cjuto de salones
 set Ms {S} within M; #modulos pedidos por s in S
 #set Mobs {S} within M; # modulos obligatorios
-set Mels {S} within M; #modulos electivos por s in S
-set Sm {M} within S; #estudiantes que quieren ir al módulo m in M
-set RrU {R} within L; #bloques cuando r in R no está disp.
+#set Mels {S} within M; #modulos electivos por s in S
+#set Sm {M} within S; #estudiantes que quieren ir al módulo m in M
+# -- conversar sobre este -- set RrU {R} within L; #bloques cuando r in R no está disp.
 set Rc {C} within R; #cjto de salones adecuados para la clase c
-set Tc {C} within T; # cjto de horarios adecuados para c
+#set Tc {C} within T; # cjto de horarios adecuados para la clase c
 #set RG {G within C} := union {c in G} Rc[c]; # G es un subcjto de clases, RG[G] son los salones 
                                              # que son adecuados para cada clase c in G
-set RrC {r in R} := {c in C: r in Rc[c]}; # clases tales que r sea adecuado para esas clases (que tenga las fetures requerida por la clase c)
-set Ol {l in L} := union {t in T: l in L_in_T[t]} {t}; # Ol
-set Fm {M}; # configuraciones para cada módulo k in K
-set P {m in M, f in Fm[m]}; # subpartes de cada configuración
-set Cmfp {m in M, f in Fm[m], p in P[m,f]}; # clases en la subparte p de la configuracion f del módulo k
-set Cs {s in S} within C := union {m in Ms[s], f in Fm[m], p in P[m,f]} Cmfp[m,f,p]; # conjunto de clases a las que el estudiante s podría atender
-set C_CS {s in S} := {c1 in Cs[s], c2 in Cs[s] : c1 != c2}; # pares únicos de clases en G within C
+#set RrC {r in R} := {c in C: r in Rc[c]}; # clases tales que r sea adecuado para esas clases (que tenga las fetures requerida por la clase c)
+#set Ol {l in L} := union {t in T: l in L_in_T[t]} {t}; # Ol
+#set Fm {M}; # configuraciones para cada módulo k in K
+#set P {m in M, f in Fm[m]}; # subpartes de cada configuración
+#set Cmfp {m in M, f in Fm[m], p in P[m,f]}; # clases en la subparte p de la configuracion f del módulo k
+#set Cs {s in S} within C := union {m in Ms[s], f in Fm[m], p in P[m,f]} Cmfp[m,f,p]; # conjunto de clases a las que el estudiante s podría atender
+#set C_CS {s in S} := {c1 in Cs[s], c2 in Cs[s] : c1 != c2}; # pares únicos de clases en G within C
 
 ######### params #########
-param A {r1 in R, r2 in R: r1 != r2} default 0; # tiempos entre cada salon
+param A {r1 in R, r2 in R} default 0; # tiempos entre cada salon
+param CM {m in M, c in C} default 0; # 1 si el curso m in M requiere el curso c in C
 param room_cpcty {R}; # limite de los salones
 param class_limit {C}; # limite de las clases
 # Esta aún no #param pi_s {S} default 0; # preferencia de cada estudiante s in S (se puede generar aleatoriamente)
-param D0 {R,T} default 0; # 1 si r no está disponible en algún bloque en el horario t
+#param D0 {R,T} default 0; # 1 si r no está disponible en algún bloque en el horario t
 #param D1 {t1 in T,t2 in T} default 1; # 1 si t1 choca con t2
 #param D2 {r1 in R,r2 in R,t1 in T,t2 in T} default 1; 
 #param room_has_feats {R,F} binary;
 #param pre_enrollment {S,C} binary;
 param kmax {S}; # máxima cantidad de clases que se pueden tomar
+param kmin {S}; # mínima cantidad de clases que un estudiante puede tomar
+param Tmax default 0.21428571;
 /* Conjuntos, Parametros y Variables para la normalización */
 
 ### Variables a conservar: 

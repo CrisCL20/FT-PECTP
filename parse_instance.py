@@ -2,6 +2,7 @@ import sys
 import os
 import xml.etree.ElementTree as ET
 from typing import Any
+import numpy as np
 
 import ITCinstanemodel as itc
 
@@ -161,49 +162,24 @@ def main(instance_file):
             dat_file.write(";\n\n")
 
             # Set of modules
-            print("Calculando conjunto de modulos")
+            print("Calculando conjunto de cursos (ramos)")
             dat_file.write("set M:=\n")
             for module in COURSES:
                 dat_file.write(module.id+" ")
             dat_file.write(";\n\n")
 
             # set of timeslots
-            print("Calculando conjunto de bloques")
+            print("Generando conjunto de bloques")
             dat_file.write("set L:=\n")
-            for week in range(1,int(nWeeks[1])+1):
-                for day in range(1,int(nDays[1])+1):
-                    for tslot in range(1,int(nSlotsPerDay[1])+1):
-                        block_id = f"{week}_{day}_{tslot}"
-                        dat_file.write(block_id+" ")
+            # bloques van por dia_idblock donde id block va desde 1-2, 3-4,...,9-10
+            # se asume que para todas las semanas es la misma programación
+            n_days = 5
+            blocks = [f"{i}_{i+1}" for i in range(1,10,2)]
+            for day in range(1,n_days+1):
+                for id_block in blocks:
+                    dat_file.write(f"{day}_{id_block} ")
+                dat_file.write("\n")
             dat_file.write(";\n\n")
-            
-            # set of timesets
-            print("Calculando conjunto de horarios")
-            timesets: dict[Any,list] = {}
-            for class_ in CLASSES:
-                for timeset in class_.timesets:
-                    days,start,length, weeks,_ = timeset
-                    for day in days:
-                        for week in weeks:
-                            for slot_offset in range(length):
-                                ts = f"{week}_{day}_{start+slot_offset}"
-                                ### each unique timeset in the classes will be out timesets
-                                if class_.id not in timesets:
-                                    timesets[class_.id] = []
-                                if ts not in timesets[class_.id]:
-                                    timesets[class_.id].append(ts)
-
-            dat_file.write("set T:=\n")
-            for i, timeset in timesets.items():
-                dat_file.write(f"t{i} ")
-            dat_file.write(";\n\n")
-
-            for i, tsets in timesets.items():
-                dat_file.write(f"set L_in_T[t{i}]:=\n")
-                for tset in tsets:
-                    dat_file.write(f"{tset} ")
-                dat_file.write(";\n")
-            dat_file.write("\n")
 
             # set of rooms
             print("Calculando conjunto de salones")
@@ -213,111 +189,64 @@ def main(instance_file):
             dat_file.write(";\n\n")
 
             # set of modules requested by s in S
-            print("Calculando conjunto de módulos a los que va cada s in S")
+            print("Calculando conjunto de cursos que preinscribe s in S")
             for student in STUDENTS:
                 dat_file.write(f"set Ms[{student.id}]:=\n")
-                for module in student.courses:
-                    dat_file.write(f"{module.id} ")
+                for course in student.courses:
+                    dat_file.write(f"{course.id} ")
                 dat_file.write(";\n")
             dat_file.write("\n")
             
-            # set of obligatory modules for s in S
-            # (we will make none of them mandatory, so Mobs=Mels)
-            print("Calculando conjunto de modulos electivos.")
-            for student in STUDENTS:
-                dat_file.write(f"set Mels[{student.id}]:=\n")
-                for module in student.courses:
-                    dat_file.write(f"{module.id} ")
-                dat_file.write(";\n")
-            dat_file.write("\n")
-
-            # set of students that want to attend module m in M
-            print("Calculando conjunto de estudiantes que quieren ir a un módulo m")
-            students_per_module = {}
-            for student in STUDENTS:
-                for module in student.courses:
-                    if module.id not in students_per_module:
-                        students_per_module[module.id] = []
-                    if student.id not in students_per_module[module.id]:
-                        students_per_module[module.id].append(student.id)
-            
-            for module_id, students in students_per_module.items():
-                dat_file.write(f"set Sm[{module_id}]:=\n")
-                for student_id in students:
-                    dat_file.write(f"{student_id} ")
-                dat_file.write(";\n")
-            dat_file.write("\n")
-
             # set of unavailable timeslots for each room r in R
-            print("Calculando conjunto de bloques en los que r in R no está disponible")
-            for room in ROOMS:
-                dat_file.write(f"set RrU[{room.id}]:=\n")
-                for unavailability in room.unavail_list:
-                    days, start, length, weeks = unavailability
-                    for day in days:
-                        for week in weeks:
-                            for offset in range(length):
-                                dat_file.write(f"{week}_{day}_{start+offset} ")
-                dat_file.write(";\n")
-            dat_file.write("\n")
+            #print("Calculando conjunto de bloques en los que r in R no está disponible")
+            #for room in ROOMS:
+            #    dat_file.write(f"set RrU[{room.id}]:=\n")
+            #    for unavailability in room.unavail_list:
+            #        days, start, length, weeks = unavailability
+            #        for day in days:
+            #            for week in weeks:
+            #                for offset in range(length):
+            #                    dat_file.write(f"{week}_{day}_{start+offset} ")
+            #    dat_file.write(";\n")
+            #dat_file.write("\n")
 
-            # set of adequate rooms for course c in C
-            print("Conjunto de salones que son adecuados para cada curso")
+            # set of adequate rooms for class c in C
+            print("Conjunto de salones que son adecuados para cada clase")
             for class_ in CLASSES:
                 dat_file.write(f"set Rc[{class_.id}]:=\n")
                 for room, _ in class_.rooms: # solo un subconjunto de los salones es adecuado
                     dat_file.write(f"{room.id} ")
-                if not class_.room: # todos los salones son adecuados
+                if not class_.room or len(class_.rooms) == 0: # todos los salones son adecuados
                     for room in ROOMS:
                         dat_file.write(f"{room.id} ")
                 dat_file.write(";\n")
             dat_file.write("\n")
 
-            # Set of adequate timesets for class c in C
-            print("Conjunto de horarios adecuados para cada clase c in C")
-            for class_ in CLASSES:
-                dat_file.write(f"set Tc[{class_.id}]:=t{class_.id};\n") 
-            dat_file.write("\n")
-
-            # set of configurations for each module m in M
-            print("Calculando configuraciones para cada módulo")
-            for module in COURSES:
-                dat_file.write(f"set Fm[{module.id}]:=\n")
-                for config in module.configs:
-                    dat_file.write(f"{config.id} ")
-                dat_file.write(";\n")
-            dat_file.write("\n")
-
-            # set of subparts in each config
-            print("Calculando conjunto de subpartes para cada configuración")
-            for module in COURSES:
-                for config in module.configs:
-                    dat_file.write(f"set P[{module.id}, {config.id}]:=")
-                    for part in config.subparts:
-                        dat_file.write(f"{part.id} ")
-                    dat_file.write(";\n")
-            dat_file.write("\n")
-
-            # set of classes in part p of config f of module m
-            print("Calculando Cmfp")
-            for module in COURSES:
-                for config in module.configs:
-                    for part in config.subparts:
-                        dat_file.write(f"set Cmfp[{module.id}, {config.id}, {part.id}]:=\n")
-                        for class_ in part.classes:
-                            dat_file.write(f"{class_.id} ")
-                        dat_file.write(";\n")
-            dat_file.write("\n")
-
+            # time matrix between one room and another
             print("Calculando matriz A")
             dat_file.write("param A:=\n")
             for room in ROOMS:
                 for travel in room.travel_list:
                     dest_id, time = travel
                     dat_file.write(f"{room.id} {dest_id} {time} ")
+                if len(room.travel_list) == 0:
+                    continue
+                dat_file.write("\n")
+                
+            dat_file.write(";\n\n")
+
+            # class per course matrix
+            print("Calculando matriz CM")
+            dat_file.write("param CM:=\n")
+            for course in COURSES:
+                for config in course.configs:
+                    for part in config.subparts:
+                        for class_ in part.classes:
+                            dat_file.write(f"{course.id} {class_.id} 1 ")
                 dat_file.write("\n")
             dat_file.write(";\n\n")
 
+            # room capacity
             print("Calculando capacidad de salones")
             dat_file.write("param room_cpcty :=\n")
             for room in ROOMS:
@@ -330,135 +259,27 @@ def main(instance_file):
                 dat_file.write(f"{class_.id} {class_.limit}\n")
             dat_file.write(";\n\n")
 
-            #D0[r,t] = 1 si r in R no está disponible en el horario t in T
-            print("Calculando D0")
-            dat_file.write("param D0:=\n")
+            # Min and max courses per student
 
-            # Preprocesar todas las indisponibilidades por sala
-            room_unavailabilities = {room.id: set() for room in ROOMS}
-            for room in ROOMS:
-                for unavail in room.unavail_list:
-                    days, start, length, weeks = unavail
-                    for day in days:
-                        for week in weeks:
-                            for offset in range(length):
-                                block = f"{week}_{day}_{start + offset}"
-                                room_unavailabilities[room.id].add(block)
-
-            # Verificar para cada sala y timeset
-            for room in ROOMS:
-                for class_id, timeset_blocks in timesets.items():
-                    timeset_id = f"t{class_id}"
-                    # Si algún bloque del timeset está en las indisponibilidades de la sala
-                    if any(block in room_unavailabilities[room.id] for block in timeset_blocks):
-                        dat_file.write(f"[{room.id},{timeset_id}] 1\n")
-
+            print("Calculando minimo de cursos que un estudiante debe tener inscritos")
+            w_min = .5 #De los ramos que preinscribe, como mínimo se deben programar w_min% 
+            dat_file.write("param kmin :=\n")
+            for student in STUDENTS:
+                n_preinscriptions = len(student.courses)
+                min_inscriptions = int(np.floor(w_min * n_preinscriptions))
+                dat_file.write(f"{student.id} {min_inscriptions}\n")
             dat_file.write(";\n\n")
 
-            #D1[t1,t2] = 1 si t1 choca con t2
-            # print("Calculando D1")
-            # dat_file.write("param D1:=\n")
-
-            # # Convertir timesets a conjuntos para operaciones eficientes
-            # timeset_blocks = {f"t{class_id}" : set(blocks) for class_id, blocks in timesets.items()}
-
-            # # Comparar todos los pares únicos de timesets
-            # timeset_ids = list(timeset_blocks.keys())
-            # for i in range(len(timeset_ids)):
-            #     t1 = timeset_ids[i]
-            #     for j in range(i + 1, len(timeset_ids)):  # Evitar comparar con sí mismo y duplicados
-            #         t2 = timeset_ids[j]
-            #         if len(timeset_blocks[t1] & timeset_blocks[t2]) == 0:  # Intersección no vacía
-            #             dat_file.write(f"[{t1},{t2}] 0\n")
-
-            # dat_file.write(";\n\n")
-
-            #D2[r1,r2,t1,t2] = 1 si no hay tiempo entre t1 y t2 para
-            # ir de r1 a r2
-            
-            # print("Calculando D2")
-    
-            # D2 = {}
-            # # Primero creamos un mapeo de clase a sus timesets y bloques
-            # class_timesets = {}
-            # for class_ in CLASSES:
-            #     timeset_id = f"t{class_.id}"
-            #     blocks = []
-            #     for timeset in class_.timesets:
-            #         days, start, length, weeks, _ = timeset
-            #         block_l = f"{weeks[0]}_{days[0]}_{start}"
-            #         block_u = f"{weeks[-1]}_{days[-1]}_{start+length-1}"
-            #         blocks.append((block_l, block_u))
-            #     class_timesets[class_.id] = (timeset_id, blocks)
-            
-            # travel_times = {}
-            # for room in ROOMS:
-            #     for dest_id, n_slots in room.travel_list:
-            #         travel_times[(room.id, dest_id)] = n_slots
-
-            # for i, c1 in enumerate(CLASSES):
-            #     for j, c2 in enumerate(CLASSES):
-            #         if i >= j:  # Evitamos duplicados ya que D2 es simétrica
-            #             continue
-                        
-            #         # Obtenemos timesets y bloques de cada clase
-            #         t1_id, blocks1 = class_timesets[c1.id]
-            #         t2_id, blocks2 = class_timesets[c2.id]
-                    
-            #         # Encontramos el último bloque de c1 y el primero de c2
-            #         last_block_c1 = blocks1[-1][1]
-            #         first_block_c2 = blocks2[0][0]
-                    
-                    
-            #         # Parseamos los bloques para obtener semana, día y slot
-            #         _,_, slot1 = map(int, last_block_c1.split('_'))
-            #         _,_, slot2 = map(int, first_block_c2.split('_'))
-            #         time_between = abs(slot1 - slot2)
-            #         print(time_between)
-            #         # Verificamos para todos los pares de salones posibles
-            #         for r1, _ in c1.rooms:
-            #             for r2, _ in c2.rooms:
-            #                 # Obtenemos tiempo de viaje requerido
-                            
-            #                 required_time = travel_times.get((r1.id, r2.id),0)
-                            
-                         
-            #                 if time_between > required_time:
-            #                     if r1.id not in D2:
-            #                         D2[r1.id] = {}
-            #                     if r2.id not in D2[r1.id]:
-            #                         D2[r1.id][r2.id] = {}
-            #                     if t1_id not in D2[r1.id][r2.id]:
-            #                         D2[r1.id][r2.id][t1_id] = {}
-                                
-            #                     D2[r1.id][r2.id][t1_id][t2_id] = 0
-
-    
-            # dat_file.write("param D2 :=\n")
-            # for r1 in D2:
-            #     for r2 in D2[r1]:
-            #         for t1 in D2[r1][r2]:
-            #             for t2 in D2[r1][r2][t1]:
-            #                 if D2[r1][r2][t1][t2] == 0:
-            #                     dat_file.write(f"[{r1},{r2},{t1},{t2}] 0\n")
-            
-            # dat_file.write(";\n\n")
-            
-            print("Instancia creada con éxito!")
-            
-
-            
+            print("Calculando máximo de clases que un estudiante s puede inscribir")
+            dat_file.write("param kmax :=\n")
+            for student in STUDENTS:
+                n_preinsc = len(student.courses)
+                dat_file.write(f"{student.id} {n_preinsc}\n")
+            dat_file.write(";\n\n")
                 
 
-
-
             
-
-
-
-            
-
-
+            print("Instancia creada con éxito!")
     else:
         print("No existe el archivo")
 
