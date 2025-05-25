@@ -1,3 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-python parse_instance.py $1
+instance_file=$1
+rooms_cap=$2
+class_cap=$3
+
+python parse_instance.py $instance_file $rooms_cap $class_cap
