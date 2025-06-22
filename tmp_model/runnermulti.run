@@ -1,6 +1,6 @@
 reset ;
 model modelomulti.mod ;
-data instance3.dat ;
+data instancia_juguete.dat ;
 
 option reset_initial_guesses 1;
 option solver "./gurobi" ;
@@ -12,7 +12,7 @@ option solver "./gurobi" ;
 # option show_stats 1 ;
 #option gurobi_options 'timelim = 3600' ;
 option gurobi_options 'threads=4 timelim=3600';
-#option gurobi_options 'timelim=7200 threads=4 mipgap=0.05 nonconvex=2';
+#option gurobi_options 'timelim=3600 threads=4 mipgap=0.05 nonconvex=2';
 #option gentimes 1 ;
 
 param Ttotal default 0 ;
@@ -42,6 +42,149 @@ for {gg in objetivos}{
   ##########################################################################
   ##########################################################################
   ##########################################################################
+  printf "Matriz sparse de los salones\n";
+
+  for {r in R} {
+    printf "R%s ", r;
+    for {c in C, t in T: x[c,r,t] > 0.5} 
+        printf "C%s (%s) ", c, t;
+    printf "\n";
+  }
+  printf "\n";
+
+  printf "Matriz sparse de los salones\n";
+
+  for {r in R} {
+    printf "R%s , C:", r;
+    for {c in C: yR[c,r] > 0.5}
+        printf "%s ", c;
+    printf "\n";
+  }
+  printf "\n";
+
+  #printf "Matriz sparse de los estudiantes por clase\n";
+
+  #for {s in S} {
+  #  printf "S%s ", s;
+  #  for {c in C, t in T: yC[s,c] > 0.5 and yT[c,t] > 0.5}
+  #    printf "C%s (%s) ", c, t;
+  #  printf "\n";
+  #}
+  #printf "\n";
+
+  printf "Matriz de los estudiantes por ramos\n";
+  for {s in S} {
+    printf "S%s ", s;
+    for {m in M: yM[s,m] > 0.5}
+      printf "M%s ", m;
+    printf "\n";
+    for {c in C, t in T: yC[s,c] > 0.5 and yT[c,t] > 0.5}
+      printf "C%s (%s) |", c, t ;
+    printf "\n";
+
+  }
+  printf "\n";
+
+  printf "Matriz de los estudiantes por horario\n";
+  for {s in S} {
+    printf "S%s ", s;
+    for {t in T, c in C: uT[s,c,t] > 0.5}
+      printf " c: %s en t: %s  |", c, t ;
+    printf "\n";
+  }
+  printf "\n";
+
+  printf "Horarios\n";
+  for {t in T}{
+    printf "    %s", t;
+  }
+  printf "\n";
+  for {r in R} {
+    printf "R%s : ", r;
+    for {t in T}{
+      if(sum{c in C} x[c,r,t]) > 0.5 then{
+        for {c in C : x[c,r,t] > 0.5}{
+          printf "%s - \t", c;
+        }
+      }
+      else
+        printf " - \t";
+
+    }
+    printf "\n";
+  }
+  printf "\n";
+
+  printf "Detalle preferencias estudiantes \n";
+  for {t in T}{
+    printf "    %s", t;
+  }
+  printf "\n";
+  for {s in S} {
+    printf "S%s ", s;
+    for {t in T}{
+      if (sum{c in C} uT[s,c,t]) > 0.5 then {
+        for {c in C: uT[s,c,t] > 0.5} {
+          printf "%s \t", c;
+        }
+      }
+      else
+        printf " - \t";
+    }
+    printf "\n";
+  }
+  printf "\n";
+
+
+
+  display FO1 ;
+  
+  ##########################################################################
+  ##########################################################################
+  ##########################################################################
+
+
+
+  for {i in objetivos}{
+    if FO[i] < MV[i] then {
+      let MV[i] := FO[i] + 1E-7;
+    }
+    if FO[i] > PV[i] then {
+      let PV[i] := FO[i] + 1E-7;
+    }
+  }
+  for {i in objetivos}{
+    let MVF[i] := MV[i] ;
+    let PVF[i] := PV[i] ;
+  }
+
+  let f1[gg] := FO[1] ;
+  let f2[gg] := FO[2] ;
+
+  reset data x, yR, yT, yC, yM, uT, h, FO ;
+}
+
+for {i in objetivos}{
+  let PV[i]  := PV[i] * 2;
+  let PVF[i] := PV[i] ;
+}
+
+for {gg in ejecuciones}{
+  printf "==> Ejecucion ::::::: %s\n", gg ;
+  for {i in objetivos}{
+   let betha[i] := sigma[gg,i] ;
+  }
+
+  objective FO2 ;
+  let Ttotal := time() ;
+  solve ;
+  let TCPU2[gg] := time() - Ttotal ;
+
+  ##########################################################################
+  ##########################################################################
+  ##########################################################################
+  
+  #display FO;
   printf "Arreglo de los bloques\n";
 
   for {t in T} {
@@ -61,106 +204,106 @@ for {gg in objetivos}{
   }
   printf "\n";
 
-  printf "Matriz sparse de los estudiantes\n";
+  printf "Matriz sparse de los salones\n";
 
-  for {s in S} {
-    printf "S%s ", s;
-    for {c in C, t in T: uCT[s,c,t] > 0.5}
-      printf "C%s (%s) ", c, t;
+  for {r in R} {
+    printf "R%s , C:", r;
+    for {c in C: yR[c,r] > 0.5}
+        printf "%s ", c;
     printf "\n";
   }
+  printf "\n";
 
+  #printf "Matriz sparse de los estudiantes por clase\n";
+
+  #for {s in S} {
+  #  printf "S%s ", s;
+  #  for {c in C, t in T: yC[s,c] > 0.5 and yT[c,t] > 0.5}
+  #    printf "C%s (%s) ", c, t;
+  #  printf "\n";
+  #}
+  #printf "\n";
+
+  printf "Matriz de los estudiantes por ramos\n";
+  for {s in S} {
+    printf "S%s ", s;
+    for {m in M: yM[s,m] > 0.5}
+      printf "M%s ", m;
+    printf "\n";
+    for {c in C, t in T: yC[s,c] > 0.5 and yT[c,t] > 0.5}
+      printf "C%s (%s) |", c, t ;
+    printf "\n";
+
+  }
+  printf "\n";
+
+  printf "Matriz de los estudiantes por horario\n";
+  for {s in S} {
+    printf "S%s ", s;
+    for {t in T, c in C: uT[s,c,t] > 0.5}
+      printf " c: %s en t: %s  |", c, t ;
+    printf "\n";
+  }
+  printf "\n";
+
+  printf "Horarios\n";
+  for {t in T}{
+    printf "    %s", t;
+  }
+  printf "\n";
+  for {r in R} {
+    printf "R%s : ", r;
+    for {t in T}{
+      if(sum{c in C} x[c,r,t]) > 0.5 then{
+        for {c in C : x[c,r,t] > 0.5}{
+          printf "%s - \t", c;
+        }
+      }
+      else
+        printf " - \t";
+
+    }
+    printf "\n";
+  }
+  printf "\n";
+
+  printf "Detalle preferencias estudiantes \n";
+  for {t in T}{
+    printf "    %s", t;
+  }
+  printf "\n";
+  for {s in S} {
+    printf "S%s ", s;
+    for {t in T}{
+      if (sum{c in C} uT[s,c,t]) > 0.5 then {
+        for {c in C: uT[s,c,t] > 0.5} {
+          printf "%s \t", c;
+        }
+      }
+      else
+        printf " - \t";
+    }
+    printf "\n";
+  }
+  printf "\n";
+
+  display FO1 ;
   
   ##########################################################################
   ##########################################################################
-  ##########################################################################
+  
 
 
+  let FN1[gg] := (FO[1] - PV[1])/(MV[1] - PV[1]) ;
+  let FN2[gg] := (FO[2] - PV[2])/(MV[2] - PV[2]) ;
+  let F1[gg] := FO[1] ;
+  let F2[gg] := FO[2] ;
+  let BT1[gg] := sigma[gg,1] ;
+  let BT2[gg] := sigma[gg,2] ;
 
-  # for {i in objetivos}{
-  #   if FO[i] < MV[i] then {
-  #     let MV[i] := FO[i] ;
-  #   }
-  #   if FO[i] > PV[i] then {
-  #     let PV[i] := FO[i] ;
-  #   }
-  # }
-  # for {i in objetivos}{
-  #   let MVF[i] := MV[i] ;
-  #   let PVF[i] := PV[i] ;
-  # }
-
-  # let f1[gg] := FO[1] ;
-  # let f2[gg] := FO[2] ;
-
-  reset data x, yR, yT, yC, yM, z, u, uT, uCT, FO ;
+  reset data x, yR, yT, yC, yM, uT, h, FO ;
 }
 
-# for {i in objetivos}{
-#   let PV[i]  := PV[i] * 2;
-#   let PVF[i] := PV[i] ;
-# }
-
-# for {gg in ejecuciones}{
-#   printf "==> Ejecucion ::::::: %s\n", gg ;
-#   for {i in objetivos}{
-#    let betha[i] := sigma[gg,i] ;
-#   }
-
-#   objective FO2 ;
-#   let Ttotal := time() ;
-#   solve ;
-#   let TCPU2[gg] := time() - Ttotal ;
-
-#   ##########################################################################
-#   ##########################################################################
-#   ##########################################################################
-  
-#   display FO;
-#   printf "Arreglo de los bloques\n";
-
-#   for {t in T} {
-#     printf "%s ", t;
-#     for { c in C: yT[c,t] > 0.5}
-#       printf "C%s ", c;
-#     printf "\n";
-#   }
-
-#   printf "Matriz sparse de los salones\n";
-
-#   for {r in R} {
-#     printf "R%s ", r;
-#     for {c in C, t in T: x[c,r,t] > 0.5} 
-#         printf "C%s (%s) ", c, t;
-#     printf "\n";
-#   }
-#   printf "\n";
-
-#   printf "Matriz sparse de los estudiantes\n";
-
-#   for {s in S} {
-#     printf "S%s ", s;
-#     for {c in C, t in T: uCT[s,c,t] > 0.5}
-#       printf "C%s (%s) ", c, t;
-#     printf "\n";
-#   }
-
-  
-#   ##########################################################################
-#   ##########################################################################
-  
-
-
-#   let FN1[gg] := (FO[1] - PV[1])/(MV[1] - PV[1]) ;
-#   let FN2[gg] := (FO[2] - PV[2])/(MV[2] - PV[2]) ;
-#   let F1[gg] := FO[1] ;
-#   let F2[gg] := FO[2] ;
-#   let BT1[gg] := sigma[gg,1] ;
-#   let BT2[gg] := sigma[gg,2] ;
-
-#   reset data x, yR, yT, yC, yM, z, u, uT, uCT, FO ;
-# }
-
-# printf "\n\n" ;
-# display MVF, PVF, TCPU1, f1, f2 ;
-# display FN1, FN2, F1, F2, TCPU2;
+printf "\n\n" ;
+display MVF, PVF, TCPU1, f1, f2 ;
+display FN1, FN2, F1, F2, TCPU2;

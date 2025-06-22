@@ -6,14 +6,25 @@ import numpy as np
 
 import ITCinstanemodel as itc
 
-def main(instance_file, rooms_cap, classes_limit):
-    
-    full_path = os.path.join("instances", f"{instance_file}.xml")
-    if os.path.exists(full_path):
-        tree = ET.parse(full_path)
-        root = tree.getroot()
 
-        name, nDays, nSlotsPerDay, nWeeks = root.items()
+def get_preferred_blocks(n_modules, blocks, rng):
+    preferred_timeslots = []
+    while len(preferred_timeslots) <= 2 * n_modules:
+        choice_rng = rng.choice(blocks)
+        if choice_rng not in preferred_timeslots:
+             print(f"Prefiere {choice_rng}")
+             preferred_timeslots.append(choice_rng)
+    preferred_timeslots = sorted(preferred_timeslots, key=lambda x: int(x[0]))
+    return preferred_timeslots
+
+def main(instance_file, model_dir, ofile, rooms_cap, classes_limit):
+    #np.random.seed(42)
+    full_path_input = os.path.join("instances", f"{instance_file}.xml")
+    full_path_output = os.path.join(model_dir, f"{ofile}.dat")
+
+    if os.path.exists(full_path_input):
+        tree = ET.parse(full_path_input)
+        root = tree.getroot()
 
         opt_tag = root[0]
         time, room_, dist, student_ = opt_tag.items()
@@ -43,88 +54,10 @@ def main(instance_file, rooms_cap, classes_limit):
 
         courses = root[2]
         COURSES: list[itc.Course] = []
-        CLASSES: list[itc.Class] = []
         for c in courses:
             course_id = c.items()[0][1]
             course = itc.Course(course_id)
-            # for config in c:
-            #     conf_id = config.items()[0][1]
-            #     conf = itc.Config(conf_id)
-            #     for subpart in config:
-            #         part_id = subpart.items()[0][1]
-            #         part = itc.Subpart(part_id)
-            #         ## getting lecture...
-            #         for lecture in subpart: #it is a class but class is a keyword lol
-            #             class_attr = lecture.items()
-            #             lect: itc.Class = None
-            #             if len(class_attr) == 2: #id, limit
-            #                 class_id, limit = class_attr
-            #                 class_id = class_id[1]
-            #                 limit = limit[1]
-
-            #                 lect = itc.Class(class_id, limit,room_val=True)
-
-            #             elif len(class_attr) == 3: #id, parent, limit or id, limit, room="false"
-            #                 class_attr_ = class_attr
-            #                 class_id = class_attr_[0][1]
-            #                 if class_attr_[1][0] == "parent": #parent, limit
-            #                     parent = class_attr_[1][1]
-            #                     limit = class_attr_[2][1]
-            #                     lect = itc.Class(class_id, int(limit), parent, True)
-            #                 elif class_attr_[1][0] == "limit": #limit, room=false
-            #                     limit = int(class_attr_[1][1])
-            #                     lect = itc.Class(class_id, limit)
-
-            #             for attr in lecture:
-            #                 if attr.tag == "room":
-            #                     r_id, penalty = attr.items()
-            #                     r_id = r_id[1]
-            #                     penalty = penalty[1]
-            #                     for room in ROOMS:
-            #                         if room.id == r_id:
-            #                             r = lect.add_room(room, int(penalty))
-            #                             break
-            #                 elif attr.tag == "time":
-            #                     days, start, length, weeks, penalty = attr.items()
-            #                     formatted_days = []
-            #                     formatted_weeks = []
-            #                     for i,d in enumerate(days[1]):
-            #                         if d == '1':
-            #                             formatted_days.append(i+1)
-            #                     for i, w in enumerate(weeks[1]):
-            #                         if w == '1':
-            #                             formatted_weeks.append(i+1)
-            #                     lect.add_timeset(formatted_days,int(start[1]), 
-            #                                      int(length[1]), formatted_weeks, 
-            #                                      int(penalty[1]))
-            #             CLASSES.append(lect)
-            #             # adding lecture to subpart
-            #             part.add_class(lect)
-            #         # adding part to configuration
-            #         conf.add_part(part)
-            #     # add config to course
-            #     course.add_config(conf)
             COURSES.append(course)
-
-        distributions = root[3]
-        DISTRIBUTIONS: list[itc.Distribution] = []
-
-        for dist in distributions:
-            type, req_or_pen = dist.items()
-            type = type[1]
-            new_dist = itc.Distribution(type)
-            if req_or_pen[0] == "required":
-                new_dist.set_required(True)
-            elif req_or_pen[0] == "penalty":
-                penalty = int(req_or_pen[1])
-                new_dist.set_penalty(penalty)
-            
-            for class_ in dist:
-                class_id = class_.items()[0][1]
-                for class__ in CLASSES:
-                    if class__.id == class_id:
-                        new_dist.add_class(class__)
-            DISTRIBUTIONS.append(new_dist)
         
         students = root[4]
         STUDENTS: list[itc.Student] = []
@@ -147,31 +80,39 @@ def main(instance_file, rooms_cap, classes_limit):
         ###############################################################################
 
         print(f"Comenzando escritura a instance.dat...")
-        with open(f"models/instance.dat", "w") as dat_file:
+        with open(full_path_output, "w") as dat_file:
+            
+            cantejc = 22
+            sigmas = np.zeros(shape=(cantejc, 2),dtype=np.float64)
+
+            sigmas[0,0] = .00001
+            sigmas[0,1] = .99999
+            
+            half_point = cantejc // 2
+            
+            weights = (1+np.arange(half_point-1)) / (cantejc - 1)
+            sigmas[1:half_point,0] = weights
+            sigmas[1:half_point,1] = 1 - weights
+
+            sigmas[half_point,:] = [.5,.5]
+            
+            sigmas[half_point+1:-1,0] = 1 - weights
+            sigmas[half_point+1:-1,1] = weights
+            
+            sigmas[-1,:] = [0.99999,0.00001]
+
             print("Escribiendo sigmas (parámetro para multiobj)")
-            #dat_file.write("param sigma:=\n")
-            dat_file.write("""
-param sigma
-:	1	2 :=
-1	0.00001	0.99999
-2	0.1	0.9
-3	0.2	0.8
-4	0.3	0.7
-5	0.4	0.6
-6	0.5	0.5
-7	0.6	0.4
-8	0.7	0.3
-9	0.8	0.2
-10	0.9	0.1
-11	0.99999	0.00001
-;
-                           \n""")
+            dat_file.write("param sigma\n")
+            dat_file.write(": 1   2 :=\n")
+            for i, [sigma_a, sigma_b] in enumerate(sigmas):
+                dat_file.write(f"{i+1} {sigma_a:.5f} {sigma_b:.5f}\n")
+            dat_file.write(";\n")
 
             # Set of students
             print("Calculando conjunto de estudiantes")
             dat_file.write("set S:=\n")
             for student in STUDENTS:
-                dat_file.write(student.id+" ")
+                dat_file.write(student.id + " ")
             dat_file.write(";\n\n")
 
             # Set of classes
@@ -196,7 +137,8 @@ param sigma
             # bloques van por dia_idblock donde id block va desde 1-2, 3-4,...,9-10
             # se asume que para todas las semanas es la misma programación
             n_days = 5
-            blocks = [f"{i}_{i+1}" for i in range(1,10,2)]
+            n_timeblocks = 20
+            blocks = [f"{i}_{i+1}" for i in range(1,n_timeblocks,2)]
             bloques = []
             for day in range(1,n_days+1):
                 for id_block in blocks:
@@ -205,34 +147,22 @@ param sigma
                 dat_file.write("\n")
             dat_file.write(";\n\n")
 
-            # continuity matrix
-            print("Calculando matriz de continuidad")
-            dat_file.write("param con:=\n")
-            for i in range(len(bloques)):
-                bloque1 = bloques[i]
-                if i == len(bloques)-1:
-                    bloque2 = bloques[0]
-                else:
-                    bloque2 = bloques[i+1]
-                
-                day1, first1, last1 = bloque1.split("_")
-                day2, first2, last2 = bloque2.split("_")
-
-                # si el bloque 2 está justo después que el bloque 1
-                if int(last1) == int(first2) - 1 and int(day1) == int(day2):
-                    dat_file.write(f"{bloque1} {bloque2} 1 ")
-                
-                dat_file.write("\n")
-            dat_file.write(";\n\n")
-
-
-
             # set of rooms
             print("Calculando conjunto de salones")
             dat_file.write("set R:=\n")
             for room in ROOMS:
                 dat_file.write(f"{room.id} ")
             dat_file.write(";\n\n")
+
+            # sets of classes per module
+            print("Calculando conjunto de clases que pertenecen a cada módulo.")
+            for m in COURSES:
+                dat_file.write(f"set CM[{m.id}] :=\n")
+                c1 = 2*int(m.id) - 1
+                c2 = 2*int(m.id)
+                dat_file.write(f"{c1} {c2} ;\n")
+            dat_file.write("\n")
+
 
             # set of modules requested by s in S
             print("Calculando conjunto de cursos que preinscribe s in S")
@@ -242,31 +172,9 @@ param sigma
                     dat_file.write(f"{course.id} ")
                 dat_file.write(";\n")
             dat_file.write("\n")
-            
-            # set of unavailable timeslots for each room r in R
-            #print("Calculando conjunto de bloques en los que r in R no está disponible")
-            #for room in ROOMS:
-            #    dat_file.write(f"set RrU[{room.id}]:=\n")
-            #    for unavailability in room.unavail_list:
-            #        days, start, length, weeks = unavailability
-            #        for day in days:
-            #            for week in weeks:
-            #                for offset in range(length):
-            #                    dat_file.write(f"{week}_{day}_{start+offset} ")
-            #    dat_file.write(";\n")
-            #dat_file.write("\n")
 
             # set of adequate rooms for class c in C
             print("Conjunto de salones que son adecuados para cada clase")
-            #for class_ in CLASSES:
-            #    dat_file.write(f"set Rc[{class_.id}]:=\n")
-            #    for room, _ in class_.rooms: # solo un subconjunto de los salones es adecuado
-            #        dat_file.write(f"{room.id} ")
-            #    if not class_.room or len(class_.rooms) == 0: # todos los salones son adecuados
-            #        for room in ROOMS:
-            #            dat_file.write(f"{room.id} ")
-            #    dat_file.write(";\n")
-            #dat_file.write("\n")
             for i in range(n_classes):
                 dat_file.write(f"set Rc[{i+1}]:=\n")
                 for room in ROOMS:
@@ -275,47 +183,41 @@ param sigma
                 dat_file.write(";\n")
             dat_file.write("\n\n")
 
-
-            # time matrix between one room and another
-            print("Calculando matriz A (en minutos)")
-            dat_file.write("param A:=\n")
-            time_choices = np.arange(1,21)
-            A_mat = np.zeros((len(ROOMS)+1, len(ROOMS)+1),dtype=int)
-            np.random.seed(42)
-            for r1 in ROOMS:
-                for r2 in (set(ROOMS) - set({r1})):
-                    time_between = int(np.random.choice(time_choices))
-                    if (int(r1.id) + int(r2.id)) % 2 == 0:
-                        A_mat[int(r1.id), int(r2.id)] = A_mat[int(r2.id), int(r1.id)] = time_between
-            
-            for r1 in ROOMS:
-                for r2 in ROOMS:
-                    if A_mat[int(r1.id), int(r2.id)]:
-                        dat_file.write(f"{r1.id} {r2.id} {A_mat[int(r1.id), int(r2.id)]} ")
-                dat_file.write("\n")
-            dat_file.write(";\n\n")
+            print("Calculando preferencias de bloques por estudiante")
+            # Por defecto, un estudiante puede ir todos los días
+            # Pero dentro de estos días, prefiere ir a ciertos bloques
+            rng = np.random.default_rng(seed=755)
+            preferred_timesets: dict[itc.Student, list] = {}
+            for student in STUDENTS:
+                preferred_timesets[student] = []
+                n_preferred_modules = len(student.courses)
+                print(f"Calculando estudiante {student.id}")
+                preferred_timeslots = get_preferred_blocks(n_preferred_modules, bloques, rng)
+                
+                for pref in preferred_timeslots:
+                    preferred_timesets[student].append(pref)
+            # Write PTs sets
+            for s in STUDENTS:
+                dat_file.write(f"set PTs[{s.id}] := \n")
+                for pref_ts in preferred_timesets[s]:
+                    dat_file.write(f"{pref_ts} ")
+                dat_file.write(" ; \n")
+            dat_file.write("\n")
 
             # class per course matrix
-            print("Calculando matriz CM")
-            dat_file.write("param CM:=\n")
-            #for course in COURSES:
-            #    for config in course.configs:
-            #        for part in config.subparts:
-            #            for class_ in part.classes:
-            #                dat_file.write(f"{course.id} {class_.id} 1 ")
-            #    dat_file.write("\n")
-            #dat_file.write(";\n\n")
+            # print("Calculando matriz CM")
+            # dat_file.write("param CM:=\n")
 
-            classes: list[tuple[int,int]] = []
-            for i in range(0,n_classes,2):
-                classes.append((i+1,i+2))
+            # classes: list[tuple[int,int]] = []
+            # for i in range(0,n_classes,2):
+            #     classes.append((i+1,i+2))
 
-            next_classes = classes
-            for course in COURSES:
-                c1, c2 = next_classes[0]
-                dat_file.write(f"{course.id} {c1} 1 {course.id} {c2} 1\n")
-                next_classes = next_classes[1:]
-            dat_file.write(";\n\n")
+            # next_classes = classes
+            # for course in COURSES:
+            #     c1, c2 = next_classes[0]
+            #     dat_file.write(f"{course.id} {c1} 1 {course.id} {c2} 1\n")
+            #     next_classes = next_classes[1:]
+            # dat_file.write(";\n\n")
 
             # room capacity
             ### NOTE: capacidad se debería obtener desde argv[2]
@@ -349,11 +251,6 @@ param sigma
                 n_preinsc = len(student.courses)
                 dat_file.write(f"{student.id} {n_preinsc}\n")
             dat_file.write(";\n\n")
-
-            #Tmax = 15 # minutos
-            #dat_file.write(f"param Tmax := {Tmax}")
-                
-
             
             print("Instancia creada con éxito!")
     else:
@@ -362,8 +259,10 @@ param sigma
 if __name__ == "__main__":
     
     ifile = sys.argv[1]
-    rooms_cap = sys.argv[2]
-    classes_limit = sys.argv[3]
-    main(ifile, rooms_cap, classes_limit)
+    model_dir = sys.argv[2]
+    ofile = sys.argv[3]
+    rooms_cap = sys.argv[4]
+    classes_limit = sys.argv[5]
+    main(ifile, model_dir, ofile, rooms_cap, classes_limit)
     print(f"Creada instancia para {ifile}")
     
