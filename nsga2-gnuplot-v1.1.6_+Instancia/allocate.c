@@ -22,29 +22,12 @@ void allocate_memory_pop(population *pop, int size, problem_instance *pi)
 /* Function to allocate memory to an individual */
 void allocate_memory_ind(individual *ind, problem_instance *pi)
 {
-    int j;
-    /*
-    if (nreal != 0)
-    {
-        ind->xreal = (double *)malloc(nreal*sizeof(double));
-    }
-    if (nbin != 0)
-    {
-        ind->xbin = (double *)malloc(nbin*sizeof(double));
-        ind->gene = (int **)malloc(nbin*sizeof(int *));
-        for (j=0; j<nbin; j++)
-        {
-            ind->gene[j] = (int *)malloc(nbits[j]*sizeof(int));
-        }
-    }
-    ind->obj = (double *)malloc(nobj*sizeof(double));
-    if (ncon != 0)
-    {
-        ind->constr = (double *)malloc(ncon*sizeof(double));
-    }
-    */
+    int i, j;
 
-    ind->gene = (room_ts_pair *)malloc(pi->C * sizeof(room_ts_pair));
+    ind->gene = (unsigned **)malloc(pi->R * sizeof(unsigned *));
+    for (i = 0; i < pi->R; i++)
+        ind->gene[i] = (unsigned *)malloc(pi->T * sizeof(unsigned));
+
     ind->student_modules = (unsigned **)malloc(pi->S * sizeof(unsigned *));
     for (j = 0; j < pi->S; j++)
         ind->student_modules[j] = (unsigned *)malloc(pi->mod_prefs[j].nmods * sizeof(unsigned));
@@ -74,11 +57,13 @@ void deallocate_memory_pop(population *pop, int size, problem_instance *pi)
 void deallocate_memory_ind(individual *ind, problem_instance *pi)
 {
     int i, j;
-    if (nreal != 0)
-    {
-        free(ind->xreal);
-    }
 
+    for (i = 0; i < pi->S; i++)
+        free(ind->student_modules[i]);
+    free(ind->student_modules);
+
+    for (i = 0; i < pi->R; i++)
+        free(ind->gene[i]);
     free(ind->gene);
 
     free(ind->obj);

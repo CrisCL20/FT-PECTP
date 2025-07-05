@@ -23,7 +23,8 @@ void evaluate_pop(population *pop)
 
 int attends_class(unsigned sid, unsigned cid, room_ts_pair *gene, problem_instance *pi)
 {
-    char class_tslot[10] = gene[cid].ts;
+    char class_tslot[10];
+    strcpy(class_tslot, gene[cid].ts);
 
     // un estudiante atiende a una clase si ésta es parte de un módulo que le interesa
     unsigned nmodprefs = pi->mod_prefs[sid].nmods;

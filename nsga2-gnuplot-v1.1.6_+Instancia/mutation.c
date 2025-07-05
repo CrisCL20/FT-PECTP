@@ -1,101 +1,62 @@
 /* Mutation routines */
 
-# include <stdio.h>
-# include <stdlib.h>
-# include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-# include "global.h"
-# include "rand.h"
+#include "global.h"
+#include "rand.h"
 
 /* Function to perform mutation in a population */
-void mutation_pop (population *pop)
+void mutation_pop(population *pop, problem_instance *pi)
 {
     int i;
-    for (i=0; i<popsize; i++)
+    for (i = 0; i < popsize; i++)
     {
-        mutation_ind(&(pop->ind[i]));
+        mutation_ind(&(pop->ind[i]), pi);
     }
     return;
 }
 
 /* Function to perform mutation of an individual */
-void mutation_ind (individual *ind)
+void mutation_ind(individual *ind, problem_instance *pi)
 {
-    if (nreal!=0)
-    {
-        real_mutate_ind(ind);
-    }
-    if (nbin!=0)
-    {
-        bin_mutate_ind(ind);
-    }
-    return;
-}
+    int i, r, t;
 
-/* Routine for binary mutation of an individual */
-void bin_mutate_ind (individual *ind)
-{
-    int j, k;
-    double prob;
-    for (j=0; j<nbin; j++)
-    {
-        for (k=0; k<nbits[j]; k++)
-        {
-            prob = randomperc();
-            if (prob <=pmut_bin)
-            {
-                if (ind->gene[j][k] == 0)
-                {
-                    ind->gene[j][k] = 1;
-                }
-                else
-                {
-                    ind->gene[j][k] = 0;
-                }
-                nbinmut+=1;
-            }
-        }
-    }
-    return;
-}
+    int tslot_idx, room_idx;
 
-/* Routine for real polynomial mutation of an individual */
-void real_mutate_ind (individual *ind)
-{
-    int j;
-    double rnd, delta1, delta2, mut_pow, deltaq;
-    double y, yl, yu, val, xy;
-    for (j=0; j<nreal; j++)
+    int *all_ts = malloc(pi->T * sizeof(int));
+    int *all_r = malloc(pi->R * sizeof(int));
+    for (i = 0; i < pi->T; i++)
+        all_ts[i] = i;
+
+    for (i = 0; i < pi->R; i++)
+        all_r[i] = i;
+
+    shuffle(all_ts, pi->T);
+    shuffle(all_r, pi->R);
+
+    // Asignar sin solapamiento
+    tslot_idx = all_ts[0];
+    room_idx = all_r[0];
+
+    free(all_ts);
+    free(all_r);
+
+    int next_slot = tslot_idx + 1;
+    while (1)
     {
-        if (randomperc() <= pmut_real)
+        if (ind->gene[room_idx][next_slot % pi->T] == 0)
         {
-            y = ind->xreal[j];
-            yl = min_realvar[j];
-            yu = max_realvar[j];
-            delta1 = (y-yl)/(yu-yl);
-            delta2 = (yu-y)/(yu-yl);
-            rnd = randomperc();
-            mut_pow = 1.0/(eta_m+1.0);
-            if (rnd <= 0.5)
-            {
-                xy = 1.0-delta1;
-                val = 2.0*rnd+(1.0-2.0*rnd)*(pow(xy,(eta_m+1.0)));
-                deltaq =  pow(val,mut_pow) - 1.0;
-            }
-            else
-            {
-                xy = 1.0-delta2;
-                val = 2.0*(1.0-rnd)+2.0*(rnd-0.5)*(pow(xy,(eta_m+1.0)));
-                deltaq = 1.0 - (pow(val,mut_pow));
-            }
-            y = y + deltaq*(yu-yl);
-            if (y<yl)
-                y = yl;
-            if (y>yu)
-                y = yu;
-            ind->xreal[j] = y;
-            nrealmut+=1;
+            ind->gene[room_idx][next_slot % pi->T] = ind->gene[room_idx][tslot_idx];
+            ind->gene[room_idx][tslot_idx] = 0;
+            break;
         }
+        else
+            next_slot++;
     }
+
+    assign_students(ind, pi);
+
     return;
 }

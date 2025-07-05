@@ -201,7 +201,7 @@ int main(int argc, char **argv)
     randomize();
     initialize_pop(parent_pop, pi);
     printf("\n Initialization done, now performing first generation\n");
-    // decode_pop(parent_pop);
+    /* decode_pop(parent_pop); /**/
     evaluate_pop(parent_pop);
     assign_rank_and_crowding_distance(parent_pop);
     report_pop(parent_pop, fpt1);
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
     {
         selection(parent_pop, child_pop);
         mutation_pop(child_pop);
-        decode_pop(child_pop);
+        /*decode_pop(child_pop);*/
         evaluate_pop(child_pop);
         merge(parent_pop, child_pop, mixed_pop);
         fill_nondominated_sort(mixed_pop, parent_pop);
@@ -262,9 +262,9 @@ int main(int argc, char **argv)
         free(max_binvar);
         free(nbits);
     }
-    deallocate_memory_pop(parent_pop, popsize, pi);
-    deallocate_memory_pop(child_pop, popsize, pi);
-    deallocate_memory_pop(mixed_pop, 2 * popsize, pi);
+    deallocate_memory_pop(parent_pop, popsize);
+    deallocate_memory_pop(child_pop, popsize);
+    deallocate_memory_pop(mixed_pop, 2 * popsize);
     free(parent_pop);
     free(child_pop);
     free(mixed_pop);

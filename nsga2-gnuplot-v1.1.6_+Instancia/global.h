@@ -11,16 +11,10 @@
 
 typedef struct
 {
-    unsigned rid;
-    char ts[10];
-} room_ts_pair;
-
-typedef struct
-{
     int rank;
     double constr_violation;
     double *xreal;
-    room_ts_pair *gene;
+    unsigned **gene;
     unsigned **student_modules; /*Modulos a los que asiste cada estudiante*/
     double *xbin;
     double *obj;
@@ -149,17 +143,18 @@ extern int obj3;
 extern int angle1;
 extern int angle2;
 
+void assign_students(individual *ind, problem_instance *pi);
+void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
+
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
-void deallocate_memory_pop(population *pop, int size, problem_instance *pi);
-void deallocate_memory_ind(individual *ind, problem_instance *pi);
+void deallocate_memory_pop(population *pop, int size);
+void deallocate_memory_ind(individual *ind);
 
 double maximum(double a, double b);
 double minimum(double a, double b);
 
-void crossover(individual *parent1, individual *parent2, individual *child1, individual *child2);
-void realcross(individual *parent1, individual *parent2, individual *child1, individual *child2);
-void bincross(individual *parent1, individual *parent2, individual *child1, individual *child2);
+void crossover(individual *parent1, individual *parent2, individual *child1, individual *child2, problem_instance *pi);
 
 void assign_crowding_distance_list(population *pop, list *lst, int front_size);
 void assign_crowding_distance_indices(population *pop, int c1, int c2);

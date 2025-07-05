@@ -1,165 +1,189 @@
 /* Crossover routines */
 
-# include <stdio.h>
-# include <stdlib.h>
-# include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-# include "global.h"
-# include "rand.h"
+#include "global.h"
+#include "rand.h"
+
+void assign_unique_block_indices(int *tslot_idx_p1, int *tslot_idx_p2, int T, int n_tslots)
+{
+    int *all = malloc(T * sizeof(int));
+    for (int i = 0; i < T; i++)
+        all[i] = i;
+
+    shuffle(all, T);
+
+    // Asignar sin solapamiento
+    for (int i = 0; i < n_tslots; i++)
+    {
+        tslot_idx_p1[i] = all[i];            // primeros k para padre 1
+        tslot_idx_p2[i] = all[i + n_tslots]; // siguientes k para padre 2
+    }
+
+    free(all);
+}
 
 /* Function to cross two individuals */
-void crossover (individual *parent1, individual *parent2, individual *child1, individual *child2)
+void crossover(individual *parent1, individual *parent2, individual *child1, individual *child2, problem_instance *pi)
 {
-    if (nreal!=0)
-    {
-        realcross (parent1, parent2, child1, child2);
-    }
-    if (nbin!=0)
-    {
-        bincross (parent1, parent2, child1, child2);
-    }
-    return;
-}
+    unsigned r, t, tp, i;
 
-/* Routine for real variable SBX crossover */
-void realcross (individual *parent1, individual *parent2, individual *child1, individual *child2)
-{
-    int i;
-    double rand;
-    double y1, y2, yl, yu;
-    double c1, c2;
-    double alpha, beta, betaq;
-    if (randomperc() <= pcross_real)
-    {
-        nrealcross++;
-        for (i=0; i<nreal; i++)
-        {
-            if (randomperc()<=0.5 )
-            {
-                if (fabs(parent1->xreal[i]-parent2->xreal[i]) > EPS)
-                {
-                    if (parent1->xreal[i] < parent2->xreal[i])
-                    {
-                        y1 = parent1->xreal[i];
-                        y2 = parent2->xreal[i];
-                    }
-                    else
-                    {
-                        y1 = parent2->xreal[i];
-                        y2 = parent1->xreal[i];
-                    }
-                    yl = min_realvar[i];
-                    yu = max_realvar[i];
-                    rand = randomperc();
-                    beta = 1.0 + (2.0*(y1-yl)/(y2-y1));
-                    alpha = 2.0 - pow(beta,-(eta_c+1.0));
-                    if (rand <= (1.0/alpha))
-                    {
-                        betaq = pow ((rand*alpha),(1.0/(eta_c+1.0)));
-                    }
-                    else
-                    {
-                        betaq = pow ((1.0/(2.0 - rand*alpha)),(1.0/(eta_c+1.0)));
-                    }
-                    c1 = 0.5*((y1+y2)-betaq*(y2-y1));
-                    beta = 1.0 + (2.0*(yu-y2)/(y2-y1));
-                    alpha = 2.0 - pow(beta,-(eta_c+1.0));
-                    if (rand <= (1.0/alpha))
-                    {
-                        betaq = pow ((rand*alpha),(1.0/(eta_c+1.0)));
-                    }
-                    else
-                    {
-                        betaq = pow ((1.0/(2.0 - rand*alpha)),(1.0/(eta_c+1.0)));
-                    }
-                    c2 = 0.5*((y1+y2)+betaq*(y2-y1));
-                    if (c1<yl)
-                        c1=yl;
-                    if (c2<yl)
-                        c2=yl;
-                    if (c1>yu)
-                        c1=yu;
-                    if (c2>yu)
-                        c2=yu;
-                    if (randomperc()<=0.5)
-                    {
-                        child1->xreal[i] = c2;
-                        child2->xreal[i] = c1;
-                    }
-                    else
-                    {
-                        child1->xreal[i] = c1;
-                        child2->xreal[i] = c2;
-                    }
-                }
-                else
-                {
-                    child1->xreal[i] = parent1->xreal[i];
-                    child2->xreal[i] = parent2->xreal[i];
-                }
-            }
-            else
-            {
-                child1->xreal[i] = parent1->xreal[i];
-                child2->xreal[i] = parent2->xreal[i];
-            }
-        }
-    }
-    else
-    {
-        for (i=0; i<nreal; i++)
-        {
-            child1->xreal[i] = parent1->xreal[i];
-            child2->xreal[i] = parent2->xreal[i];
-        }
-    }
-    return;
-}
+    int n_tslots = floor(pi->T / 3) + 1;
 
-/* Routine for two point binary crossover */
-void bincross (individual *parent1, individual *parent2, individual *child1, individual *child2)
-{
-    int i, j;
-    double rand;
-    int temp, site1, site2;
-    for (i=0; i<nbin; i++)
+    int *tslot_idx_p1 = malloc(n_tslots * sizeof(int));
+    int *tslot_idx_p2 = malloc(n_tslots * sizeof(int));
+
+    assign_unique_block_indices(tslot_idx_p1, tslot_idx_p2, pi->T, n_tslots);
+
+    unsigned assigned_classes_p1[pi->C];
+    int count_assigend_p1 = 0;
+    unsigned assigned_classes_p2[pi->C];
+    int count_assigned_p2 = 0;
+
+    int *not_used_tslots_idx = malloc((pi->T - n_tslots) * sizeof(int));
+    int count_not_used_tslots = 0;
+    /*inicializar hijos sin ninguna clase*/
+    for (r = 0; r < pi->R; r++)
     {
-        rand = randomperc();
-        if (rand <= pcross_bin)
+        for (t = 0; t < pi->T; t++)
         {
-            nbincross++;
-            site1 = rnd(0,nbits[i]-1);
-            site2 = rnd(0,nbits[i]-1);
-            if (site1 > site2)
+            child1->gene[r][t] = 0;
+            child2->gene[r][t] = 0;
+        }
+    }
+
+    /*conjunto de tslots no usados*/
+    for (t = 0; t < pi->T; t++)
+    {
+        int used = 0;
+        for (tp = 0; tp < n_tslots; tp++)
+            if (t == tslot_idx_p1[tp] || t == tslot_idx_p2[tp])
             {
-                temp = site1;
-                site1 = site2;
-                site2 = temp;
+                used = 1;
+                break;
             }
-            for (j=0; j<site1; j++)
+        if (!used)
+            not_used_tslots_idx[count_not_used_tslots++] = t;
+    }
+
+    /*crossover*/
+    for (r = 0; r < pi->R; r++)
+    {
+        for (t = 0; t < n_tslots; t++)
+        {
+            int t1 = tslot_idx_p1[t];
+            int t2 = tslot_idx_p2[t];
+
+            /*p1 asistido de p2*/
+
+            child1->gene[r][t1] = parent1->gene[r][t1];
+            if (child1->gene[r][t1] > 0)
+                assigned_classes_p1[count_assigend_p1++] = child1->gene[r][t1];
+
+            child1->gene[r][t2] = parent2->gene[r][t2];
+            /*checkear si hay una clase en p2 que ya fue asignada por p1*/
+            for (i = 0; i < count_assigend_p1; i++)
             {
-                child1->gene[i][j] = parent1->gene[i][j];
-                child2->gene[i][j] = parent2->gene[i][j];
+                if (parent2->gene[r][t2] == assigned_classes_p1[i])
+                    /*si la clase fue asignada por p1, hacer que el cromosoma no tenga la clase duplicada*/
+                    child1->gene[r][t2] = 0;
             }
-            for (j=site1; j<site2; j++)
+
+            /*p2 asistido de p1*/
+            child2->gene[r][t1] = parent1->gene[r][t1];
+            /*checkear si hay una clase en p1 que ya fue asignada por p2*/
+            for (i = 0; i < count_assigned_p2; i++)
             {
-                child1->gene[i][j] = parent2->gene[i][j];
-                child2->gene[i][j] = parent1->gene[i][j];
+                if (parent1->gene[r][t1] == assigned_classes_p2[i])
+                    /*si la clase fue asignada por p2, hacer que el cromosoma no tenga la clase duplicada*/
+                    child2->gene[r][t1] = 0;
             }
-            for (j=site2; j<nbits[i]; j++)
+
+            child2->gene[r][t2] = parent2->gene[r][t2];
+            if (child2->gene[r][t2] > 0)
+                assigned_classes_p2[count_assigned_p2++] = child2->gene[r][t2];
+        }
+    }
+
+    /*calcular conjunto de clases no asignadas*/
+    unsigned unassigned_classes_c1[pi->C];
+    int count_unassigend_c1 = 0;
+    unsigned unassigned_classes_c2[pi->C];
+    int count_unassigned_c2 = 0;
+
+    unsigned c;
+
+    for (c = 1; c <= pi->C; c++)
+    {
+        int class_assigned_c1 = 0, class_assigned_c2 = 0;
+        for (r = 0; r < pi->R; r++)
+        {
+            for (t = 0; t < pi->T; t++)
             {
-                child1->gene[i][j] = parent1->gene[i][j];
-                child2->gene[i][j] = parent2->gene[i][j];
+                if (child1->gene[r][t] == c)
+                    class_assigned_c1 = 1;
+                if (child2->gene[r][t] == c)
+                    class_assigned_c2 = 1;
+                if (class_assigned_c1 && class_assigned_c2)
+                    break;
+            }
+            /*dejar de buscar si ya se encontro la clase*/
+            if (class_assigned_c1 && class_assigned_c2)
+                break;
+        }
+
+        if (class_assigned_c1 == 0)
+        {
+            unassigned_classes_c1[count_unassigend_c1++] = c;
+        }
+        if (class_assigned_c2 == 0)
+        {
+            unassigned_classes_c2[count_unassigned_c2++] = c;
+        }
+    }
+
+    /*asignar clases faltantes a c1 y c2*/
+    unsigned c1, c2;
+
+    for (t = 0; t < (pi->T - n_tslots); t++)
+    {
+        for (c1 = 0; c1 < count_unassigend_c1; c1++)
+        {
+            while (1)
+            {
+                int room_choice_idx = rnd(0, pi->adqte_rooms[unassigned_classes_c1[c1] - 1].nrooms - 1);
+                unsigned rid = pi->adqte_rooms[unassigned_classes_c1[c1] - 1].rooms[room_choice_idx].id;
+
+                if (child1->gene[rid][not_used_tslots_idx[t]] == 0)
+                {
+                    child1->gene[rid][not_used_tslots_idx[t]] = unassigned_classes_c1[c1];
+                    break;
+                }
             }
         }
-        else
+
+        for (c2 = 0; c2 < count_unassigned_c2; c2++)
         {
-            for (j=0; j<nbits[i]; j++)
+            while (1)
             {
-                child1->gene[i][j] = parent1->gene[i][j];
-                child2->gene[i][j] = parent2->gene[i][j];
+                int room_choice_idx = rnd(0, pi->adqte_rooms[unassigned_classes_c2[c2] - 1].nrooms - 1);
+                unsigned rid = pi->adqte_rooms[unassigned_classes_c2[c2] - 1].rooms[room_choice_idx].id;
+
+                if (child2->gene[rid][not_used_tslots_idx[t]] == 0)
+                {
+                    child2->gene[rid][not_used_tslots_idx[t]] = unassigned_classes_c2[c2];
+                    break;
+                }
             }
         }
     }
-    return;
+
+    assign_students(child1, pi);
+    assign_students(child2, pi);
+
+    free(tslot_idx_p1);
+    free(tslot_idx_p2);
+    free(not_used_tslots_idx);
 }
