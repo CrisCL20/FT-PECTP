@@ -68,14 +68,14 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
         /*get modules that clash with m_i*/
         for (j = 0; j < clash_c1_; j++)
         {
-            int m_j = ceil(clashes_with_c1[r] / 2);
-            mat[i][m_j - 1] = 1;
+            int m_j = (clashes_with_c1[j] - 1) / 2;
+            mat[i][m_j] = 1;
         }
 
         for (j = 0; j < clash_c2_; j++)
         {
-            int m_j = ceil(clashes_with_c2[r] / 2);
-            mat[i][m_j - 1] = 1;
+            int m_j = (clashes_with_c2[j] - 1) / 2;
+            mat[i][m_j] = 1;
         }
 
         free(clashes_with_c1);
@@ -109,6 +109,7 @@ void assign_students(individual *ind, problem_instance *pi)
         {
             unsigned *clashes_arr = mod_mat[pi->mod_prefs[s].mods[midx].id - 1];
             priorities[midx].mid = pi->mod_prefs[s].mods[midx].id;
+            priorities[midx].degree = 0;
             for (i = 0; i < pi->M; i++)
                 priorities[midx].degree += clashes_arr[i];
         }
@@ -119,7 +120,7 @@ void assign_students(individual *ind, problem_instance *pi)
 
         qsort(priorities, pi->mod_prefs[s].nmods, sizeof(mod_prios), comp);
 
-        int *assigned = (int *)malloc(pi->mod_prefs[s].nmods * sizeof(int));
+        int *assigned = (int *)calloc(pi->mod_prefs[s].nmods, sizeof(int));
         int count_assigned = 0;
 
         for (midx = 0; midx < pi->mod_prefs[s].nmods; midx++)
@@ -141,10 +142,8 @@ void assign_students(individual *ind, problem_instance *pi)
             if (!conflict && priorities[midx].degree <= pi->M)
             {
                 assigned[count_assigned++] = m_jidx;
-                ind->student_modules[s][m_jidx] = 1;
+                ind->student_modules[s][midx] = 1;
             }
-            else
-                ind->student_modules[s][m_jidx] = 0;
         }
 
         free(assigned);

@@ -13,12 +13,9 @@ typedef struct
 {
     int rank;
     double constr_violation;
-    double *xreal;
     unsigned **gene;
     unsigned **student_modules; /*Modulos a los que asiste cada estudiante*/
-    double *xbin;
     double *obj;
-    double *constr;
     double crowd_dist;
 } individual;
 
@@ -143,13 +140,17 @@ extern int obj3;
 extern int angle1;
 extern int angle2;
 
+int readInputFile(char *filePath, problem_instance *pi);
+
 void assign_students(individual *ind, problem_instance *pi);
 void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 
+char **str_split(char *a_str, const char a_delim);
+
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
-void deallocate_memory_pop(population *pop, int size);
-void deallocate_memory_ind(individual *ind);
+void deallocate_memory_pop(population *pop, int size, problem_instance *pi);
+void deallocate_memory_ind(individual *ind, problem_instance *pi);
 
 double maximum(double a, double b);
 double minimum(double a, double b);
@@ -167,8 +168,8 @@ void onthefly_display(population *pop, FILE *gp, int ii);
 
 int check_dominance(individual *a, individual *b);
 
-void evaluate_pop(population *pop);
-void evaluate_ind(individual *ind);
+void evaluate_pop(population *pop, const problem_instance *pi);
+void evaluate_ind(individual *ind, const problem_instance *pi);
 
 void fill_nondominated_sort(population *mixed_pop, population *new_pop);
 void crowding_fill(population *mixed_pop, population *new_pop, int count, int front_size, list *cur);
@@ -182,12 +183,10 @@ list *del(list *node);
 void merge(population *pop1, population *pop2, population *pop3);
 void copy_ind(individual *ind1, individual *ind2);
 
-void mutation_pop(population *pop);
-void mutation_ind(individual *ind);
-void bin_mutate_ind(individual *ind);
-void real_mutate_ind(individual *ind);
+void mutation_pop(population *pop, problem_instance *pi);
+void mutation_ind(individual *ind, problem_instance *pi);
 
-void test_problem(double *xreal, double *xbin, int **gene, double *obj, double *constr);
+void test_problem(individual *ind, problem_instance *pi);
 
 void assign_rank_and_crowding_distance(population *new_pop);
 
@@ -200,7 +199,7 @@ void q_sort_front_obj(population *pop, int objcount, int obj_array[], int left, 
 void quicksort_dist(population *pop, int *dist, int front_size);
 void q_sort_dist(population *pop, int *dist, int left, int right);
 
-void selection(population *old_pop, population *new_pop);
+void selection(population *old_pop, population *new_pop, problem_instance *pi);
 individual *tournament(individual *ind1, individual *ind2);
 
 #endif

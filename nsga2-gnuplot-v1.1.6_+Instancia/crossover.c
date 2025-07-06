@@ -9,17 +9,18 @@
 
 void assign_unique_block_indices(int *tslot_idx_p1, int *tslot_idx_p2, int T, int n_tslots)
 {
+    int i;
     int *all = malloc(T * sizeof(int));
-    for (int i = 0; i < T; i++)
+    for (i = 0; i < T; i++)
         all[i] = i;
 
     shuffle(all, T);
 
-    // Asignar sin solapamiento
-    for (int i = 0; i < n_tslots; i++)
+    /*Asignar sin solapamiento*/
+    for (i = 0; i < n_tslots; i++)
     {
-        tslot_idx_p1[i] = all[i];            // primeros k para padre 1
-        tslot_idx_p2[i] = all[i + n_tslots]; // siguientes k para padre 2
+        tslot_idx_p1[i] = all[i];
+        tslot_idx_p2[i] = all[i + n_tslots];
     }
 
     free(all);

@@ -96,40 +96,7 @@ int main(int argc, char **argv)
         printf("\n Wrong number of objectives entered, hence exiting \n");
         exit(1);
     }
-    /* Setear en lectura de instancia --
-    printf("\n Enter the number of binary variables : ");
-    scanf("%d",&nbin);
-    if (nbin<0)
-    {
-        printf ("\n number of binary variables entered is : %d",nbin);
-        printf ("\n Wrong number of binary variables entered, hence exiting \n");
-        exit(1);
-    }
-    if (nbin != 0)
-    {
-        nbits = (int *)malloc(nbin*sizeof(int));
-        min_binvar = (double *)malloc(nbin*sizeof(double));
-        max_binvar = (double *)malloc(nbin*sizeof(double));
-        for (i=0; i<nbin; i++)
-        {
-            printf ("\n Enter the number of bits for binary variable %d : ",i+1);
-            scanf ("%d",&nbits[i]);
-            if (nbits[i] < 1)
-            {
-                printf("\n Wrong number of bits for binary variable entered, hence exiting");
-                exit(1);
-            }
-            printf ("\n Enter the lower limit of binary variable %d : ",i+1);
-            scanf ("%lf",&min_binvar[i]);
-            printf ("\n Enter the upper limit of binary variable %d : ",i+1);
-            scanf ("%lf",&max_binvar[i]);
-            if (max_binvar[i] <= min_binvar[i])
-            {
-                printf("\n Wrong limits entered for the min and max bounds of binary variable entered, hence exiting \n");
-                exit(1);
-            }
-        }
-    */
+
     pcross_bin = atof(argv[6]);
     if (pcross_bin < 0.0 || pcross_bin > 1.0)
     {
@@ -201,8 +168,10 @@ int main(int argc, char **argv)
     randomize();
     initialize_pop(parent_pop, pi);
     printf("\n Initialization done, now performing first generation\n");
-    /* decode_pop(parent_pop); /**/
-    evaluate_pop(parent_pop);
+
+    printf("Evaluating pop\n");
+    evaluate_pop(parent_pop, pi);
+    printf("Evaluated pop\n");
     assign_rank_and_crowding_distance(parent_pop);
     report_pop(parent_pop, fpt1);
     fprintf(fpt4, "# gen = 1\n");
@@ -219,18 +188,19 @@ int main(int argc, char **argv)
     sleep(1);
     for (i = 2; i <= ngen; i++)
     {
-        selection(parent_pop, child_pop);
-        mutation_pop(child_pop);
+        selection(parent_pop, child_pop, pi);
+        mutation_pop(child_pop, pi);
         /*decode_pop(child_pop);*/
-        evaluate_pop(child_pop);
+        evaluate_pop(child_pop, pi);
         merge(parent_pop, child_pop, mixed_pop);
         fill_nondominated_sort(mixed_pop, parent_pop);
         /* Comment following four lines if information for all
         generations is not desired, it will speed up the execution */
-        fprintf(fpt4, "# gen = %d\n", i);
-        report_pop(parent_pop, fpt4);
-        fflush(fpt4);
-        printf("\n gen = %d", i);
+
+        // fprintf(fpt4, "# gen = %d\n", i);
+        // report_pop(parent_pop, fpt4);
+        // fflush(fpt4);
+        // printf("\n gen = %d", i);
     }
     printf("\n Generations finished, now reporting solutions");
     report_pop(parent_pop, fpt2);
@@ -262,9 +232,9 @@ int main(int argc, char **argv)
         free(max_binvar);
         free(nbits);
     }
-    deallocate_memory_pop(parent_pop, popsize);
-    deallocate_memory_pop(child_pop, popsize);
-    deallocate_memory_pop(mixed_pop, 2 * popsize);
+    deallocate_memory_pop(parent_pop, popsize, pi);
+    deallocate_memory_pop(child_pop, popsize, pi);
+    deallocate_memory_pop(mixed_pop, 2 * popsize, pi);
     free(parent_pop);
     free(child_pop);
     free(mixed_pop);

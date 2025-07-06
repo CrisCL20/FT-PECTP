@@ -24,22 +24,24 @@ void decode_pop(population *pop)
 /* Function to decode an individual to find out the binary variable values based on its bit pattern */
 void decode_ind(individual *ind)
 {
+    /*
     int j, k;
     int sum;
-    // if (nbin!=0)
-    // {
-    //     for (j=0; j<nbin; j++)
-    //     {
-    //         sum=0;
-    //         for (k=0; k<nbits[j]; k++)
-    //         {
-    //             if (ind->gene[j][k]==1)
-    //             {
-    //                 sum += pow(2,nbits[j]-1-k);
-    //             }
-    //         }
-    //         ind->xbin[j] = min_binvar[j] + (double)sum*(max_binvar[j] - min_binvar[j])/(double)(pow(2,nbits[j])-1);
-    //     }
-    // }
+    if (nbin!=0)
+    {
+        for (j=0; j<nbin; j++)
+        {
+            sum=0;
+            for (k=0; k<nbits[j]; k++)
+            {
+                if (ind->gene[j][k]==1)
+                {
+                    sum += pow(2,nbits[j]-1-k);
+                }
+            }
+            ind->xbin[j] = min_binvar[j] + (double)sum*(max_binvar[j] - min_binvar[j])/(double)(pow(2,nbits[j])-1);
+        }
+    }
+    */
     return;
 }

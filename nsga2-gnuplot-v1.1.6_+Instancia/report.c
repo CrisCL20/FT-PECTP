@@ -17,31 +17,7 @@ void report_pop(population *pop, FILE *fpt)
         {
             fprintf(fpt, "%e\t", pop->ind[i].obj[j]);
         }
-        if (ncon != 0)
-        {
-            for (j = 0; j < ncon; j++)
-            {
-                fprintf(fpt, "%e\t", pop->ind[i].constr[j]);
-            }
-        }
-        if (nreal != 0)
-        {
-            for (j = 0; j < nreal; j++)
-            {
-                fprintf(fpt, "%e\t", pop->ind[i].xreal[j]);
-            }
-        }
-        if (nbin != 0)
-        {
-            for (j = 0; j < nbin; j++)
-            {
-                for (k = 0; k < nbits[j]; k++)
-                {
-                    fprintf(fpt, "%d\t", pop->ind[i].gene[j].rid);
-                    fprintf(fpt, "%s\t", pop->ind[i].gene[j].ts);
-                }
-            }
-        }
+
         fprintf(fpt, "%e\t", pop->ind[i].constr_violation);
         fprintf(fpt, "%d\t", pop->ind[i].rank);
         fprintf(fpt, "%e\n", pop->ind[i].crowd_dist);
@@ -60,31 +36,6 @@ void report_feasible(population *pop, FILE *fpt)
             for (j = 0; j < nobj; j++)
             {
                 fprintf(fpt, "%e\t", pop->ind[i].obj[j]);
-            }
-            if (ncon != 0)
-            {
-                for (j = 0; j < ncon; j++)
-                {
-                    fprintf(fpt, "%e\t", pop->ind[i].constr[j]);
-                }
-            }
-            if (nreal != 0)
-            {
-                for (j = 0; j < nreal; j++)
-                {
-                    fprintf(fpt, "%e\t", pop->ind[i].xreal[j]);
-                }
-            }
-            if (nbin != 0)
-            {
-                for (j = 0; j < nbin; j++)
-                {
-                    for (k = 0; k < nbits[j]; k++)
-                    {
-                        fprintf(fpt, "%d\t", pop->ind[i].gene[j].rid);
-                        fprintf(fpt, "%s\t", pop->ind[i].gene[j].ts);
-                    }
-                }
             }
             fprintf(fpt, "%e\t", pop->ind[i].constr_violation);
             fprintf(fpt, "%d\t", pop->ind[i].rank);
