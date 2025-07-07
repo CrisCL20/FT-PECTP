@@ -39,7 +39,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     assign_unique_block_indices(tslot_idx_p1, tslot_idx_p2, pi->T, n_tslots);
 
     unsigned assigned_classes_p1[pi->C];
-    int count_assigend_p1 = 0;
+    int count_assigned_p1 = 0;
     unsigned assigned_classes_p2[pi->C];
     int count_assigned_p2 = 0;
 
@@ -81,11 +81,11 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
             child1->gene[r][t1] = parent1->gene[r][t1];
             if (child1->gene[r][t1] > 0)
-                assigned_classes_p1[count_assigend_p1++] = child1->gene[r][t1];
+                assigned_classes_p1[count_assigned_p1++] = child1->gene[r][t1];
 
             child1->gene[r][t2] = parent2->gene[r][t2];
             /*checkear si hay una clase en p2 que ya fue asignada por p1*/
-            for (i = 0; i < count_assigend_p1; i++)
+            for (i = 0; i < count_assigned_p1; i++)
             {
                 if (parent2->gene[r][t2] == assigned_classes_p1[i])
                     /*si la clase fue asignada por p1, hacer que el cromosoma no tenga la clase duplicada*/
@@ -110,7 +110,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
     /*calcular conjunto de clases no asignadas*/
     unsigned unassigned_classes_c1[pi->C];
-    int count_unassigend_c1 = 0;
+    int count_unassigned_c1 = 0;
     unsigned unassigned_classes_c2[pi->C];
     int count_unassigned_c2 = 0;
 
@@ -137,7 +137,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
         if (class_assigned_c1 == 0)
         {
-            unassigned_classes_c1[count_unassigend_c1++] = c;
+            unassigned_classes_c1[count_unassigned_c1++] = c;
         }
         if (class_assigned_c2 == 0)
         {
@@ -148,18 +148,17 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     /*asignar clases faltantes a c1 y c2*/
     unsigned c1, c2;
 
-    for (t = 0; t < (pi->T - n_tslots); t++)
+    for (t = 0; t < count_not_used_tslots; t++)
     {
-        for (c1 = 0; c1 < count_unassigend_c1; c1++)
+        for (c1 = 0; c1 < count_unassigned_c1; c1++)
         {
-            while (1)
-            {
-                int room_choice_idx = rnd(0, pi->adqte_rooms[unassigned_classes_c1[c1] - 1].nrooms - 1);
-                unsigned rid = pi->adqte_rooms[unassigned_classes_c1[c1] - 1].rooms[room_choice_idx].id;
 
-                if (child1->gene[rid][not_used_tslots_idx[t]] == 0)
+            for (r = 0; r < pi->adqte_rooms[unassigned_classes_c1[c1] - 1].nrooms; r++)
+            {
+                unsigned ridx = pi->adqte_rooms[unassigned_classes_c1[c1] - 1].rooms[r].id - 1;
+                if (child1->gene[ridx][not_used_tslots_idx[t]] == 0)
                 {
-                    child1->gene[rid][not_used_tslots_idx[t]] = unassigned_classes_c1[c1];
+                    child1->gene[ridx][not_used_tslots_idx[t]] = unassigned_classes_c1[c1];
                     break;
                 }
             }
@@ -167,14 +166,12 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
         for (c2 = 0; c2 < count_unassigned_c2; c2++)
         {
-            while (1)
+            for (r = 0; r < pi->adqte_rooms[unassigned_classes_c2[c2] - 1].nrooms; r++)
             {
-                int room_choice_idx = rnd(0, pi->adqte_rooms[unassigned_classes_c2[c2] - 1].nrooms - 1);
-                unsigned rid = pi->adqte_rooms[unassigned_classes_c2[c2] - 1].rooms[room_choice_idx].id;
-
-                if (child2->gene[rid][not_used_tslots_idx[t]] == 0)
+                unsigned ridx = pi->adqte_rooms[unassigned_classes_c2[c2] - 1].rooms[r].id - 1;
+                if (child2->gene[ridx][not_used_tslots_idx[t]] == 0)
                 {
-                    child2->gene[rid][not_used_tslots_idx[t]] = unassigned_classes_c2[c2];
+                    child2->gene[ridx][not_used_tslots_idx[t]] = unassigned_classes_c2[c2];
                     break;
                 }
             }

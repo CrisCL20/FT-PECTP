@@ -116,20 +116,7 @@ int main(int argc, char **argv)
     fprintf(fpt5, "\n Population size = %d", popsize);
     fprintf(fpt5, "\n Number of generations = %d", ngen);
     fprintf(fpt5, "\n Number of objective functions = %d", nobj);
-    /*fprintf(fpt5,"\n Number of constraints = %d",ncon);
-    fprintf(fpt5,"\n Number of real variables = %d",nreal);
-    if (nreal!=0)
-    {
-        for (i=0; i<nreal; i++)
-        {
-            fprintf(fpt5,"\n Lower limit of real variable %d = %e",i+1,min_realvar[i]);
-            fprintf(fpt5,"\n Upper limit of real variable %d = %e",i+1,max_realvar[i]);
-        }
-        fprintf(fpt5,"\n Probability of crossover of real variable = %e",pcross_real);
-        fprintf(fpt5,"\n Probability of mutation of real variable = %e",pmut_real);
-        fprintf(fpt5,"\n Distribution index for crossover = %e",eta_c);
-        fprintf(fpt5,"\n Distribution index for mutation = %e",eta_m);
-    }*/
+
     fprintf(fpt5, "\n Number of binary variables = %d", nbin);
     if (nbin != 0)
     {
@@ -188,12 +175,13 @@ int main(int argc, char **argv)
     sleep(1);
     for (i = 2; i <= ngen; i++)
     {
+        printf("\n gen = %d", i);
         selection(parent_pop, child_pop, pi);
         mutation_pop(child_pop, pi);
-        /*decode_pop(child_pop);*/
         evaluate_pop(child_pop, pi);
         merge(parent_pop, child_pop, mixed_pop);
         fill_nondominated_sort(mixed_pop, parent_pop);
+
         /* Comment following four lines if information for all
         generations is not desired, it will speed up the execution */
 

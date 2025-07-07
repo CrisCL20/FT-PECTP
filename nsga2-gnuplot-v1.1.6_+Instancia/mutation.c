@@ -13,7 +13,9 @@ void mutation_pop(population *pop, problem_instance *pi)
     int i;
     for (i = 0; i < popsize; i++)
     {
-        mutation_ind(&(pop->ind[i]), pi);
+        double p_mut = randomperc();
+        if (p_mut < pmut_bin)
+            mutation_ind(&(pop->ind[i]), pi);
     }
     return;
 }
