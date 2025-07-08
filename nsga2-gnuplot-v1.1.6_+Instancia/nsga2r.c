@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "global.h"
 #include "rand.h"
@@ -142,6 +143,7 @@ int main(int argc, char **argv)
     fprintf(fpt2, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n", nobj, ncon, nreal, bitlength);
     fprintf(fpt3, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n", nobj, ncon, nreal, bitlength);
     fprintf(fpt4, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n", nobj, ncon, nreal, bitlength);
+    clock_t tic = clock();
     nbinmut = 0;
     nrealmut = 0;
     nbincross = 0;
@@ -175,7 +177,6 @@ int main(int argc, char **argv)
     sleep(1);
     for (i = 2; i <= ngen; i++)
     {
-        printf("\n gen = %d", i);
         selection(parent_pop, child_pop, pi);
         mutation_pop(child_pop, pi);
         evaluate_pop(child_pop, pi);
@@ -190,9 +191,11 @@ int main(int argc, char **argv)
         // fflush(fpt4);
         // printf("\n gen = %d", i);
     }
+    clock_t toc = clock();
+    double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;
     printf("\n Generations finished, now reporting solutions");
     report_pop(parent_pop, fpt2);
-    report_feasible(parent_pop, fpt3);
+    report_feasible(parent_pop, fpt3, elapsed);
     if (nreal != 0)
     {
         fprintf(fpt5, "\n Number of crossover of real variable = %d", nrealcross);

@@ -146,6 +146,7 @@ void assign_students(individual *ind, problem_instance *pi);
 void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
+int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
@@ -191,7 +192,7 @@ void test_problem(individual *ind, problem_instance *pi);
 void assign_rank_and_crowding_distance(population *new_pop);
 
 void report_pop(population *pop, FILE *fpt);
-void report_feasible(population *pop, FILE *fpt);
+void report_feasible(population *pop, FILE *fpt, double elapsed);
 void report_ind(individual *ind, FILE *fpt);
 
 void quicksort_front_obj(population *pop, int objcount, int obj_array[], int obj_array_size);

@@ -26,7 +26,7 @@ void report_pop(population *pop, FILE *fpt)
 }
 
 /* Function to print the information of feasible and non-dominated population in a file */
-void report_feasible(population *pop, FILE *fpt)
+void report_feasible(population *pop, FILE *fpt, double elapsed)
 {
     int i, j, k;
     for (i = 0; i < popsize; i++)
@@ -42,5 +42,6 @@ void report_feasible(population *pop, FILE *fpt)
             fprintf(fpt, "%e\n", pop->ind[i].crowd_dist);
         }
     }
+    fprintf(fpt, "Total execution time: %.3lf\n", elapsed);
     return;
 }

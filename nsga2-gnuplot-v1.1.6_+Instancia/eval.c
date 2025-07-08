@@ -26,6 +26,11 @@ int get_ts_block_idx(const unsigned b1, const unsigned T)
     return ((2 * T / 5) - b1 - 1) / 2;
 }
 
+int calculate_ts_idx(unsigned d, unsigned b1, unsigned T)
+{
+    return ((T / 5) * d) - 1 - get_ts_block_idx(b1, T);
+}
+
 /*FO1: preferencias horarias*/
 void countTimesRequestsMet(unsigned **student_schedule, unsigned **gene, double *obj, problem_instance *pi)
 {
@@ -48,7 +53,7 @@ void countTimesRequestsMet(unsigned **student_schedule, unsigned **gene, double 
                 unsigned d = atol(tokens[0]);
                 unsigned b1 = atol(tokens[1]);
 
-                ts_idx = ((pi->T / 5) * d) - 1 - get_ts_block_idx(b1, pi->T);
+                ts_idx = calculate_ts_idx(d, b1, pi->T);
             }
 
             free(tokens);
