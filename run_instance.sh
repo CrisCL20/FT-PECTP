@@ -1,7 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-models_path=$1
-instance_file=$2
+MODELS_PATH=$1
+INSTANCE_PATH=$2
+MODE=$3
 
 print_usage() {
     echo "Wrong usage:";
@@ -10,20 +11,21 @@ print_usage() {
 
 make_mono() {
     find -maxdepth 1 -type l -delete
-    ln -s ../$models_path/$instance_file .
-    ln -s ../$models_path/*mono.* .
+    ln -s ../$INSTANCE_PATH/*.dat .
+    ln -s ../$MODELS_PATH/*mono.* .
     find -maxdepth 1 -type l -ls
 }
 
 make_multi() {
     find -maxdepth 1 -type l -delete
-    ln -s ../$models_path/$instance_file .
-    ln -s ../$models_path/*multi.* .
+    ln -s ../$INSTANCE_PATH .
+    ln -s ../$MODELS_PATH/*multi.* .
+    find -maxdepth 1 -type l -ls
 }
 
 cd ampl.linux-intel64
 
-case $3 in
+case $MODE in
     mono)
         make_mono && ./ampl runnermono.run
         ;;

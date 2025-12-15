@@ -1,6 +1,6 @@
 reset ;
 model modelomono.mod ;
-data instancia_juguete.dat ;
+data wbg_fal10.dat ;
 
 option reset_initial_guesses 1;
 option solver "./gurobi" ;
