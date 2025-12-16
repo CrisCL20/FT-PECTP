@@ -4,7 +4,7 @@ data wbg_fal10.dat ;
 
 option reset_initial_guesses 1;
 option solver "./gurobi" ;
-# option gurobi_options 'threads= 3' ;
+option gurobi_options 'threads= 3' ;
 # option solver_msg 0 ;
 # option DisplayInterval 1 ;
 # option gurobi_options 'outlev 1 logfreq 1 timing 1' ;
@@ -12,7 +12,7 @@ option solver "./gurobi" ;
 # option show_stats 1 ;
 #option gurobi_options 'timelim = 3600' ;
 #option gurobi_options 'threads=4 timelim=3600';
-#option gurobi_options 'timelim=7200 threads=4 mipgap=0.05 nonconvex=2';
+option gurobi_options 'threads=4 mipgap=0.05 nonconvex=2 iisfind=1';
 #option gentimes 1 ;
 
 param Ttotal default 0 ;
@@ -30,8 +30,8 @@ printf "Matriz sparse de los salones\n";
 
 for {r in R} {
   printf "R%s ", r;
-  for {c in C, t in T: x[c,r,t] > 0.5} 
-      printf "C%s (%s) ", c, t;
+  for {a in A, t in T: x[a,r,t] > 0.5} 
+      printf "A%s (%s) ", a, t;
   printf "\n";
 }
 printf "\n";
@@ -39,9 +39,9 @@ printf "\n";
 printf "Matriz sparse de los salones\n";
 
 for {r in R} {
-  printf "R%s , C:", r;
-  for {c in C: yR[c,r] > 0.5}
-      printf "%s ", c;
+  printf "R%s:", r;
+  for {a in A: yR[a,r] > 0.5}
+      printf "A: %s, ", a;
   printf "\n";
 }
 printf "\n";
@@ -59,11 +59,11 @@ printf "\n";
 printf "Matriz de los estudiantes por ramos\n";
 for {s in S} {
   printf "S%s ", s;
-  for {m in M: yM[s,m] > 0.5}
-    printf "M%s ", m;
+  for {c in C: yC[s,c] > 0.5}
+    printf "C%s ", c;
   printf "\n";
-  for {c in C, t in T: yC[s,c] > 0.5 and yT[c,t] > 0.5}
-    printf "C%s (%s) |", c, t ;
+  for {a in A, t in T: yA[s,a] > 0.5 and yT[a,t] > 0.5}
+    printf "A%s (%s) |", a, t ;
   printf "\n";
 
 }
@@ -72,8 +72,8 @@ printf "\n";
 printf "Matriz de los estudiantes por horario\n";
 for {s in S} {
   printf "S%s ", s;
-  for {t in T, c in C: uT[s,c,t] > 0.5}
-    printf " c: %s en t: %s  |", c, t ;
+  for {t in T, a in A: tau[s,a,t] > 0.5}
+    printf " A: %s en t: %s  |", a, t ;
   printf "\n";
 }
 printf "\n";
@@ -86,9 +86,9 @@ printf "\n";
 for {r in R} {
   printf "R%s : ", r;
   for {t in T}{
-    if(sum{c in C} x[c,r,t]) > 0.5 then{
-      for {c in C : x[c,r,t] > 0.5}{
-        printf "%s - \t", c;
+    if(sum{a in A} x[a,r,t]) > 0.5 then{
+      for {a in A : x[a,r,t] > 0.5}{
+        printf "%s - \t", a;
       }
     }
     else
@@ -107,9 +107,9 @@ printf "\n";
 for {s in S} {
   printf "S%s ", s;
   for {t in T}{
-    if (sum{c in C} uT[s,c,t]) > 0.5 then {
-      for {c in C: uT[s,c,t] > 0.5} {
-        printf "%s \t", c;
+    if (sum{a in A} tau[s,a,t]) > 0.5 then {
+      for {a in A: tau[s,a,t] > 0.5} {
+        printf "%s \t", a;
       }
     }
     else
