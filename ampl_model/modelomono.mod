@@ -76,9 +76,11 @@ R9_2 {s in S} : sum{c in Cs[s]} yC[s,c] >= kmin[s]; # Un estudiante cumple con s
 
 # R10_2 {s in S, c in Cs[s]} : M*yC[s,c] <= sum {a in Ac[c]} yA[s,a] ;
 
-R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a];
+#R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a];
 
-R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ; 
+#R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ; 
+
+R10 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] = sum {a in Ac[c]} yA[s,a] ;
 
 R11 {s in S, t in T, c in Cs[s], a in Ac[c]} : yA[s,a] + yT[a,t] <= tau[s,a,t] + 1; # Para cada alumno, en cada instante de tiempo se indica que el alumno s tiene clases en el periodo t siempre y cuando el alumno asista a alguna clase que se dicte en ese bloque de tiempo.
 
