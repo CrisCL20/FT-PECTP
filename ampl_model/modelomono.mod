@@ -19,7 +19,7 @@ var yT {a in A, t in T} binary; # 1 si la clase c se realiza en el bloque t, 0 s
 var yA {s in S, a in A} binary; # 1 si el estudiante s asiste a la actividad a
 var yC {s in S, c in C} binary; # 1 si el estudiante s queda con el ramo c 
 var tau {s in S, a in A, t in T} binary; # 1 si el estudiante s tiene la clase c en el bloque t, 0 si no
-var tp {s in S, t in T} binary ; # 1 si el estudiante s asiste a alguna actividad en el bloque t
+#var tp {s in S, t in T} binary ; # 1 si el estudiante s asiste a alguna actividad en el bloque t
 
 #### parametros para MOP
 param Mi default 0 ;
@@ -43,7 +43,7 @@ minimize FO1 : FO[1] ; # para minimizar cada objetivo por separado
 
 subject to
 #O1: Minimizar cantidad de horarios no preferidos en que los estudiantes tienen clases
-O1 : FO[1] = sum {s in S, t in Ts[s]} tp[s,t] ;
+O1 : FO[1] = sum {s in S, t in Ts[s], a in A} tau[s,a,t] ;
 O2 : FO[2] = sum {s in S} (card(Cs[s]) - sum{c in C} yC[s,c]); #Minimizar la cantidad de modulos que no inscriben los alumnos.
 
 R1_1 {r in R, a in A} : M*yR[a,r] >= sum{t in T} x[a,r,t]; #Si la clase c se asigna a algun timeslot de la sala r, entonces se activa la variable yR[c,r]
@@ -76,21 +76,19 @@ R9_2 {s in S} : sum{c in Cs[s]} yC[s,c] >= kmin[s]; # Un estudiante cumple con s
 
 # R10_2 {s in S, c in Cs[s]} : M*yC[s,c] <= sum {a in Ac[c]} yA[s,a] ;
 
-#R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a];
+R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a];
 
-#R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ; 
+R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ; 
 
-R10 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] = sum {a in Ac[c]} yA[s,a] ;
+R11 {s in S, t in T, a in A} : yA[s,a] + yT[a,t] - 1 <= tau[s,a,t]; # Para cada alumno, en cada instante de tiempo se indica que el alumno s tiene clases en el periodo t siempre y cuando el alumno asista a alguna clase que se dicte en ese bloque de tiempo.
 
-R11 {s in S, t in T, c in Cs[s], a in Ac[c]} : yA[s,a] + yT[a,t] <= tau[s,a,t] + 1; # Para cada alumno, en cada instante de tiempo se indica que el alumno s tiene clases en el periodo t siempre y cuando el alumno asista a alguna clase que se dicte en ese bloque de tiempo.
+R12_1 {s in S, t in T}: sum{a in A} tau[s,a,t] <=1; #Cada estudiante atiende a lo más una clase por periodo de tiempo.
 
-R12_1 {s in S, t in T, c in Cs[s]}: sum{a in Ac[c]} tau[s,a,t] <=1; #Cada estudiante atiende a lo más una clase por periodo de tiempo.
+R12_2 {s in S, a in A}: sum{t in T} tau[s,a,t] <=1; ##
 
-R12_2 {s in S, c in Cs[s], a in Ac[c]}: sum{t in T} tau[s,a,t] <=1; ##
+# R13_1 {s in S, c in Cs[s], t in T} : M*tp[s,t] >= sum {a in Ac[c]} tau[s,a,t];
 
-R13_1 {s in S, c in Cs[s], t in T} : M*tp[s,t] >= sum {a in Ac[c]} tau[s,a,t];
-
-R13_2 {s in S, c in Cs[s], t in T} : tp[s,t] <= sum {a in Ac[c]} tau[s,a,t];
+# R13_2 {s in S, c in Cs[s], t in T} : tp[s,t] <= sum {a in Ac[c]} tau[s,a,t];
 
 R14  {a in A, r in R} : sum{s in S} yA[s,a] <= rho[r] + (1-yR[a,r])*M ; # No exceder capacidad de los salones
 
