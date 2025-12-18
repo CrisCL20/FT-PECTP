@@ -18,7 +18,7 @@ make_mono() {
 
 make_multi() {
     find -maxdepth 1 -type l -delete
-    ln -s ../$INSTANCE_PATH .
+    ln -s ../$INSTANCE_PATH/*.dat .
     ln -s ../$MODELS_PATH/*multi.* .
     find -maxdepth 1 -type l -ls
 }

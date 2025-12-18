@@ -198,7 +198,7 @@ def main(XML_instance, model_dir, output, nm_timeslots, room_cap, class_lim):
             
             preferred_timesets: dict[itc.Student, list] = {}
             for student in STUDENTS:
-                nm_preferred_slots = np.random.randint(0, min(int(0.80 * len(student.courses)),3))
+                nm_preferred_slots = np.random.randint(0, min(len(student.courses),3))
                 preferred_timesets[student] = np.random.choice(bloques, nm_preferred_slots, replace=False)
             # Write PTs sets
             for s in STUDENTS:

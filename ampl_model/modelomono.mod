@@ -19,7 +19,6 @@ var yT {a in A, t in T} binary; # 1 si la clase c se realiza en el bloque t, 0 s
 var yA {s in S, a in A} binary; # 1 si el estudiante s asiste a la actividad a
 var yC {s in S, c in C} binary; # 1 si el estudiante s queda con el ramo c 
 var tau {s in S, a in A, t in T} binary; # 1 si el estudiante s tiene la clase c en el bloque t, 0 si no
-#var tp {s in S, t in T} binary ; # 1 si el estudiante s asiste a alguna actividad en el bloque t
 
 #### parametros para MOP
 param Mi default 0 ;
