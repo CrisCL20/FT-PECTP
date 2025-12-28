@@ -17,51 +17,52 @@ void printProblemInstance(problem_instance *pi)
 {
     int i, j;
 
-    printf("Estudiantes: %d\n", pi->S);
-    for (i = 0; i < pi->S; i++)
+    printf("Estudiantes: %d\n", pi->nm_Students);
+    for (i = 0; i < pi->nm_Students; i++)
     {
-        printf("Módulos preferidos por el estudiante (%ld) %d:\n", pi->mod_prefs[i].nmods, pi->students[i].id);
-        for (j = 0; j < pi->mod_prefs[i].nmods; j++)
-            printf("%d ", pi->mod_prefs[i].mods[j].id);
+        printf("Módulos preferidos por el estudiante (%ld) %d:\n", pi->Cs[i].nm_courses, pi->S[i].id);
+        for (j = 0; j < pi->Cs[i].nm_courses; j++)
+            printf("%d ", pi->Cs[i].courses[j].id);
         printf("\n");
     }
 
-    for (i = 0; i < pi->S; i++)
+    for (i = 0; i < pi->nm_Students; i++)
     {
-        printf("Bloques de tiempo preferidos por el estudiante %d:\n", pi->students[i].id);
+        printf("Bloques de tiempo preferidos por el estudiante %d:\n", pi->S[i].id);
 
-        for (j = 0; j < pi->tslot_prefs[i].nprefs; j++)
-            printf("%s ", pi->tslot_prefs[i].tslots[j].ts);
+        for (j = 0; j < pi->Ts[i].nm_timeslots; j++)
+            printf("%s ", pi->Ts[i].timeslots[j].ts);
 
         printf("\n");
     }
 
-    for (i = 0; i < pi->S; i++)
+    for (i = 0; i < pi->nm_Students; i++)
     {
         printf("El estudiante %d debe tomar a lo menos %d y a lo más %d ramos.\n",
-               pi->students[i].id,
+               pi->S[i].id,
                pi->kmins[i],
                pi->kmaxs[i]);
     }
 
-    printf("Clases: %d\n", pi->C);
-    for (i = 0; i < pi->C; i++)
-        printf("La clase %d tiene un límite de %d.\n", pi->classes[i].id, pi->class_lim[i]);
+    printf("Actividades: %d\n", pi->nm_Activity);
+    for (i = 0; i < pi->nm_Activity; i++)
+        printf("La actividad %s tiene un límite de %d.\n", pi->A[i].id, pi->sigma_class[i]);
 
-    for (i = 0; i < pi->C; i++)
+    for (i = 0; i < pi->nm_Activity; i++)
     {
-        printf("Salones que son adecuados para realizar la clase %d:\n", pi->classes[i].id);
-        for (j = 0; j < pi->adqte_rooms[i].nrooms; j++)
-            printf("%d ", pi->adqte_rooms[i].rooms[j].id);
+        printf("Salones que son adecuados para realizar la actividad %s:\n\t", pi->A[i].id);
+        for (j = 0; j < pi->Ra[i].nm_rooms; j++)
+            printf("%d ", pi->Ra[i].rooms[j].id);
         printf("\n");
     }
 
-    printf("Modulos: %d\n", pi->M);
-    for (i = 0; i < pi->M; i++)
-        printf("El módulo %d requiere asistir a las clases %d y %d.\n",
-               pi->modules[i].id,
-               pi->mod_classes[i].classes[0].id,
-               pi->mod_classes[i].classes[1].id);
+    printf("Total de cursos: %d\n", pi->nm_Courses);
+    for (i = 0; i < pi->nm_Courses; i++)
+    {
+        printf("El curso %d requiere asistir a las siguientes actividades:\n\t", pi->C[i].id);
+        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
+            printf("%s, ", pi->Ac[i].activities[j].id);
+    }
 
     return;
 }

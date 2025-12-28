@@ -87,3 +87,10 @@ char **str_split(char *a_str, const char a_delim)
 
     return result;
 }
+
+int cmpactivity(t_activity a1, t_activity a2)
+{
+    if (strcmp(a1.id, a2.id) == 0)
+        return 0;
+    return 1;
+}

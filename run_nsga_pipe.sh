@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 instance=$1
 
@@ -11,7 +11,7 @@ for seed in ${seeds[@]}; do
     for p_mut in ${p_muts[@]}; do
         ./nsga2r $seed $instance 152 1000 2 0.95 $p_mut 
         mv best_pop.out ../nsga_results_toy/best_pop_i${instance}_s${seed}_pmut_${p_mut}.out
-        files+=(../nsga_results_toy/best_pop__i${instance}_s${seed}_pmut_${p_mut}.out)
+        files+=(../nsga_results_toy/best_pop_i${instance}_s${seed}_pmut_${p_mut}.out)
         
     done
 done

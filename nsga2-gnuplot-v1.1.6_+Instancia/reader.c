@@ -9,9 +9,9 @@
 
 void findDef(FILE *f, char *def)
 {
-    char word[1024];
+    char word[4096];
     /* assumes no word exceeds length of 1023 */
-    while (fscanf(f, " %1023s\n", word))
+    while (fscanf(f, " %4096s\n", word))
     {
         if (strcmp(word, def) == 0)
             break;
@@ -26,7 +26,7 @@ void removeSemicolon(char *line)
 int countWords(char *line)
 {
     int words;
-    char linet[1024], *token;
+    char linet[4096], *token;
     strcpy(linet, line);
 
     words = 0;
@@ -45,7 +45,7 @@ void readStudents(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -54,40 +54,40 @@ void readStudents(FILE *fh, problem_instance *pi)
     if (debug)
         printf("Line: %s\n", line);
 
-    pi->S = countWords(line);
+    pi->nm_Students = countWords(line);
     if (debug)
-        printf("Nstudents: %d\n", pi->S);
-    pi->students = (student *)malloc(pi->S * sizeof(student));
-    pi->mod_prefs = (module_preference *)malloc(pi->S * sizeof(module_preference));
-    pi->tslot_prefs = (tslot_preference *)malloc(pi->S * sizeof(tslot_preference));
-    pi->kmaxs = (unsigned int *)malloc(pi->S * sizeof(unsigned int));
-    pi->kmins = (unsigned int *)malloc(pi->S * sizeof(unsigned int));
+        printf("Nstudents: %d\n", pi->nm_Students);
+    pi->S = (t_student *)malloc(pi->nm_Students * sizeof(t_student));
+    pi->Cs = (course_preference *)malloc(pi->nm_Students * sizeof(course_preference));
+    pi->Ts = (timeslot_preference *)malloc(pi->nm_Students * sizeof(timeslot_preference));
+    pi->kmaxs = (unsigned int *)malloc(pi->nm_Students * sizeof(unsigned int));
+    pi->kmins = (unsigned int *)malloc(pi->nm_Students * sizeof(unsigned int));
 
     token = strtok(line, " ");
     while (token != NULL)
     {
         if (debug)
             printf("Estudiante %s\n", token);
-        pi->students[id].id = atoi(token);
+        pi->S[id].id = atoi(token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        for (id = 0; id < pi->S; id++)
+        for (id = 0; id < pi->nm_Students; id++)
         {
-            printf("%d\n", pi->students[id].id);
+            printf("%d\n", pi->S[id].id);
         }
     }
 }
 
-void readClasses(FILE *fh, problem_instance *pi)
+void readActivities(FILE *fh, problem_instance *pi)
 {
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -96,19 +96,19 @@ void readClasses(FILE *fh, problem_instance *pi)
     if (debug)
         printf("Line: %s\n", line);
 
-    pi->C = countWords(line);
+    pi->nm_Activity = countWords(line);
     if (debug)
-        printf("Size of classes: %d\n", pi->C);
-    pi->classes = (class *)malloc(pi->C * sizeof(class));
-    pi->adqte_rooms = (adequate_rooms *)malloc(pi->C * sizeof(adequate_rooms));
-    pi->class_lim = (unsigned int *)malloc(pi->C * sizeof(unsigned int));
+        printf("Size of activities: %d\n", pi->nm_Activity);
+    pi->A = (t_activity *)malloc(pi->nm_Activity * sizeof(t_activity));
+    pi->Ra = (adequate_rooms *)malloc(pi->nm_Activity * sizeof(adequate_rooms));
+    pi->sigma_class = (unsigned int *)malloc(pi->nm_Activity * sizeof(unsigned int));
 
     token = strtok(line, " ");
     while (token != NULL)
     {
         if (debug)
             printf("Token: %s\n", token);
-        pi->classes[id].id = atoi(token);
+        strcpy(pi->A[id].id, token);
 
         token = strtok(NULL, " ");
         id++;
@@ -116,40 +116,40 @@ void readClasses(FILE *fh, problem_instance *pi)
 
     if (debug)
     {
-        for (id = 0; id < pi->C; id++)
-            printf("%d\n", pi->classes[id].id);
+        for (id = 0; id < pi->nm_Activity; id++)
+            printf("%s\n", pi->A[id].id);
     }
 }
 
-void readModules(FILE *fh, problem_instance *pi)
+void readCourses(FILE *fh, problem_instance *pi)
 {
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
         printf("Line: %s\n", line);
     removeSemicolon(line);
 
-    pi->M = countWords(line);
+    pi->nm_Courses = countWords(line);
     if (debug)
-        printf("Nmodulos: %d\n", pi->M);
-    pi->modules = (module *)malloc(pi->M * sizeof(module));
-    pi->mod_classes = (module_classes *)malloc(pi->M * sizeof(module_classes));
+        printf("|C|: %d\n", pi->nm_Courses);
+    pi->C = (t_course *)malloc(pi->nm_Courses * sizeof(t_course));
+    pi->Ac = (course_activities *)malloc(pi->nm_Courses * sizeof(course_activities));
     token = strtok(line, " ");
     while (token != NULL)
     {
-        pi->modules[id].id = atoi(token);
+        pi->C[id].id = atoi(token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        for (id = 0; id < pi->M; id++)
-            printf("Modulo %d\n", pi->modules[id].id);
+        for (id = 0; id < pi->nm_Courses; id++)
+            printf("Modulo %d\n", pi->C[id].id);
     }
 }
 
@@ -158,7 +158,7 @@ void readRooms(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -166,41 +166,41 @@ void readRooms(FILE *fh, problem_instance *pi)
 
     removeSemicolon(line);
 
-    pi->R = countWords(line);
+    pi->nm_Rooms = countWords(line);
     if (debug)
-        printf("Nsalones: %d\n", pi->R);
-    pi->rooms = (room *)malloc(pi->R * sizeof(room));
-    pi->room_cap = (unsigned int *)malloc(pi->R * sizeof(unsigned int));
+        printf("|R|: %d\n", pi->nm_Rooms);
+    pi->R = (t_room *)malloc(pi->nm_Rooms * sizeof(t_room));
+    pi->rho = (unsigned int *)malloc(pi->nm_Rooms * sizeof(unsigned int));
 
     token = strtok(line, " ");
     while (token != NULL)
     {
-        pi->rooms[id].id = atoi(token);
+        pi->R[id].id = atoi(token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        for (id = 0; id < pi->R; id++)
-            printf("Salón %d\n", pi->rooms[id].id);
+        for (id = 0; id < pi->nm_Rooms; id++)
+            printf("Salón %d\n", pi->R[id].id);
     }
 }
 
-void readTimeslots(FILE *fh, problem_instance *pi)
+void readTimeSlots(FILE *fh, problem_instance *pi)
 {
     int debug = 0, id = 0, d = 0, i = 0;
     char *token;
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
         printf("Line: %s\n", line);
 
-    pi->T = 5 * countWords(line);
+    pi->nm_TimeSlots = 5 * countWords(line);
     if (debug)
-        printf("Size of T: %d\n", pi->T);
-    pi->tslots = (tslot *)malloc(pi->T * sizeof(tslot));
+        printf("|T|: %d\n", pi->nm_TimeSlots);
+    pi->T = (t_timeslot *)malloc(pi->nm_TimeSlots * sizeof(t_timeslot));
 
     for (d = 0; d < 5; d++)
     {
@@ -209,7 +209,7 @@ void readTimeslots(FILE *fh, problem_instance *pi)
         while (token != NULL)
         {
             token[strcspn(token, "\n")] = 0;
-            strcpy(pi->tslots[id].ts, token);
+            strcpy(pi->T[id].ts, token);
             token = strtok(NULL, " ");
             id++;
         }
@@ -220,18 +220,18 @@ void readTimeslots(FILE *fh, problem_instance *pi)
 
     if (debug)
     {
-        for (i = 0; i < pi->T; i++)
-            printf("Timeslot %s\n", pi->tslots[i].ts);
+        for (i = 0; i < pi->nm_TimeSlots; i++)
+            printf("Timeslot %s\n", pi->T[i].ts);
     }
 }
 
-void readModuleClass(FILE *fh, problem_instance *pi, unsigned mid)
+void readCourseActivities(FILE *fh, problem_instance *pi, unsigned cid)
 {
 
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
@@ -239,148 +239,150 @@ void readModuleClass(FILE *fh, problem_instance *pi, unsigned mid)
         printf("Line: %s\n", line);
 
     token = strtok(line, " ");
+    pi->Ac[cid].nm_activities = countWords(line);
+    pi->Ac[cid].activities = (t_activity *)malloc(pi->Ac[cid].nm_activities * sizeof(t_activity));
 
     while (token != NULL)
     {
-        pi->mod_classes[mid].classes[id].id = atoi(token);
+        strcpy(pi->Ac[cid].activities[id].id, token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        printf("Modulo %d requiere las clases C%d y C%d\n",
-               mid + 1,
-               pi->mod_classes[mid].classes[0].id,
-               pi->mod_classes[mid].classes[1].id);
+        printf("Curso %d requiere las siguientes actividades:\n\t", pi->C[cid].id);
+        for (unsigned i = 0; i < pi->Ac[cid].nm_activities; ++i)
+            printf("%s ", pi->Ac[cid].activities[i].id);
+        printf("\n");
     }
 }
 
-void readModulePrefs(FILE *fh, problem_instance *pi, unsigned sid)
+void readCoursePreference(FILE *fh, problem_instance *pi, unsigned sid)
 {
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
     if (debug)
         printf("Line: %s\n", line);
 
-    pi->mod_prefs[sid].nmods = countWords(line);
-    pi->mod_prefs[sid].mods = (module *)malloc(pi->mod_prefs[sid].nmods * sizeof(module));
+    pi->Cs[sid].nm_courses = countWords(line);
+    pi->Cs[sid].courses = (t_course *)malloc(pi->Cs[sid].nm_courses * sizeof(t_course));
 
     if (debug)
-        printf("El estudiante %d tiene preferencia por %lu modulos.\n",
-               pi->students[sid].id,
-               pi->mod_prefs[sid].nmods);
+        printf("El estudiante %d tiene preferencia por %lu cursos.\n",
+               pi->S[sid].id,
+               pi->Cs[sid].nm_courses);
 
     token = strtok(line, " ");
     while (token != NULL)
     {
-        pi->mod_prefs[sid].mods[id].id = atoi(token);
+        pi->Cs[sid].courses[id].id = atoi(token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        printf("El estudiante %d pre-inscribe los siguientes módulos:\n", sid + 1);
-        for (id = 0; id < pi->mod_prefs[sid].nmods; id++)
+        printf("El estudiante %d pre-inscribe los siguientes cursos:\n", pi->S[sid].id);
+        for (id = 0; id < pi->Cs[sid].nm_courses; id++)
         {
-            printf("%d ", pi->mod_prefs[sid].mods[id].id);
+            printf("%d ", pi->Cs[sid].courses[id].id);
         }
         printf("\n");
     }
 }
 
-void readAdqteRooms(FILE *fh, problem_instance *pi, unsigned cid)
+void readAdequateRooms(FILE *fh, problem_instance *pi, unsigned aid)
 {
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
     if (debug)
         printf("Line: %s", line);
 
-    pi->adqte_rooms[cid].nrooms = countWords(line);
-    pi->adqte_rooms[cid].rooms = (room *)malloc(pi->adqte_rooms[cid].nrooms * sizeof(room));
+    pi->Ra[aid].nm_rooms = countWords(line);
+    pi->Ra[aid].rooms = (t_room *)malloc(pi->Ra[aid].nm_rooms * sizeof(t_room));
 
     token = strtok(line, " ");
     while (token != NULL)
     {
-        pi->adqte_rooms[cid].rooms[id].id = atoi(token);
+        pi->Ra[aid].rooms[id].id = atoi(token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        printf("La clase %d puede realizarse en los siguientes salones:\n", cid + 1);
-        for (id = 0; id < pi->adqte_rooms[cid].nrooms; id++)
+        printf("La actividad %s puede realizarse en los siguientes salones:\n", pi->A[aid].id);
+        for (id = 0; id < pi->Ra[aid].nm_rooms; id++)
         {
-            printf("%d ", pi->adqte_rooms[cid].rooms[id].id);
+            printf("%d ", pi->Ra[aid].rooms[id].id);
         }
         printf("\n");
     }
 }
 
-void readTslotPrefs(FILE *fh, problem_instance *pi, unsigned sid)
+void readTimeSlotPreference(FILE *fh, problem_instance *pi, unsigned sid)
 {
     int debug = 0, id = 0;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
     if (debug)
         printf("Line: %s\n", line);
 
-    pi->tslot_prefs[sid].nprefs = countWords(line);
-    pi->tslot_prefs[sid].tslots = (tslot *)malloc(pi->tslot_prefs[sid].nprefs * sizeof(tslot));
+    pi->Ts[sid].nm_timeslots = countWords(line);
+    pi->Ts[sid].timeslots = (t_timeslot *)malloc(pi->Ts[sid].nm_timeslots * sizeof(t_timeslot));
 
     token = strtok(line, " ");
     while (token != NULL)
     {
-        strcpy(pi->tslot_prefs[sid].tslots[id].ts, token);
+        strcpy(pi->Ts[sid].timeslots[id].ts, token);
         token = strtok(NULL, " ");
         id++;
     }
 
     if (debug)
     {
-        printf("El estudiante %d tiene las siguientes preferencias horarias:\n", sid + 1);
-        for (id = 0; id < pi->tslot_prefs[sid].nprefs; id++)
+        printf("El estudiante %d tiene las siguientes preferencias horarias:\n", pi->S[sid].id);
+        for (id = 0; id < pi->Ts[sid].nm_timeslots; id++)
         {
-            printf("%s ", pi->tslot_prefs[sid].tslots[id].ts);
+            printf("%s ", pi->Ts[sid].timeslots[id].ts);
         }
         printf("\n");
     }
 }
 
-void readRoomCaps(FILE *fh, problem_instance *pi)
+void readRoomCapacity(FILE *fh, problem_instance *pi)
 {
     int debug = 0, i = 0, rcap;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
         printf("Line: %s\n", line);
 
-    for (i = 0; i < pi->R; i++)
+    for (i = 0; i < pi->nm_Rooms; i++)
     {
         token = strtok(line, " ");
         token = strtok(NULL, " ");
         rcap = atoi(token);
 
-        pi->room_cap[i] = rcap;
+        pi->rho[i] = rcap;
         fgets(line, sizeof(line), fh);
         if (debug)
             printf("Line: %s\n", line);
@@ -388,29 +390,29 @@ void readRoomCaps(FILE *fh, problem_instance *pi)
 
     if (debug)
     {
-        for (i = 0; i < pi->R; i++)
-            printf("Capacidad del salon %d: %d\n", i + 1, pi->room_cap[i]);
+        for (i = 0; i < pi->nm_Rooms; i++)
+            printf("Capacidad del salon %d: %d\n", pi->R[i].id, pi->rho[i]);
     }
 }
 
-void ReadClassLims(FILE *fh, problem_instance *pi)
+void ReadActivityLimit(FILE *fh, problem_instance *pi)
 {
     int debug = 0, i = 0, clim;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
         printf("Line: %s\n", line);
 
-    for (i = 0; i < pi->C; i++)
+    for (i = 0; i < pi->nm_Activity; i++)
     {
         token = strtok(line, " ");
         token = strtok(NULL, " ");
         clim = atoi(token);
 
-        pi->class_lim[i] = clim;
+        pi->sigma_class[i] = clim;
         fgets(line, sizeof(line), fh);
         if (debug)
             printf("Line: %s\n", line);
@@ -418,8 +420,8 @@ void ReadClassLims(FILE *fh, problem_instance *pi)
 
     if (debug)
     {
-        for (i = 0; i < pi->C; i++)
-            printf("Limite de la clase %d: %d\n", i + 1, pi->class_lim[i]);
+        for (i = 0; i < pi->nm_Activity; i++)
+            printf("Limite de la actividad %s: %d\n", pi->A[i].id, pi->sigma_class[i]);
     }
 }
 
@@ -428,20 +430,20 @@ void readKmin(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0, i = 0, sid, kmin;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
         printf("Line: %s\n", line);
 
-    for (i = 0; i < pi->S; i++)
+    for (i = 0; i < pi->nm_Students; i++)
     {
         token = strtok(line, " ");
         sid = atoi(token);
         token = strtok(NULL, " ");
         kmin = atoi(token);
 
-        pi->kmins[i] = kmin;
+        pi->kmins[sid] = kmin;
         fgets(line, sizeof(line), fh);
         if (debug)
             printf("Line: %s\n", line);
@@ -449,8 +451,8 @@ void readKmin(FILE *fh, problem_instance *pi)
 
     if (debug)
     {
-        for (i = 0; i < pi->S; i++)
-            printf("Limite inferior para el estudiante %d: %d\n", i + 1, pi->kmins[i]);
+        for (i = 0; i < pi->nm_Students; i++)
+            printf("Limite inferior para el estudiante %d: %d\n", pi->S[i].id, pi->kmins[i]);
     }
 }
 
@@ -459,13 +461,13 @@ void readKmax(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0, i = 0, sid, kmax;
     char *token;
 
-    char line[1024];
+    char line[4096];
     fgets(line, sizeof(line), fh);
 
     if (debug)
         printf("Line: %s\n", line);
 
-    for (i = 0; i < pi->S; i++)
+    for (i = 0; i < pi->nm_Students; i++)
     {
         token = strtok(line, " ");
         sid = atoi(token);
@@ -480,8 +482,8 @@ void readKmax(FILE *fh, problem_instance *pi)
 
     if (debug)
     {
-        for (i = 0; i < pi->S; i++)
-            printf("Limite superior para el estudiante %d: %d\n", i + 1, pi->kmaxs[i]);
+        for (i = 0; i < pi->nm_Students; i++)
+            printf("Limite superior para el estudiante %d: %d\n", pi->S[i].id, pi->kmaxs[i]);
     }
 }
 
@@ -506,94 +508,124 @@ int readInputFile(char *filePath, problem_instance *pi)
      *
      **/
 
+    if (debug)
+        printf("Reading students...\n");
     findDef(fh, "S:=");
     readStudents(fh, pi);
     if (debug)
-        printf("End readStudents! \n");
+        printf("END\n");
 
+    if (debug)
+        printf("Reading courses...\n");
     findDef(fh, "C:=");
-    readClasses(fh, pi);
+    readCourses(fh, pi);
     if (debug)
-        printf("End readClasses!\n");
+        printf("END\n");
 
-    findDef(fh, "M:=");
-    readModules(fh, pi);
     if (debug)
-        printf("End readModules!\n");
+        printf("Reading activities...\n");
+    findDef(fh, "A:=");
+    readActivities(fh, pi);
+    if (debug)
+        printf("END\n");
 
+    if (debug)
+        printf("Reading timeslots...\n");
     findDef(fh, "T:=");
-    readTimeslots(fh, pi);
+    readTimeSlots(fh, pi);
     if (debug)
-        printf("End readTimeslots!\n");
+        printf("END\n");
 
+    if (debug)
+        printf("Reading rooms...\n");
     findDef(fh, "R:=");
     readRooms(fh, pi);
     if (debug)
-        printf("End readRooms!\n");
+        printf("END\n");
 
-    for (i = 0; i < pi->M; i++)
+    if (debug)
+        printf("Reading course activities...\n");
+    for (i = 0; i < pi->nm_Courses; i++)
     {
-        char CM[128];
-        sprintf(CM, "CM[%d]:=", pi->modules[i].id);
-        findDef(fh, CM);
-        readModuleClass(fh, pi, i);
+        char Ac[128];
+        sprintf(Ac, "Ac[%d]:=", pi->C[i].id);
+        if (debug)
+            printf("Reading activities for course %d...\n", pi->C[i].id);
+        findDef(fh, Ac);
+        readCourseActivities(fh, pi, i);
+        if (debug)
+            printf("END\n");
     }
 
     if (debug)
-        printf("End readModuleClass!\n");
+        printf("END\n");
 
-    for (i = 0; i < pi->S; i++)
+    if (debug)
+        printf("Reading student course preferences...\n");
+    for (i = 0; i < pi->nm_Students; i++)
     {
-        char Ms[128];
-        sprintf(Ms, "Ms[%d]:=", pi->students[i].id);
-        findDef(fh, Ms);
-        readModulePrefs(fh, pi, i);
+        char Cs[128];
+        sprintf(Cs, "Cs[%d]:=", pi->S[i].id);
+        findDef(fh, Cs);
+        readCoursePreference(fh, pi, pi->S[i].id - 1);
     }
 
     if (debug)
-        printf("End readModulePrefs!\n");
+        printf("END\n");
 
-    for (i = 0; i < pi->C; i++)
+    if (debug)
+        printf("Reading activity room compatibility...\n");
+    for (i = 0; i < pi->nm_Activity; i++)
     {
         char Rc[128];
-        sprintf(Rc, "Rc[%d]:=", pi->classes[i].id);
+        sprintf(Rc, "Rc[%s]:=", pi->A[i].id);
         findDef(fh, Rc);
-        readAdqteRooms(fh, pi, i);
+        readAdequateRooms(fh, pi, i);
     }
 
     if (debug)
-        printf("End readAdqteRooms!\n");
+        printf("END\n");
 
-    for (i = 0; i < pi->S; i++)
+    if (debug)
+        printf("Reading student time preference...\n");
+    for (i = 0; i < pi->nm_Students; i++)
     {
-        char PTs[128];
-        sprintf(PTs, "PTs[%d]:=", pi->students[i].id);
-        findDef(fh, PTs);
-        readTslotPrefs(fh, pi, i);
+        char Ts[128];
+        sprintf(Ts, "Ts[%d]:=", pi->S[i].id);
+        findDef(fh, Ts);
+        readTimeSlotPreference(fh, pi, i);
     }
 
     if (debug)
-        printf("End readTslotPrefs!\n");
+        printf("END\n");
 
-    findDef(fh, "room_cpcty:=");
-    readRoomCaps(fh, pi);
     if (debug)
-        printf("End readRoomCaps!\n");
-
-    findDef(fh, "class_limit:=");
-    ReadClassLims(fh, pi);
+        printf("Reading room capacity...\n");
+    findDef(fh, "rho:=");
+    readRoomCapacity(fh, pi);
     if (debug)
-        printf("End readClassLims!\n");
+        printf("END\n");
 
+    if (debug)
+        printf("Reading class limit...\n");
+    findDef(fh, "sigma_class:=");
+    ReadActivityLimit(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading kmin...\n");
     findDef(fh, "kmin:=");
     readKmin(fh, pi);
     if (debug)
-        printf("End readKmin!\n");
+        printf("END\n");
 
+    if (debug)
+        printf("Reading kmax...\n");
     findDef(fh, "kmax:=");
     readKmax(fh, pi);
     if (debug)
-        printf("End readKmax!\n");
+        printf("END\n");
 
     /*************/
     /*************/

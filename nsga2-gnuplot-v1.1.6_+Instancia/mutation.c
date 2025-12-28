@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "global.h"
 #include "rand.h"
@@ -27,12 +28,12 @@ void mutation_ind(individual *ind, problem_instance *pi)
 
     int tslot_idx = 0, room_idx = 0;
 
-    unsigned c = rnd(1, pi->C);
-    for (r = 0; r < pi->R; r++)
+    unsigned c = rnd(0, pi->nm_Activity - 1);
+    for (r = 0; r < pi->nm_Rooms; r++)
     {
-        for (t = 0; t < pi->T; t++)
+        for (t = 0; t < pi->nm_TimeSlots; t++)
         {
-            if (ind->gene[r][t] == c)
+            if (cmpactivity(ind->gene[r][t], pi->A[c]) == 0)
             {
                 tslot_idx = t;
                 room_idx = r;
@@ -42,11 +43,11 @@ void mutation_ind(individual *ind, problem_instance *pi)
     }
 
     /*select a random student and shift class to any preferred tslot*/
-    unsigned s = rnd(0, pi->S - 1);
+    unsigned s = rnd(0, pi->nm_Students - 1);
     char ts[10];
-    for (t = 0; t < pi->tslot_prefs[s].nprefs; t++)
+    for (t = 0; t < pi->Ts[s].nm_timeslots; t++)
     {
-        strcpy(ts, pi->tslot_prefs[s].tslots[t].ts);
+        strcpy(ts, pi->Ts[s].timeslots[t].ts);
         char **tokens = str_split(ts, '_');
         unsigned next_slot = tslot_idx + 1; /*idx of the student preference*/
 
@@ -55,15 +56,15 @@ void mutation_ind(individual *ind, problem_instance *pi)
             unsigned d = atol(tokens[0]);
             unsigned b1 = atol(tokens[1]);
 
-            next_slot = calculate_ts_idx(d, b1, pi->T);
+            next_slot = calculate_ts_idx(d, b1, pi->nm_TimeSlots);
         }
 
         free(tokens);
 
-        if (ind->gene[room_idx][next_slot % pi->T] == 0)
+        if (cmpactivity(ind->gene[room_idx][next_slot % pi->nm_TimeSlots], EmptyActivity) == 0)
         {
-            ind->gene[room_idx][next_slot % pi->T] = ind->gene[room_idx][tslot_idx];
-            ind->gene[room_idx][tslot_idx] = 0;
+            ind->gene[room_idx][next_slot % pi->nm_TimeSlots] = ind->gene[room_idx][tslot_idx];
+            ind->gene[room_idx][tslot_idx] = EmptyActivity;
             break;
         }
     }

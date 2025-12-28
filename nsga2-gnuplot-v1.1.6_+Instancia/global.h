@@ -1,28 +1,14 @@
 /* This file contains the variable and function declarations */
-
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
+
+#include <stdlib.h>
 
 #define INF 1.0e14
 #define EPS 1.0e-14
 #define E 2.71828182845905
 #define PI 3.14159265358979
 #define GNUPLOT_COMMAND "gnuplot -persist"
-
-typedef struct
-{
-    int rank;
-    double constr_violation;
-    unsigned **gene;
-    unsigned **student_modules; /*Modulos a los que asiste cada estudiante*/
-    double *obj;
-    double crowd_dist;
-} individual;
-
-typedef struct
-{
-    individual *ind;
-} population;
 
 typedef struct lists
 {
@@ -40,69 +26,87 @@ typedef struct lists
 typedef struct
 {
     unsigned id;
-} student;
+} t_student;
+
+typedef struct
+{
+    char id[10];
+} t_activity;
+
+static const t_activity EmptyActivity;
 
 typedef struct
 {
     unsigned id;
-} class;
-
-typedef struct
-{
-    unsigned id;
-} module;
+} t_course;
 
 typedef struct
 {
     char ts[10];
-} tslot;
+} t_timeslot;
 
 typedef struct
 {
     unsigned id;
-} room;
+} t_room;
 
 typedef struct
 {
-    module *mods;
-    size_t nmods;
-} module_preference;
+    t_course *courses;
+    size_t nm_courses;
+} course_preference;
 
 typedef struct
 {
-    room *rooms;
-    size_t nrooms;
+    t_room *rooms;
+    size_t nm_rooms;
 } adequate_rooms;
 
 typedef struct
 {
-    tslot *tslots;
-    size_t nprefs;
-} tslot_preference;
+    t_timeslot *timeslots;
+    size_t nm_timeslots;
+} timeslot_preference;
 
 typedef struct
 {
-    class classes[2];
-} module_classes;
+    t_activity *activities;
+    size_t nm_activities;
+} course_activities;
 
 typedef struct
 {
-    unsigned *room_cap;  /*size |R|*/
-    unsigned *class_lim; /* size |C|*/
-    unsigned *kmins;     /* size |S| */
-    unsigned *kmaxs;     /* size |S| */
+    int rank;
+    double constr_violation;
+    t_activity **gene;
+    unsigned **student_courses; /*Cursos en los que queda inscrito cada estudiante*/
+    double *obj;
+    double crowd_dist;
+} individual;
 
-    student *students;
-    class *classes;
-    module *modules;
-    tslot *tslots;
-    room *rooms;
-    module_preference *mod_prefs;
-    adequate_rooms *adqte_rooms;
-    tslot_preference *tslot_prefs;
-    module_classes *mod_classes;
+typedef struct
+{
+    individual *ind;
+} population;
 
-    unsigned S, C, M, T, R;
+typedef struct
+{
+    unsigned *rho;         /*size |R|*/
+    unsigned *sigma_class; /* size |C|*/
+    unsigned *kmins;       /* size |S| */
+    unsigned *kmaxs;       /* size |S| */
+
+    t_student *S;
+    t_activity *A;
+    t_course *C;
+    t_timeslot *T;
+    t_room *R;
+    course_activities *Ac;
+    adequate_rooms *Ra;
+    course_preference *Cs;
+    timeslot_preference *Ts;
+
+    unsigned nm_Students, nm_Courses, nm_Activity, nm_TimeSlots, nm_Rooms;
 } problem_instance;
 
 /*****************/
@@ -141,12 +145,14 @@ extern int angle1;
 extern int angle2;
 
 int readInputFile(char *filePath, problem_instance *pi);
+void printProblemInstance(problem_instance *pi);
 
 void assign_students(individual *ind, problem_instance *pi);
 void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
+int cmpactivity(t_activity a1, t_activity a2);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);

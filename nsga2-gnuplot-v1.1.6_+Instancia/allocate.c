@@ -24,13 +24,13 @@ void allocate_memory_ind(individual *ind, problem_instance *pi)
 {
     int i, j;
 
-    ind->gene = (unsigned **)malloc(pi->R * sizeof(unsigned *));
-    for (i = 0; i < pi->R; i++)
-        ind->gene[i] = (unsigned *)calloc(pi->T, sizeof(unsigned));
+    ind->gene = (t_activity **)malloc(pi->nm_Rooms * sizeof(t_activity *));
+    for (i = 0; i < pi->nm_Rooms; i++)
+        ind->gene[i] = (t_activity *)malloc(pi->nm_TimeSlots * sizeof(t_activity));
 
-    ind->student_modules = (unsigned **)malloc(pi->S * sizeof(unsigned *));
-    for (j = 0; j < pi->S; j++)
-        ind->student_modules[j] = (unsigned *)calloc(pi->mod_prefs[j].nmods, sizeof(unsigned));
+    ind->student_courses = (unsigned **)malloc(pi->nm_Students * sizeof(unsigned *));
+    for (j = 0; j < pi->nm_Students; j++)
+        ind->student_courses[j] = (unsigned *)calloc(pi->Cs[j].nm_courses, sizeof(unsigned));
 
     ind->obj = (double *)malloc(nobj * sizeof(double));
 
@@ -54,11 +54,11 @@ void deallocate_memory_ind(individual *ind, problem_instance *pi)
 {
     int i;
 
-    for (i = 0; i < pi->S; i++)
-        free(ind->student_modules[i]);
-    free(ind->student_modules);
+    for (i = 0; i < pi->nm_Students; i++)
+        free(ind->student_courses[i]);
+    free(ind->student_courses);
 
-    for (i = 0; i < pi->R; i++)
+    for (i = 0; i < pi->nm_Rooms; i++)
         free(ind->gene[i]);
     free(ind->gene);
 
