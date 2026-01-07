@@ -88,7 +88,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
             /*checkear si hay una clase en p2 que ya fue asignada por p1*/
             for (i = 0; i < count_assigned_p1; i++)
             {
-                if (cmpactivity(parent2->gene[r][t2], assigned_classes_p1[i]) == 0)
+                if (strcmp(parent2->gene[r][t2].id, assigned_classes_p1[i].id) == 0)
                     /*si la clase fue asignada por p1, hacer que el cromosoma no tenga la clase duplicada*/
                     child1->gene[r][t2] = EmptyActivity;
             }
@@ -124,9 +124,9 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
         {
             for (t = 0; t < pi->nm_TimeSlots; t++)
             {
-                if (cmpactivity(child1->gene[r][t], pi->A[c]) == 0)
+                if (strcmp(child1->gene[r][t].id, pi->A[c].id) == 0)
                     class_assigned_c1 = 1;
-                if (cmpactivity(child2->gene[r][t], pi->A[c]) == 0)
+                if (strcmp(child2->gene[r][t].id, pi->A[c].id) == 0)
                     class_assigned_c2 = 1;
                 if (class_assigned_c1 && class_assigned_c2)
                     break;
@@ -172,7 +172,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
             for (r = 0; r < pi->Ra[unassigned_classes_c2[c2]].nm_rooms; r++)
             {
                 unsigned ridx = pi->Ra[unassigned_classes_c2[c2]].rooms[r].id - 1;
-                if (cmpactivity(child2->gene[ridx][not_used_tslots_idx[t]], EmptyActivity) == 0)
+                if (strcmp(child2->gene[ridx][not_used_tslots_idx[t]].id, EmptyActivity.id) == 0)
                 {
                     child2->gene[ridx][not_used_tslots_idx[t]] = pi->A[unassigned_classes_c2[c2]];
                     break;

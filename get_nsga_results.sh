@@ -1,5 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-for file in nsga_results_big/*; do
+instance_code=$1
+
+for file in nsga_results_${instance_code}/*; do
     awk '! /^#/ && $1 != "Total" {print $1 " " $2;}' $file
 done

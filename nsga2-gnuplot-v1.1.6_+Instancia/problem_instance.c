@@ -44,9 +44,16 @@ void printProblemInstance(problem_instance *pi)
                pi->kmaxs[i]);
     }
 
-    printf("Actividades: %d\n", pi->nm_Activity);
-    for (i = 0; i < pi->nm_Activity; i++)
-        printf("La actividad %s tiene un límite de %d.\n", pi->A[i].id, pi->sigma_class[i]);
+    printf("Cursos: %d\n", pi->nm_Courses);
+    for (i = 0; i < pi->nm_Courses; i++)
+    {
+        printf("El curso %d tiene un límite de %d y requiere asistir las siguientes actividades:\n\t", pi->C[i].id, pi->sigma_class[i]);
+        for (j = 0; j < pi->Ac[i].nm_activities; j++)
+        {
+            printf("%s ", pi->Ac[i].activities[j].id);
+        }
+        printf("\n");
+    }
 
     for (i = 0; i < pi->nm_Activity; i++)
     {
@@ -54,14 +61,6 @@ void printProblemInstance(problem_instance *pi)
         for (j = 0; j < pi->Ra[i].nm_rooms; j++)
             printf("%d ", pi->Ra[i].rooms[j].id);
         printf("\n");
-    }
-
-    printf("Total de cursos: %d\n", pi->nm_Courses);
-    for (i = 0; i < pi->nm_Courses; i++)
-    {
-        printf("El curso %d requiere asistir a las siguientes actividades:\n\t", pi->C[i].id);
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-            printf("%s, ", pi->Ac[i].activities[j].id);
     }
 
     return;

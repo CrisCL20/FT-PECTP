@@ -25,7 +25,7 @@ void merge(population *pop1, population *pop2, population *pop3)
 /* Routine to copy an individual 'ind1' into another individual 'ind2' */
 void copy_ind(individual *ind1, individual *ind2)
 {
-    int i, j;
+    int i;
     ind2->rank = ind1->rank;
     ind2->constr_violation = ind1->constr_violation;
     ind2->crowd_dist = ind1->crowd_dist;

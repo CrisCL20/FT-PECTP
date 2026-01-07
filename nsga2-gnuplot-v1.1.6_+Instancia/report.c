@@ -10,7 +10,7 @@
 /* Function to print the information of a population in a file */
 void report_pop(population *pop, FILE *fpt)
 {
-    int i, j, k;
+    int i, j;
     for (i = 0; i < popsize; i++)
     {
         for (j = 0; j < nobj; j++)
@@ -28,7 +28,7 @@ void report_pop(population *pop, FILE *fpt)
 /* Function to print the information of feasible and non-dominated population in a file */
 void report_feasible(population *pop, FILE *fpt, double elapsed)
 {
-    int i, j, k;
+    int i, j;
     for (i = 0; i < popsize; i++)
     {
         if (pop->ind[i].constr_violation == 0.0 && pop->ind[i].rank == 1)

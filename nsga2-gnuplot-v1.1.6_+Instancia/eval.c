@@ -9,7 +9,7 @@
 #include "rand.h"
 
 /* Routine to evaluate objective function values and constraints for a population */
-void evaluate_pop(population *pop, const problem_instance *pi)
+void evaluate_pop(population *pop, problem_instance *pi)
 {
     int i;
     for (i = 0; i < popsize; i++)
@@ -34,7 +34,7 @@ int calculate_ts_idx(unsigned d, unsigned b1, unsigned T)
 /*FO1: preferencias horarias*/
 void countTimesRequestsMet(unsigned **student_schedule, t_activity **gene, double *obj, problem_instance *pi)
 {
-    int i, j, k, r;
+    int i, j, k;
     unsigned long counts = 0;
 
     for (i = 0; i < pi->nm_Students; i++)
@@ -56,38 +56,48 @@ void countTimesRequestsMet(unsigned **student_schedule, t_activity **gene, doubl
                 ts_idx = calculate_ts_idx(d, b1, pi->nm_TimeSlots);
             }
 
+            for (unsigned tmp = 0; tmp < sizeof(tokens) / sizeof(char **); tmp++)
+                free(tokens[tmp]);
             free(tokens);
 
             /*if the student does not attend to a class in that timeslot, increase counts*/
             /*find classes the student takes -> see if one of those classes is scheduled in ts_idx*/
             /*counts++ per each activity the student has on a free time request*/
             unsigned nm_activities = 0;
-            for (unsigned j = 0; j < pi->Cs[j].nm_courses; ++j)
-                nm_activities += pi->Ac[student_schedule[i][j] - 1].nm_activities;
+            for (k = 0; k < pi->Cs[i].nm_courses; ++k)
+                if (student_schedule[i][k])
+                    nm_activities += pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities;
 
+            // get all of the activities that student i attends
             t_activity *student_activities = (t_activity *)malloc(nm_activities * sizeof(t_activity));
-            unsigned k = 0;
-            for (unsigned j = 0; j < pi->Cs[j].nm_courses; ++j)
+            unsigned l = 0;
+            for (k = 0; k < pi->Cs[i].nm_courses; ++k)
             {
-
-                memcpy(
-                    student_activities + k,
-                    pi->Ac[student_schedule[i][j] - 1].activities,
-                    pi->Ac[student_schedule[i][j] - 1].nm_activities * sizeof(t_activity));
-                k += pi->Ac[student_schedule[i][j]].nm_activities;
+                if (student_schedule[i][k])
+                {
+                    memcpy(
+                        student_activities + l,
+                        pi->Ac[pi->Cs[i].courses[k].id - 1].activities,
+                        pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities * sizeof(t_activity));
+                    l += pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities;
+                    if (l >= nm_activities)
+                        l -= pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities;
+                }
             }
 
             for (unsigned r = 0; r < pi->nm_Rooms; ++r)
             {
                 for (unsigned a = 0; a < nm_activities; ++a)
                 {
-                    if (strcmp(gene[r][ts_idx].id, student_activities[a].id) == 0)
+                    if (cmpactivity(gene[r][ts_idx], student_activities[a]) == 0)
                     {
                         counts++;
                         break;
                     }
                 }
             }
+
+            free(student_activities);
         }
     }
 
@@ -104,7 +114,7 @@ void countCourseRequestsMet(unsigned **students_schedule, double *obj, problem_i
     {
         unsigned n_required = pi->Cs[i].nm_courses, met = 0;
         for (j = 0; j < n_required; j++)
-            if (students_schedule[i][j] == pi->Cs[i].courses[j].id)
+            if (students_schedule[i][j])
                 met++;
 
         counts += n_required - met;
@@ -117,7 +127,7 @@ void check_room_cap(individual *ind, problem_instance *pi)
 {
     int r, t, s, m;
 
-    for (r = 0; r < pi->R; r++)
+    for (r = 0; r < pi->nm_Rooms; r++)
     {
         unsigned room_cap = pi->rho[r];
         /*get count of students that attend a class in r per time slot*/
@@ -158,39 +168,19 @@ void check_room_cap(individual *ind, problem_instance *pi)
     }
 }
 
-void check_class_lim(individual *ind, problem_instance *pi)
+void check_course_lim(individual *ind, problem_instance *pi)
 {
-    int c, s, m;
-    for (c = 0; c < pi->nm_Activity; c++)
+    int c, s, aux_c;
+    for (c = 0; c < pi->nm_Courses; c++)
     {
-        unsigned class_lim = pi->sigma_class[c];
-        unsigned long class_count = 0;
+        unsigned course_lim = pi->sigma_class[c];
+        unsigned long course_count = 0;
         for (s = 0; s < pi->nm_Students; s++)
-        {
-            for (m = 0; m < pi->Cs[s].nm_courses; m++)
-            {
-                if (ind->student_courses[s][m] == pi->Cs[s].courses[m].id)
-                {
-                    t_activity *course_activities = (t_activity *)malloc(pi->Ac[pi->Cs[s].courses[m].id - 1].nm_activities * sizeof(t_activity));
-                    memcpy(
-                        course_activities,
-                        pi->Ac[pi->Cs[s].courses[m].id - 1].activities,
-                        pi->Ac[pi->Cs[s].courses[m].id - 1].nm_activities * sizeof(t_activity));
+            for (aux_c = 0; aux_c < pi->Cs[s].nm_courses; aux_c++)
+                if (ind->student_courses[s][aux_c] && pi->Cs[s].courses[aux_c].id == pi->C[c].id)
+                    course_count++;
 
-                    for (unsigned a = 0; a < pi->Ac[pi->Cs[s].courses[m].id - 1].nm_activities; ++a)
-                    {
-
-                        if (strcmp(pi->A[c].id, course_activities[a].id) == 0)
-                        {
-                            class_count++;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (class_count > class_lim)
+        if (course_count > course_lim)
             ind->constr_violation++;
     }
 }
@@ -203,7 +193,7 @@ void check_min_mods(individual *ind, problem_instance *pi)
         unsigned min_mods = pi->kmins[s];
         unsigned mods = 0;
         for (m = 0; m < pi->Cs[s].nm_courses; m++)
-            if (ind->student_courses[s][m] == pi->Cs[s].courses[m].id)
+            if (ind->student_courses[s][m])
                 mods++;
 
         if (mods < min_mods)
@@ -214,16 +204,17 @@ void check_min_mods(individual *ind, problem_instance *pi)
 void check_max_mods(individual *ind, problem_instance *pi)
 {
     int s, m;
+    unsigned mods = 0;
     for (s = 0; s < pi->nm_Students; s++)
     {
         unsigned max_mods = pi->kmaxs[s];
-        unsigned mods = 0;
         for (m = 0; m < pi->Cs[s].nm_courses; m++)
-            if (ind->student_courses[s][m] == pi->Cs[s].courses[m].id)
+            if (ind->student_courses[s][m])
                 mods++;
 
         if (mods > max_mods)
             ind->constr_violation++;
+        mods = 0;
     }
 }
 
@@ -236,13 +227,13 @@ void test_problem(individual *ind, problem_instance *pi)
     /*constraint handling*/
     ind->constr_violation = 0;
     check_room_cap(ind, pi);
-    check_class_lim(ind, pi);
+    check_course_lim(ind, pi);
     check_min_mods(ind, pi);
     check_max_mods(ind, pi);
 }
 
 /* Routine to evaluate objective function values and constraints for an individual */
-void evaluate_ind(individual *ind, const problem_instance *pi)
+void evaluate_ind(individual *ind, problem_instance *pi)
 {
 
     test_problem(ind, pi);

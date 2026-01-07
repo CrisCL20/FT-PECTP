@@ -45,6 +45,7 @@ char **str_split(char *a_str, const char a_delim)
     char **result = 0;
     size_t count = 0;
     char *tmp = a_str;
+    char *tmp2 = a_str;
     char *last_comma = 0;
     char delim[2];
     delim[0] = a_delim;
@@ -73,7 +74,7 @@ char **str_split(char *a_str, const char a_delim)
     if (result)
     {
         size_t idx = 0;
-        char *token = strtok(a_str, delim);
+        char *token = strtok(tmp2, delim);
 
         while (token)
         {
@@ -93,4 +94,10 @@ int cmpactivity(t_activity a1, t_activity a2)
     if (strcmp(a1.id, a2.id) == 0)
         return 0;
     return 1;
+}
+
+int cpyactivity(t_activity a1, t_activity a2)
+{
+    strcpy(a1.id, a2.id);
+    return 0;
 }

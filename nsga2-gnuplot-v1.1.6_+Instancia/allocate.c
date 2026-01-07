@@ -26,7 +26,7 @@ void allocate_memory_ind(individual *ind, problem_instance *pi)
 
     ind->gene = (t_activity **)malloc(pi->nm_Rooms * sizeof(t_activity *));
     for (i = 0; i < pi->nm_Rooms; i++)
-        ind->gene[i] = (t_activity *)malloc(pi->nm_TimeSlots * sizeof(t_activity));
+        ind->gene[i] = (t_activity *)calloc(pi->nm_TimeSlots, sizeof(t_activity));
 
     ind->student_courses = (unsigned **)malloc(pi->nm_Students * sizeof(unsigned *));
     for (j = 0; j < pi->nm_Students; j++)

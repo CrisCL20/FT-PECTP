@@ -33,7 +33,7 @@ typedef struct
     char id[10];
 } t_activity;
 
-static const t_activity EmptyActivity;
+static const t_activity EmptyActivity = {.id = '\0'};
 
 typedef struct
 {
@@ -153,6 +153,7 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 char **str_split(char *a_str, const char a_delim);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
 int cmpactivity(t_activity a1, t_activity a2);
+int cpyactivity(t_activity a1, t_activity a2);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
@@ -175,8 +176,8 @@ void onthefly_display(population *pop, FILE *gp, int ii);
 
 int check_dominance(individual *a, individual *b);
 
-void evaluate_pop(population *pop, const problem_instance *pi);
-void evaluate_ind(individual *ind, const problem_instance *pi);
+void evaluate_pop(population *pop, problem_instance *pi);
+void evaluate_ind(individual *ind, problem_instance *pi);
 
 void fill_nondominated_sort(population *mixed_pop, population *new_pop);
 void crowding_fill(population *mixed_pop, population *new_pop, int count, int front_size, list *cur);

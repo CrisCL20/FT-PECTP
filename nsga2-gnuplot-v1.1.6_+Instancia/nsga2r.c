@@ -47,10 +47,11 @@ int main(int argc, char **argv)
     FILE *fpt4;
     FILE *fpt5;
 
-    struct problem_instance *pi = malloc(sizeof(problem_instance));
+    problem_instance *pi = malloc(sizeof(problem_instance));
     population *parent_pop;
     population *child_pop;
     population *mixed_pop;
+
     if (argc < 2)
     {
         printf("\n Usage ./nsga2r instance_route random_seed popsize ngen nobj pcross_bin pmut_bin\n./nsga2r 0.123 b-Instancia14_cap2_relacion7UnoUnoUnoTodosDistintos.dat 100 100 2 0.6 0.01\n");
@@ -74,7 +75,9 @@ int main(int argc, char **argv)
     fprintf(fpt5, "# This file contains information about inputs as read by the program\n");
 
     char *instance_route = argv[2];
+    printf("Reading instance file %s...\n", instance_route);
     readInputFile(instance_route, pi);
+    printf("DONE\n");
 
     popsize = atoi(argv[3]);
     if (popsize < 4 || (popsize % 4) != 0)
@@ -151,10 +154,12 @@ int main(int argc, char **argv)
     parent_pop = (population *)malloc(sizeof(population));
     child_pop = (population *)malloc(sizeof(population));
     mixed_pop = (population *)malloc(sizeof(population));
+    printf("\n Allocating memory for population...");
     allocate_memory_pop(parent_pop, popsize, pi);
     allocate_memory_pop(child_pop, popsize, pi);
     allocate_memory_pop(mixed_pop, 2 * popsize, pi);
     randomize();
+    printf("\n Initializing population...");
     initialize_pop(parent_pop, pi);
     printf("\n Initialization done, now performing first generation\n");
 
@@ -189,7 +194,7 @@ int main(int argc, char **argv)
         // fprintf(fpt4, "# gen = %d\n", i);
         // report_pop(parent_pop, fpt4);
         // fflush(fpt4);
-        // printf("\n gen = %d", i);
+        printf("\n gen = %d", i);
     }
     clock_t toc = clock();
     double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;
