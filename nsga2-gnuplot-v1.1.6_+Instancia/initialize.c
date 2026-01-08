@@ -70,10 +70,10 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
             }
         }
 
-        printf("TS idx for each activity in course %d\n", pi->C[i].id);
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-            printf("%d ", acts_ts_idx[j]);
-        printf("\n");
+        // printf("TS idx for each activity in course %d\n", pi->C[i].id);
+        // for (j = 0; j < pi->Ac[i].nm_activities; ++j)
+        //     printf("%d ", acts_ts_idx[j]);
+        // printf("\n");
         /*if any of the activities in course i clash, then it will be penalized*/
         for (j = 0; j < pi->Ac[i].nm_activities - 1; ++j)
         {

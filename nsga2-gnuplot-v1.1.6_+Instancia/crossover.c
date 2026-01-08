@@ -8,6 +8,7 @@
 #include "global.h"
 #include "rand.h"
 
+// get random timeslots idx of size n_tslots for both p1 and p2
 void assign_unique_block_indices(int *tslot_idx_p1, int *tslot_idx_p2, int T, int n_tslots)
 {
     int i;
@@ -32,7 +33,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 {
     unsigned r, t, tp, i;
 
-    int n_tslots = floor(pi->nm_TimeSlots / 3) + 1;
+    int n_tslots = floor(pi->nm_TimeSlots / 4) + 1;
 
     int *tslot_idx_p1 = malloc(n_tslots * sizeof(int));
     int *tslot_idx_p2 = malloc(n_tslots * sizeof(int));
@@ -52,7 +53,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
         for (t = 0; t < pi->nm_TimeSlots; t++)
         {
             child1->gene[r][t] = EmptyActivity;
-            child1->gene[r][t] = EmptyActivity;
+            child2->gene[r][t] = EmptyActivity;
         }
     }
 
@@ -61,12 +62,14 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     {
         int used = 0;
         for (tp = 0; tp < n_tslots; tp++)
+        {
             if (t == tslot_idx_p1[tp] || t == tslot_idx_p2[tp])
             {
                 used = 1;
                 break;
             }
-        if (!used)
+        }
+        if (used == 0)
             not_used_tslots_idx[count_not_used_tslots++] = t;
     }
 
@@ -80,32 +83,33 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
             /*p1 asistido de p2*/
 
-            child1->gene[r][t1] = parent1->gene[r][t1];
-            if (cmpactivity(child1->gene[r][t1], EmptyActivity) != 0)
-                assigned_classes_p1[count_assigned_p1++] = child1->gene[r][t1];
+            strcpy(child1->gene[r][t1].id, parent1->gene[r][t1].id);
+            if (strcmp(child1->gene[r][t1].id, EmptyActivity.id) != 0)
+                strcpy(assigned_classes_p1[count_assigned_p1++].id, child1->gene[r][t1].id);
 
-            child1->gene[r][t2] = parent2->gene[r][t2];
+            strcpy(child1->gene[r][t2].id, parent2->gene[r][t2].id);
             /*checkear si hay una clase en p2 que ya fue asignada por p1*/
             for (i = 0; i < count_assigned_p1; i++)
             {
                 if (strcmp(parent2->gene[r][t2].id, assigned_classes_p1[i].id) == 0)
                     /*si la clase fue asignada por p1, hacer que el cromosoma no tenga la clase duplicada*/
-                    child1->gene[r][t2] = EmptyActivity;
+                    strcpy(child1->gene[r][t2].id, EmptyActivity.id);
             }
 
             /*p2 asistido de p1*/
-            child2->gene[r][t1] = parent1->gene[r][t1];
+
+            strcpy(child2->gene[r][t2].id, parent2->gene[r][t2].id);
+            if (strcmp(child2->gene[r][t2].id, EmptyActivity.id) != 0)
+                strcpy(assigned_classes_p2[count_assigned_p2++].id, child2->gene[r][t2].id);
+
+            strcpy(child2->gene[r][t1].id, parent1->gene[r][t1].id);
             /*checkear si hay una clase en p1 que ya fue asignada por p2*/
             for (i = 0; i < count_assigned_p2; i++)
             {
-                if (cmpactivity(parent1->gene[r][t1], assigned_classes_p2[i]) == 0)
+                if (strcmp(parent1->gene[r][t1].id, assigned_classes_p2[i].id) == 0)
                     /*si la clase fue asignada por p2, hacer que el cromosoma no tenga la clase duplicada*/
-                    child2->gene[r][t1] = EmptyActivity;
+                    strcpy(child2->gene[r][t1].id, EmptyActivity.id);
             }
-
-            child2->gene[r][t2] = parent2->gene[r][t2];
-            if (cmpactivity(child2->gene[r][t2], EmptyActivity) != 0)
-                assigned_classes_p2[count_assigned_p2++] = child2->gene[r][t2];
         }
     }
 
@@ -149,35 +153,57 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     /*asignar clases faltantes a c1 y c2*/
     unsigned c1, c2;
 
-    for (t = 0; t < count_not_used_tslots; t++)
+    for (c1 = 0; c1 < count_unassigned_c1; c1++)
     {
-        for (c1 = 0; c1 < count_unassigned_c1; c1++)
-        {
-            // @TODO: need a way to find activity index for unassigned_classes_c1[c1]
-            // maybe bsearch??
+        int assigned = 0;
+        // shuffle rooms to get distinct assignations each time
+        int rooms_for_class[pi->Ra[unassigned_classes_c1[c1]].nm_rooms];
 
-            for (r = 0; r < pi->Ra[unassigned_classes_c1[c1]].nm_rooms; r++)
+        for (r = 0; r < pi->Ra[unassigned_classes_c1[c1]].nm_rooms; r++)
+            rooms_for_class[r] = pi->Ra[unassigned_classes_c1[c1]].rooms[r].id - 1;
+
+        shuffle(rooms_for_class, pi->Ra[unassigned_classes_c1[c1]].nm_rooms);
+
+        for (r = 0; r < pi->Ra[unassigned_classes_c1[c1]].nm_rooms; ++r)
+        {
+            for (t = 0; t < count_not_used_tslots; t++)
             {
-                unsigned ridx = pi->Ra[unassigned_classes_c1[c1]].rooms[r].id - 1;
-                if (cmpactivity(child1->gene[ridx][not_used_tslots_idx[t]], EmptyActivity) == 0)
+                if (strcmp(child1->gene[rooms_for_class[r]][not_used_tslots_idx[t]].id, EmptyActivity.id) == 0)
                 {
-                    child1->gene[ridx][not_used_tslots_idx[t]] = pi->A[unassigned_classes_c1[c1]];
+                    assigned = 1;
+                    strcpy(child1->gene[rooms_for_class[r]][not_used_tslots_idx[t]].id, pi->A[unassigned_classes_c1[c1]].id);
                     break;
                 }
             }
+            if (assigned)
+                break;
         }
+    }
 
-        for (c2 = 0; c2 < count_unassigned_c2; c2++)
+    for (c2 = 0; c2 < count_unassigned_c2; c2++)
+    {
+        int assigned = 0;
+        // shuffle rooms to get distinct assignations each time
+        int rooms_for_class[pi->Ra[unassigned_classes_c2[c2]].nm_rooms];
+
+        for (r = 0; r < pi->Ra[unassigned_classes_c2[c2]].nm_rooms; r++)
+            rooms_for_class[r] = pi->Ra[unassigned_classes_c2[c2]].rooms[r].id - 1;
+
+        shuffle(rooms_for_class, pi->Ra[unassigned_classes_c2[c2]].nm_rooms);
+
+        for (r = 0; r < pi->Ra[unassigned_classes_c2[c2]].nm_rooms; ++r)
         {
-            for (r = 0; r < pi->Ra[unassigned_classes_c2[c2]].nm_rooms; r++)
+            for (t = 0; t < count_not_used_tslots; t++)
             {
-                unsigned ridx = pi->Ra[unassigned_classes_c2[c2]].rooms[r].id - 1;
-                if (strcmp(child2->gene[ridx][not_used_tslots_idx[t]].id, EmptyActivity.id) == 0)
+                if (strcmp(child2->gene[rooms_for_class[r]][not_used_tslots_idx[t]].id, EmptyActivity.id) == 0)
                 {
-                    child2->gene[ridx][not_used_tslots_idx[t]] = pi->A[unassigned_classes_c2[c2]];
+                    assigned = 1;
+                    strcpy(child2->gene[rooms_for_class[r]][not_used_tslots_idx[t]].id, pi->A[unassigned_classes_c2[c2]].id);
                     break;
                 }
             }
+            if (assigned)
+                break;
         }
     }
 
