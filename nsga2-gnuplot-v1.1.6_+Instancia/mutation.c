@@ -53,7 +53,7 @@ void mutation_ind(individual *ind, problem_instance *pi)
         }
     }
 
-    size_t s, c, a, found_activity, original_tslot_student_counter = 0, tmp_tslot_idx;
+    size_t s, c, a, found_activity = 0, original_tslot_student_counter = 0, tmp_tslot_idx;
     timeslot_counter *timeslots_counter = (timeslot_counter *)calloc(pi->nm_TimeSlots, sizeof(timeslot_counter));
 
     for (s = 0; s < pi->nm_Students; ++s)
@@ -116,18 +116,30 @@ void mutation_ind(individual *ind, problem_instance *pi)
     {
         // try until there is an available cell
         size_t lower_idx = 0;
-        while (1)
-        {
+        int found_empty_cell = 0;
 
-            size_t lowest = timeslots_counter[lower_idx].timeslot_idx;
-            if (cmpactivity(ind->gene[room_idx][lowest], EmptyActivity) == 0)
+        int rooms[pi->Ra[act_idx].nm_rooms];
+        for (r = 0; r < pi->Ra[act_idx].nm_rooms; ++r)
+            rooms[r] = pi->Ra[act_idx].rooms[r].id - 1;
+
+        shuffle(rooms, pi->Ra[act_idx].nm_rooms);
+
+        for (r = 0; r < pi->Ra[act_idx].nm_rooms; ++r)
+        {
+            for (lower_idx = 0; lower_idx < pi->nm_TimeSlots; lower_idx++)
             {
-                cpyactivity(ind->gene[room_idx][lowest], pi->A[act_idx]);
-                cpyactivity(ind->gene[room_idx][original_tslot_idx], EmptyActivity);
-                break;
+                size_t lowest = timeslots_counter[lower_idx].timeslot_idx;
+                if (strcmp(ind->gene[rooms[r]][lowest].id, EmptyActivity.id) == 0)
+                {
+                    found_empty_cell = 1;
+                    strcpy(ind->gene[rooms[r]][lowest].id, pi->A[act_idx].id);
+                    strcpy(ind->gene[room_idx][original_tslot_idx].id, EmptyActivity.id);
+                    break;
+                }
             }
 
-            lower_idx++;
+            if (found_empty_cell)
+                break;
         }
     }
 

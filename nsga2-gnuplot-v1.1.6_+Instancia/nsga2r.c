@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     report_pop(parent_pop, fpt1);
     fprintf(fpt4, "# gen = 1\n");
     report_pop(parent_pop, fpt4);
-    printf("\n gen = 1");
+    // printf("\n gen = 1");
     fflush(stdout);
     /*if (choice!=0)
         onthefly_display (parent_pop,gp,1);*/
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
         // fprintf(fpt4, "# gen = %d\n", i);
         // report_pop(parent_pop, fpt4);
         // fflush(fpt4);
-        printf("\n gen = %d", i);
+        // printf("\n gen = %d", i);
     }
     clock_t toc = clock();
     double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;
