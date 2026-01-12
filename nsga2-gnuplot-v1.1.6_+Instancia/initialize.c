@@ -75,13 +75,13 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
         //     printf("%d ", acts_ts_idx[j]);
         // printf("\n");
         /*if any of the activities in course i clash, then it will be penalized*/
-        for (j = 0; j < pi->Ac[i].nm_activities - 1; ++j)
+        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
         {
 
-            for (jj = j + 1; jj < pi->Ac[i].nm_activities; ++jj)
+            for (jj = 0; jj < pi->Ac[i].nm_activities; ++jj)
             {
 
-                if (acts_ts_idx[j] == acts_ts_idx[jj])
+                if (acts_ts_idx[j] == acts_ts_idx[jj] && strcmp(pi->Ac[i].activities[j].id, pi->Ac[i].activities[jj].id) != 0)
                 {
                     mat[i][i] = PENALIZATION;
                     break;
@@ -89,20 +89,23 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
             }
         }
 
+        // find clashing activities
         int *clashes_with_aj__ = (int *)calloc(pi->Ac[i].nm_activities, sizeof(int));
         t_activity **clashing_activities_course_i = (t_activity **)malloc(pi->Ac[i].nm_activities * sizeof(t_activity *));
         for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-            clashing_activities_course_i[j] = (t_activity *)malloc((pi->nm_Rooms - 1) * sizeof(t_activity));
+            clashing_activities_course_i[j] = (t_activity *)calloc((pi->nm_Rooms - 1), sizeof(t_activity));
 
-        for (r = 0; r < pi->nm_Rooms; r++)
+        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
         {
 
-            for (j = 0; j < pi->Ac[i].nm_activities; ++j)
+            for (r = 0; r < pi->nm_Rooms; r++)
             {
-                if (strcmp(ind->gene[r][acts_ts_idx[j]].id, pi->Ac[i].activities[j].id) == 0)
+                if (
+                    strcmp(ind->gene[r][acts_ts_idx[j]].id, EmptyActivity.id) != 0 && strcmp(ind->gene[r][acts_ts_idx[j]].id, pi->Ac[i].activities[j].id) != 0)
                 {
                     // printf("GENE ACTIVITY %s ACTIVITY %s\n", ind->gene[r][acts_ts_idx[j]].id, pi->Ac[i].activities[j].id);
                     clashing_activities_course_i[j][clashes_with_aj__[j]++] = ind->gene[r][acts_ts_idx[j]];
+                    break;
                 }
             }
         }
@@ -140,6 +143,23 @@ size_t find_idx_in_student_preference(problem_instance *pi, size_t s_idx, size_t
     return 0;
 }
 
+void printCourseMatrix(unsigned **mod_mat, problem_instance *pi)
+{
+    size_t c1, c2;
+    for (c1 = 0; c1 < pi->nm_Courses; c1++)
+    {
+        printf("\nCursos conflictivos con %d:\n\t", pi->C[c1].id);
+        for (c2 = 0; c2 < pi->nm_Courses; c2++)
+        {
+            if (mod_mat[c1][c2])
+            {
+                printf("%d (VAL %d)", pi->C[c2].id, mod_mat[c1][c2]);
+            }
+        }
+        printf("\n");
+    }
+}
+
 void assign_students(individual *ind, problem_instance *pi)
 {
     int i, j;
@@ -147,7 +167,10 @@ void assign_students(individual *ind, problem_instance *pi)
     for (i = 0; i < pi->nm_Courses; i++)
         mod_mat[i] = (unsigned *)calloc(pi->nm_Courses, sizeof(unsigned));
 
+    // printf("==== Matriz de colisiones ====\n");
     set_modules_matrix(ind, mod_mat, pi);
+    // printCourseMatrix(mod_mat, pi);
+    // printf("==== Matriz de colisiones ====\n");
 
     int s, midx;
     for (s = 0; s < pi->nm_Students; s++)
@@ -214,7 +237,16 @@ void assign_students(individual *ind, problem_instance *pi)
 
 void printInd(individual *ind, problem_instance *pi)
 {
-    size_t r, t;
+    size_t s, c, r, t;
+
+    for (s = 0; s < pi->nm_Students; ++s)
+    {
+        printf("\nAsignación de cursos para el estudiante %d:\n\t", pi->S[s].id);
+        for (c = 0; c < pi->Cs[s].nm_courses; ++c)
+            printf("%d ", ind->student_courses[s][c]);
+    }
+    printf("\n");
+
     for (r = 0; r < pi->nm_Rooms; ++r)
         for (t = 0; t < pi->nm_TimeSlots; ++t)
             if (strcmp(ind->gene[r][t].id, EmptyActivity.id) != 0)
@@ -251,10 +283,18 @@ void initialize_ind(individual *ind, problem_instance *pi)
             }
         }
     }
+
+    // printf("======================= ANTES DE ASIGNACION ESTUDIANTIL ==========================\n");
+    // printInd(ind, pi);
+
+    // printf("======================= =============================== ==========================\n");
+
+    assign_students(ind, pi);
+
     // printf("========================================================\n");
     // printInd(ind, pi);
     // printf("========================================================\n");
-    assign_students(ind, pi);
+    // exit(0);
 
     return;
 }

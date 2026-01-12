@@ -194,7 +194,7 @@ int main(int argc, char **argv)
         // fprintf(fpt4, "# gen = %d\n", i);
         // report_pop(parent_pop, fpt4);
         // fflush(fpt4);
-        // printf("\n gen = %d", i);
+        printf("\n gen = %d", i);
     }
     clock_t toc = clock();
     double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;

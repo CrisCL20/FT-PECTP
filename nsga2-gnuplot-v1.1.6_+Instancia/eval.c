@@ -112,13 +112,17 @@ void countCourseRequestsMet(unsigned **students_schedule, double *obj, problem_i
 
     for (i = 0; i < pi->nm_Students; i++)
     {
-        unsigned n_required = pi->Cs[i].nm_courses, met = 0;
-        for (j = 0; j < n_required; j++)
-            if (students_schedule[i][j])
-                met++;
+        unsigned met = 0;
+        for (j = 0; j < pi->Cs[i].nm_courses; j++)
+            met += students_schedule[i][j];
 
-        counts += n_required - met;
+        // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
+
+        counts += pi->Cs[i].nm_courses - met;
     }
+
+    // printf("\nObjetivo 2: %ld\n", counts);
+    // exit(0);
 
     obj[1] = counts;
 }
