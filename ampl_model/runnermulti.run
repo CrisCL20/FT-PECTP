@@ -1,6 +1,6 @@
 reset ;
 model modelomulti.mod ;
-data large.dat ;
+data Instance1.dat ;
 
 option reset_initial_guesses 1;
 option solver "./gurobi" ;
@@ -42,25 +42,25 @@ for {gg in objetivos}{
   ##########################################################################
   ##########################################################################
   ##########################################################################
-  printf "Matriz de los salones por actividades\n";
+  # printf "Matriz de los salones por actividades\n";
 
-  for {r in R} {
-    printf "R%s ", r;
-    for {a in A, t in T: x[a,r,t] > 0.5} 
-        printf "A%s (%s) ", a, t;
-    printf "\n";
-  }
-  printf "\n";
+  # for {r in R} {
+  #   printf "R%s ", r;
+  #   for {a in A, t in T: x[a,r,t] > 0.5} 
+  #       printf "A%s (%s) ", a, t;
+  #   printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Matriz de los salones por actividades\n";
+  # printf "Matriz de los salones por actividades\n";
 
-  for {r in R} {
-    printf "R%s:", r;
-    for {a in A: yR[a,r] > 0.5}
-        printf "A: %s, ", a;
-    printf "\n";
-  }
-  printf "\n";
+  # for {r in R} {
+  #   printf "R%s:", r;
+  #   for {a in A: yR[a,r] > 0.5}
+  #       printf "A: %s, ", a;
+  #   printf "\n";
+  # }
+  # printf "\n";
 
   #printf "Matriz sparse de los estudiantes por clase\n";
 
@@ -72,68 +72,68 @@ for {gg in objetivos}{
   #}
   #printf "\n";
 
-  printf "Matriz de los estudiantes por ramos\n";
-  for {s in S} {
-    printf "S%s ", s;
-    for {c in C: yC[s,c] > 0.5}
-      printf "C%s ", c;
-    printf "\n";
-    for {a in A, t in T: yA[s,a] > 0.5 and yT[a,t] > 0.5}
-      printf "A%s (%s) |", a, t ;
-    printf "\n";
+  # printf "Matriz de los estudiantes por ramos\n";
+  # for {s in S} {
+  #   printf "S%s ", s;
+  #   for {c in C: yC[s,c] > 0.5}
+  #     printf "C%s ", c;
+  #   printf "\n";
+  #   for {a in A, t in T: yA[s,a] > 0.5 and yT[a,t] > 0.5}
+  #     printf "A%s (%s) |", a, t ;
+  #   printf "\n";
 
-  }
-  printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Matriz de los estudiantes por horario\n";
-  for {s in S} {
-    printf "S%s ", s;
-    for {t in T, a in A: tau[s,a,t] > 0.5}
-      printf " A: %s en t: %s  |", a, t ;
-    printf "\n";
-  }
-  printf "\n";
+  # printf "Matriz de los estudiantes por horario\n";
+  # for {s in S} {
+  #   printf "S%s ", s;
+  #   for {t in T, a in A: tau[s,a,t] > 0.5}
+  #     printf " A: %s en t: %s  |", a, t ;
+  #   printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Horarios\n";
-  for {t in T}{
-    printf "    %s", t;
-  }
-  printf "\n";
-  for {r in R} {
-    printf "R%s : ", r;
-    for {t in T}{
-      if(sum{a in A} x[a,r,t]) > 0.5 then{
-        for {a in A : x[a,r,t] > 0.5}{
-          printf "%s - \t", a;
-        }
-      }
-      else
-        printf " - \t";
+  # printf "Horarios\n";
+  # for {t in T}{
+  #   printf "    %s", t;
+  # }
+  # printf "\n";
+  # for {r in R} {
+  #   printf "R%s : ", r;
+  #   for {t in T}{
+  #     if(sum{a in A} x[a,r,t]) > 0.5 then{
+  #       for {a in A : x[a,r,t] > 0.5}{
+  #         printf "%s - \t", a;
+  #       }
+  #     }
+  #     else
+  #       printf " - \t";
 
-    }
-    printf "\n";
-  }
-  printf "\n";
+  #   }
+  #   printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Detalle preferencias estudiantes \n";
-  for {t in T}{
-    printf "    %s", t;
-  }
-  printf "\n";
-  for {s in S} {
-    printf "S%s ", s;
-    for {t in T}{
-      if (sum{a in A} tau[s,a,t]) > 0.5 then {
-        for {a in A: tau[s,a,t] > 0.5} {
-          printf "%s \t", a;
-        }
-      }
-      else
-        printf " - \t";
-    }
-    printf "\n";
-  }
-  printf "\n";
+  # printf "Detalle preferencias estudiantes \n";
+  # for {t in T}{
+  #   printf "    %s", t;
+  # }
+  # printf "\n";
+  # for {s in S} {
+  #   printf "S%s ", s;
+  #   for {t in T}{
+  #     if (sum{a in A} tau[s,a,t]) > 0.5 then {
+  #       for {a in A: tau[s,a,t] > 0.5} {
+  #         printf "%s \t", a;
+  #       }
+  #     }
+  #     else
+  #       printf " - \t";
+  #   }
+  #   printf "\n";
+  # }
+  # printf "\n";
 
   display FO1 ;
   
@@ -154,6 +154,8 @@ for {gg in objetivos}{
   for {i in objetivos}{
     let MVF[i] := MV[i] ;
     let PVF[i] := PV[i] ;
+    printf "MVF[%d] = %d\n", i, MVF[i];
+    printf "PVF[%d] = %d\n", i, PVF[i];
   }
 
   let f1[gg] := FO[1] ;
@@ -165,6 +167,8 @@ for {gg in objetivos}{
 for {i in objetivos}{
   let PV[i]  := PV[i] * 2;
   let PVF[i] := PV[i] ;
+
+  display PV[i], PVF[i];
 }
 
 for {gg in ejecuciones}{
@@ -183,25 +187,25 @@ for {gg in ejecuciones}{
   ##########################################################################
   
   #display FO;
-  printf "Matriz de los salones por actividades\n";
+  # printf "Matriz de los salones por actividades\n";
 
-  for {r in R} {
-    printf "R%s ", r;
-    for {a in A, t in T: x[a,r,t] > 0.5} 
-        printf "A%s (%s) ", a, t;
-    printf "\n";
-  }
-  printf "\n";
+  # for {r in R} {
+  #   printf "R%s ", r;
+  #   for {a in A, t in T: x[a,r,t] > 0.5} 
+  #       printf "A%s (%s) ", a, t;
+  #   printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Matriz de los salones por actividades\n";
+  # printf "Matriz de los salones por actividades\n";
 
-  for {r in R} {
-    printf "R%s:", r;
-    for {a in A: yR[a,r] > 0.5}
-        printf "A: %s, ", a;
-    printf "\n";
-  }
-  printf "\n";
+  # for {r in R} {
+  #   printf "R%s:", r;
+  #   for {a in A: yR[a,r] > 0.5}
+  #       printf "A: %s, ", a;
+  #   printf "\n";
+  # }
+  # printf "\n";
 
   #printf "Matriz sparse de los estudiantes por clase\n";
 
@@ -213,68 +217,68 @@ for {gg in ejecuciones}{
   #}
   #printf "\n";
 
-  printf "Matriz de los estudiantes por ramos\n";
-  for {s in S} {
-    printf "S%s ", s;
-    for {c in C: yC[s,c] > 0.5}
-      printf "C%s ", c;
-    printf "\n";
-    for {a in A, t in T: yA[s,a] > 0.5 and yT[a,t] > 0.5}
-      printf "A%s (%s) |", a, t ;
-    printf "\n";
+  # printf "Matriz de los estudiantes por ramos\n";
+  # for {s in S} {
+  #   printf "S%s ", s;
+  #   for {c in C: yC[s,c] > 0.5}
+  #     printf "C%s ", c;
+  #   printf "\n";
+  #   for {a in A, t in T: yA[s,a] > 0.5 and yT[a,t] > 0.5}
+  #     printf "A%s (%s) |", a, t ;
+  #   printf "\n";
 
-  }
-  printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Matriz de los estudiantes por horario\n";
-  for {s in S} {
-    printf "S%s ", s;
-    for {t in T, a in A: tau[s,a,t] > 0.5}
-      printf " A: %s en t: %s  |", a, t ;
-    printf "\n";
-  }
-  printf "\n";
+  # printf "Matriz de los estudiantes por horario\n";
+  # for {s in S} {
+  #   printf "S%s ", s;
+  #   for {t in T, a in A: tau[s,a,t] > 0.5}
+  #     printf " A: %s en t: %s  |", a, t ;
+  #   printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Horarios\n";
-  for {t in T}{
-    printf "    %s", t;
-  }
-  printf "\n";
-  for {r in R} {
-    printf "R%s : ", r;
-    for {t in T}{
-      if(sum{a in A} x[a,r,t]) > 0.5 then{
-        for {a in A : x[a,r,t] > 0.5}{
-          printf "%s - \t", a;
-        }
-      }
-      else
-        printf " - \t";
+  # printf "Horarios\n";
+  # for {t in T}{
+  #   printf "    %s", t;
+  # }
+  # printf "\n";
+  # for {r in R} {
+  #   printf "R%s : ", r;
+  #   for {t in T}{
+  #     if(sum{a in A} x[a,r,t]) > 0.5 then{
+  #       for {a in A : x[a,r,t] > 0.5}{
+  #         printf "%s - \t", a;
+  #       }
+  #     }
+  #     else
+  #       printf " - \t";
 
-    }
-    printf "\n";
-  }
-  printf "\n";
+  #   }
+  #   printf "\n";
+  # }
+  # printf "\n";
 
-  printf "Detalle preferencias estudiantes \n";
-  for {t in T}{
-    printf "    %s", t;
-  }
-  printf "\n";
-  for {s in S} {
-    printf "S%s ", s;
-    for {t in T}{
-      if (sum{a in A} tau[s,a,t]) > 0.5 then {
-        for {a in A: tau[s,a,t] > 0.5} {
-          printf "%s \t", a;
-        }
-      }
-      else
-        printf " - \t";
-    }
-    printf "\n";
-  }
-  printf "\n";
+  # printf "Detalle preferencias estudiantes \n";
+  # for {t in T}{
+  #   printf "    %s", t;
+  # }
+  # printf "\n";
+  # for {s in S} {
+  #   printf "S%s ", s;
+  #   for {t in T}{
+  #     if (sum{a in A} tau[s,a,t]) > 0.5 then {
+  #       for {a in A: tau[s,a,t] > 0.5} {
+  #         printf "%s \t", a;
+  #       }
+  #     }
+  #     else
+  #       printf " - \t";
+  #   }
+  #   printf "\n";
+  # }
+  # printf "\n";
 
   display FO1 ;
   
@@ -289,6 +293,8 @@ for {gg in ejecuciones}{
   let F2[gg] := FO[2] ;
   let BT1[gg] := sigma[gg,1] ;
   let BT2[gg] := sigma[gg,2] ;
+  display MV[1] - PV[1];
+  display MV[2] - PV[2];
 
   reset data x, yR, yT, yA, yC, tau, FO ;
 }

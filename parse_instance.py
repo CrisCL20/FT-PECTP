@@ -75,173 +75,172 @@ def main(XML_instance, model_dir, output, nm_timeslots, room_cap, class_lim):
             STUDENTS.append(new_student)
         
         logger.info("Finalizado guardado en estructuras...")
-        ###############################################################################
-        ###############################################################################
-        #################### --- Writing data to instance file --- ####################
-        ###############################################################################
-        ###############################################################################
-
-        logger.info(f"Comenzando escritura a instance.dat...")
-        with open(full_path_output, "w") as dat_file:
-            
-            cantejc = 11
-            sigmas = np.zeros(shape=(cantejc, 2),dtype=np.float64)
-
-            sigmas[0,0] = .00001
-            sigmas[0,1] = .99999
-            
-            half_point = cantejc // 2
-            
-            weights = (1+np.arange(half_point-1)) / (cantejc - 1)
-            sigmas[1:half_point,0] = weights
-            sigmas[1:half_point,1] = 1 - weights
-
-            sigmas[half_point,:] = [.5,.5]
-            
-            sigmas[half_point+1:-1,0] = 1 - weights
-            sigmas[half_point+1:-1,1] = weights
-            
-            sigmas[-1,:] = [0.99999,0.00001]
-
-            logger.info("Escribiendo sigmas (parámetro para multiobj)")
-            dat_file.write("param sigma\n")
-            dat_file.write(": 1   2 :=\n")
-            for i, [sigma_a, sigma_b] in enumerate(sigmas):
-                dat_file.write(f"{i+1} {sigma_a:.5f} {sigma_b:.5f}\n")
-            dat_file.write(";\n")
-
-            # Set of students
-            logger.info("Calculando conjunto de estudiantes")
-            dat_file.write("set S:=\n")
-            for student in STUDENTS:
-                dat_file.write(student.id + " ")
-            dat_file.write(";\n\n")
-
-            # Set of courses
-            logger.info("Calculando conjunto de cursos")
-            dat_file.write("set C:=\n")
-            n_courses = len(COURSES)
-            n_classes = 2 * n_courses ## 2 clases de cátedra por ramo
-            for course in COURSES:
-                dat_file.write(f"{course.id} ")
-            dat_file.write(";\n\n")
-
-            # set of timeslots
-            logger.info("Generando conjunto de bloques")
-            dat_file.write("set T:=\n")
-            # bloques van por dia_idblock donde id block va desde 1-2, 3-4,...,9-10
-            # se asume que para todas las semanas es la misma programación
-            n_days = 5
-            blocks = [f"{i}_{i+1}" for i in range(1,nm_timeslots,2)]
-            bloques = []
-            for day in range(1,n_days+1):
-                for id_block in blocks:
-                    dat_file.write(f"{day}_{id_block} ")
-                    bloques.append(f"{day}_{id_block}")
-                dat_file.write("\n")
-            dat_file.write(";\n\n")
-
-            # set of rooms
-            logger.info("Calculando conjunto de salones")
-            dat_file.write("set R:=\n")
-            for room in ROOMS:
-                dat_file.write(f"{room.id} ")
-            dat_file.write(";\n\n")
-
-            # sets of classes per module
-            logger.info("Calculando conjunto de actividades...")
-            course_activities: dict[itc.Course, list[itc.Class]] = {}
-            dat_file.write(f"set A :=\n")
-            for course in COURSES:
-                course_activities[course] = course.configs[0].subparts[0].classes
-                for activity in course_activities[course]:
-                    dat_file.write(f"{course.id}_{activity.id} ")
-                dat_file.write("\n")
-            
-            dat_file.write(";\n\n")
-
-            # set of activities
-            logger.info("Calculando conjunto de actividades que pertenecen a cada curso...")
-            for course in COURSES:
-                dat_file.write(f"set Ac[{course.id}] :=\n")
-                for activity in course_activities[course]:
-                    dat_file.write(f"{course.id}_{activity.id} ")
-                dat_file.write(";\n")
-
-            dat_file.write("\n")
-
-
-            # set of modules requested by s in S
-            logger.info("Calculando conjunto de cursos que preinscriben los estudiantes...")
-            for student in STUDENTS:
-                dat_file.write(f"set Cs[{student.id}]:=\n")
-                for course in student.courses:
-                    dat_file.write(f"{course.id} ")
-                dat_file.write(";\n")
-            dat_file.write("\n")
-
-            # set of adequate rooms for class c in C
-            logger.info("Calculando conjunto de salones que son adecuados para cada clase...")
-            for course, activities in course_activities.items():
-                for i in range(len(activities)):
-                    dat_file.write(f"set Ra[{course.id}_{activities[i].id}]:=\n")
-                    nm_rooms = np.random.randint(2, len(ROOMS))
-                    rooms_for_act = sorted(np.random.choice(ROOMS, nm_rooms, replace=False), key=lambda x: x.id)
-                    for room in rooms_for_act:
-                        dat_file.write(f"{room.id} ")
-                    dat_file.write(";\n")
-            dat_file.write("\n\n")
-
-            logger.info("Calculando preferencias de bloques por estudiante...")
-            # Por defecto, un estudiante puede ir todos los días
-            # Pero dentro de estos días, prefiere ir a ciertos bloques
-            
-            preferred_timesets: dict[itc.Student, list] = {}
-            for student in STUDENTS:
-                nm_preferred_slots = np.random.randint(0, min(len(student.courses),3))
-                preferred_timesets[student] = np.random.choice(bloques, nm_preferred_slots, replace=False)
-            # Write PTs sets
-            for s in STUDENTS:
-                dat_file.write(f"set Ts[{s.id}] := \n")
-                for pref_ts in preferred_timesets[s]:
-                    dat_file.write(f"{pref_ts} ")
-                dat_file.write(" ; \n")
-            dat_file.write("\n")
-
-            # room capacity
-            logger.info("Calculando capacidad de salones")
-            dat_file.write("param rho :=\n")
-            for room in ROOMS:
-                dat_file.write(f"{room.id} {room_cap}\n")
-            dat_file.write(";\n\n")
-
-            logger.info("Calculando limite de clases")
-            dat_file.write("param sigma_class :=\n")
-            for c in COURSES:
-                dat_file.write(f"{c.id} {class_lim}\n")
-            dat_file.write(";\n\n")
-
-            # Min and max courses per student
-
-            logger.info("Calculando minimo de cursos que un estudiante debe tener inscritos")
-            w_min = .5 #De los ramos que preinscribe, como mínimo se deben programar w_min% 
-            dat_file.write("param kmin :=\n")
-            for student in STUDENTS:
-                n_preinscriptions = len(student.courses)
-                min_inscriptions = int(np.floor(w_min * n_preinscriptions))
-                dat_file.write(f"{student.id} {min_inscriptions}\n")
-            dat_file.write(";\n\n")
-
-            logger.info("Calculando máximo de clases que un estudiante s puede inscribir")
-            dat_file.write("param kmax :=\n")
-            for student in STUDENTS:
-                n_preinsc = len(student.courses)
-                dat_file.write(f"{student.id} {n_preinsc}\n")
-            dat_file.write(";\n\n")
-            
-            logger.info("Instancia creada con éxito!")
     except FileNotFoundError as e:
         logger.error(f"No se pudo encontrar archivo: {e}")
+
+    ###############################################################################
+    ###############################################################################
+    #################### --- Writing data to instance file --- ####################
+    ###############################################################################
+    ###############################################################################
+
+    logger.info(f"Comenzando escritura a instance.dat...")
+    with open(full_path_output, "w") as dat_file:
+        
+        cantejc = 11
+        sigmas = np.zeros(shape=(cantejc, 2),dtype=np.float64)
+
+        sigmas[0,0] = .00001
+        sigmas[0,1] = .99999
+        
+        half_point = cantejc // 2
+        
+        weights = (1+np.arange(half_point-1)) / (cantejc - 1)
+        sigmas[1:half_point,0] = weights
+        sigmas[1:half_point,1] = 1 - weights
+
+        sigmas[half_point,:] = [.5,.5]
+        
+        sigmas[half_point+1:-1,0] = 1 - weights
+        sigmas[half_point+1:-1,1] = weights
+        
+        sigmas[-1,:] = [0.99999,0.00001]
+
+        logger.info("Escribiendo sigmas (parámetro para multiobj)")
+        dat_file.write("param sigma\n")
+        dat_file.write(": 1   2 :=\n")
+        for i, [sigma_a, sigma_b] in enumerate(sigmas):
+            dat_file.write(f"{i+1} {sigma_a:.5f} {sigma_b:.5f}\n")
+        dat_file.write(";\n")
+
+        # Set of students
+        logger.info("Calculando conjunto de estudiantes")
+        dat_file.write("set S:=\n")
+        for student in STUDENTS:
+            dat_file.write(student.id + " ")
+        dat_file.write(";\n\n")
+
+        # Set of courses
+        logger.info("Calculando conjunto de cursos")
+        dat_file.write("set C:=\n")
+        n_courses = len(COURSES)
+        for course in COURSES:
+            dat_file.write(f"{course.id} ")
+        dat_file.write(";\n\n")
+
+        # sets of classes per module
+        logger.info("Calculando conjunto de actividades...")
+        course_activities: dict[itc.Course, list[itc.Class]] = {}
+        dat_file.write(f"set A:=\n")
+        for course in COURSES:
+            course_activities[course] = course.configs[0].subparts[0].classes
+            for activity in course_activities[course]:
+                dat_file.write(f"{course.id}_{activity.id} ")
+        dat_file.write(";\n\n")
+
+        # set of timeslots
+        logger.info("Generando conjunto de bloques")
+        dat_file.write("set T:=\n")
+        # bloques van por dia_idblock donde id block va desde 1-2, 3-4,...,9-10
+        # se asume que para todas las semanas es la misma programación
+        n_days = 5
+        blocks = [f"{i}_{i+1}" for i in range(1,nm_timeslots,2)]
+        bloques = []
+        for day in range(1,n_days+1):
+            for id_block in blocks:
+                dat_file.write(f"{day}_{id_block} ")
+                bloques.append(f"{day}_{id_block}")
+            dat_file.write("\n")
+        dat_file.write(";\n\n")
+
+        # set of rooms
+        logger.info("Calculando conjunto de salones")
+        dat_file.write("set R:=\n")
+        for room in ROOMS:
+            dat_file.write(f"{room.id} ")
+        dat_file.write(";\n\n")
+        
+        # set of activities
+        logger.info("Calculando conjunto de actividades que pertenecen a cada curso...")
+        for course in COURSES:
+            dat_file.write(f"set Ac[{course.id}]:=\n")
+            for activity in course_activities[course]:
+                dat_file.write(f"{course.id}_{activity.id} ")
+            dat_file.write(";\n")
+
+        dat_file.write("\n")
+
+
+        # set of modules requested by s in S
+        logger.info("Calculando conjunto de cursos que preinscriben los estudiantes...")
+        for student in STUDENTS:
+            dat_file.write(f"set Cs[{student.id}]:=\n")
+            for course in student.courses:
+                dat_file.write(f"{course.id} ")
+            dat_file.write(";\n")
+        dat_file.write("\n")
+
+        # set of adequate rooms for class c in C
+        logger.info("Calculando conjunto de salones que son adecuados para cada clase...")
+        for course, activities in course_activities.items():
+            for i in range(len(activities)):
+                dat_file.write(f"set Ra[{course.id}_{activities[i].id}]:=\n")
+                nm_rooms = np.random.randint(2, len(ROOMS))
+                rooms_for_act = sorted(np.random.choice(ROOMS, nm_rooms, replace=False), key=lambda x: x.id)
+                for room in rooms_for_act:
+                    dat_file.write(f"{room.id} ")
+                dat_file.write(";\n")
+        dat_file.write("\n\n")
+
+        logger.info("Calculando preferencias de bloques por estudiante...")
+        # Por defecto, un estudiante puede ir todos los días
+        # Pero dentro de estos días, prefiere ir a ciertos bloques
+        
+        preferred_timesets: dict[itc.Student, list] = {}
+        for student in STUDENTS:
+            nm_preferred_slots = np.random.randint(0, max(0.7 * len(student.courses),3))
+            preferred_timesets[student] = np.random.choice(bloques, nm_preferred_slots, replace=False)
+        # Write PTs sets
+        for s in STUDENTS:
+            dat_file.write(f"set Ts[{s.id}]:= \n")
+            for pref_ts in preferred_timesets[s]:
+                dat_file.write(f"{pref_ts} ")
+            dat_file.write(" ; \n")
+        dat_file.write("\n")
+
+        # room capacity
+        logger.info("Calculando capacidad de salones")
+        dat_file.write("param rho:=\n")
+        for room in ROOMS:
+            dat_file.write(f"{room.id} {room_cap}\n")
+        dat_file.write(";\n\n")
+
+        logger.info("Calculando limite de clases")
+        dat_file.write("param sigma_class:=\n")
+        for c in COURSES:
+            dat_file.write(f"{c.id} {class_lim}\n")
+        dat_file.write(";\n\n")
+
+        # Min and max courses per student
+
+        logger.info("Calculando minimo de cursos que un estudiante debe tener inscritos")
+        w_min = .5 #De los ramos que preinscribe, como mínimo se deben programar w_min% 
+        dat_file.write("param kmin:=\n")
+        for student in STUDENTS:
+            n_preinscriptions = len(student.courses)
+            min_inscriptions = int(np.floor(w_min * n_preinscriptions))
+            dat_file.write(f"{student.id} {min_inscriptions}\n")
+        dat_file.write(";\n\n")
+
+        logger.info("Calculando máximo de clases que un estudiante s puede inscribir")
+        dat_file.write("param kmax:=\n")
+        for student in STUDENTS:
+            n_preinsc = len(student.courses)
+            dat_file.write(f"{student.id} {n_preinsc}\n")
+        dat_file.write(";\n\n")
+        
+        logger.info("Instancia creada con éxito!")
+    
 
 if __name__ == "__main__":
     
