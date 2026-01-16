@@ -186,7 +186,7 @@ for {gg in ejecuciones}{
   ##########################################################################
   ##########################################################################
   
-  #display FO;
+  display FO;
   # printf "Matriz de los salones por actividades\n";
 
   # for {r in R} {
@@ -280,6 +280,20 @@ for {gg in ejecuciones}{
   # }
   # printf "\n";
 
+  for {c in C} {
+    if yC[1,c] > 0.5 then {
+      printf "Estudiante 1 atiende al curso %s\n", c;
+    }
+  }
+
+  for {a in A} {
+    for {t in T} {
+      if tau[1,a,t] > 0.5 then {
+        printf "Estudiante 1 atiende actividad %s en bloque %s", a, t;
+      }
+    }
+  }
+
   display FO1 ;
   
   ##########################################################################
@@ -293,8 +307,6 @@ for {gg in ejecuciones}{
   let F2[gg] := FO[2] ;
   let BT1[gg] := sigma[gg,1] ;
   let BT2[gg] := sigma[gg,2] ;
-  display MV[1] - PV[1];
-  display MV[2] - PV[2];
 
   reset data x, yR, yT, yA, yC, tau, FO ;
 }

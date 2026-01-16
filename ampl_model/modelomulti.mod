@@ -78,17 +78,17 @@ R9_2 {s in S} : sum{c in Cs[s]} yC[s,c] >= kmin[s]; # Un estudiante cumple con s
 
 R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a];
 
-R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ; 
+R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ;
+
+R11T_1 {s in S, t in T, a in A} : tau[s,a,t] >= yA[s,a];
+
+R11T_2 {s in S, t in T, a in A} : tau[s,a,t] >= yT[a,t];
 
 R11 {s in S, t in T, a in A} : yA[s,a] + yT[a,t] - 1 <= tau[s,a,t]; # Para cada alumno, en cada instante de tiempo se indica que el alumno s tiene clases en el periodo t siempre y cuando el alumno asista a alguna clase que se dicte en ese bloque de tiempo.
 
 R12_1 {s in S, t in T}: sum{a in A} tau[s,a,t] <=1; #Cada estudiante atiende a lo más una clase por periodo de tiempo.
 
 R12_2 {s in S, a in A}: sum{t in T} tau[s,a,t] <=1; ##
-
-# R13_1 {s in S, c in Cs[s], t in T} : M*tp[s,t] >= sum {a in Ac[c]} tau[s,a,t];
-
-# R13_2 {s in S, c in Cs[s], t in T} : tp[s,t] <= sum {a in Ac[c]} tau[s,a,t];
 
 R14  {a in A, r in R} : sum{s in S} yA[s,a] <= rho[r] + (1-yR[a,r])*M ; # No exceder capacidad de los salones
 
