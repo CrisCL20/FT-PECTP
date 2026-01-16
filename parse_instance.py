@@ -278,7 +278,7 @@ def parse_sori(nm_students, nm_courses, nm_rooms, nm_timeslots, rho, sigma_class
     
     # Generate student course demand
 
-    n_courses_per_student = np.random.randint(4, nm_courses // 4 + 1, nm_students)
+    n_courses_per_student = np.random.randint(3, 7, nm_students)
     n_courses_per_student = { e : n_courses_per_student[idx] for idx, e in enumerate(students)}
 
     Cs = { int(e) : sorted(np.random.choice(courses, n_courses, replace=False).tolist()) for e, n_courses in n_courses_per_student.items()}
