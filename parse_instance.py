@@ -271,7 +271,7 @@ def parse_sori(nm_students, nm_courses, nm_rooms, nm_timeslots, rho, sigma_class
     activities = [x for xs in activities for x in xs]
 
     # Generate room availability for activities
-    n_rooms_per_activity = np.random.randint(1, nm_rooms+1, len(activities))
+    n_rooms_per_activity = np.random.randint(1, (nm_rooms+1) // 1.5, len(activities))
     n_rooms_per_activity = {a : n_rooms_per_activity[idx] for idx, a in enumerate(activities)}
 
     Ra = { a : sorted(np.random.choice(rooms, n_rooms, replace=False).tolist()) for a, n_rooms in n_rooms_per_activity.items()}
@@ -375,15 +375,16 @@ def parse_sori(nm_students, nm_courses, nm_rooms, nm_timeslots, rho, sigma_class
 
         logger.info("\tWritting room capacity...")
         dat_file.write("param rho:=\n")
-        for r in rooms:
+        
+        for r in np.arange(1,nm_rooms+1):
             dat_file.write(f"{r} {rho}\n")
         dat_file.write(";\n\n")
         logger.info("DONE")
 
         logger.info("\tWritting course capacity...")
         dat_file.write("param sigma_class:=\n")
-        for c in courses:
-            dat_file.write(f"{c} {sigma_class}\n")
+        for c in np.arange(1,nm_courses+1):
+            dat_file.write(f"{int(c)} {sigma_class}\n")
         dat_file.write(";\n\n")
         logger.info("DONE")
 
