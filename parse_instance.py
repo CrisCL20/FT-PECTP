@@ -9,7 +9,34 @@ import ITCinstanemodel as itc
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("parser")
 
-def main(XML_instance, model_dir, output, nm_timeslots, room_cap, class_lim):
+def write_sigmas(dat_file):
+    cantejc = 11
+    sigmas = np.zeros(shape=(cantejc, 2),dtype=np.float64)
+
+    sigmas[0,0] = .00001
+    sigmas[0,1] = .99999
+    
+    half_point = cantejc // 2
+    
+    weights = (1+np.arange(half_point-1)) / (cantejc - 1)
+    sigmas[1:half_point,0] = weights
+    sigmas[1:half_point,1] = 1 - weights
+
+    sigmas[half_point,:] = [.5,.5]
+    
+    sigmas[half_point+1:-1,0] = 1 - weights
+    sigmas[half_point+1:-1,1] = weights
+    
+    sigmas[-1,:] = [0.99999,0.00001]
+
+    logger.info("Escribiendo sigmas (parámetro para multiobj)")
+    dat_file.write("param sigma\n")
+    dat_file.write(": 1   2 :=\n")
+    for i, [sigma_a, sigma_b] in enumerate(sigmas):
+        dat_file.write(f"{i+1} {sigma_a:.5f} {sigma_b:.5f}\n")
+    dat_file.write(";\n")
+
+def parse_itc(XML_instance, model_dir, output, nm_timeslots, room_cap, class_lim):
     #np.random.seed(42)
     full_path_input = Path(XML_instance)
     full_path_output = os.path.join(model_dir, f"{output}.dat")
@@ -87,31 +114,7 @@ def main(XML_instance, model_dir, output, nm_timeslots, room_cap, class_lim):
     logger.info(f"Comenzando escritura a instance.dat...")
     with open(full_path_output, "w") as dat_file:
         
-        cantejc = 11
-        sigmas = np.zeros(shape=(cantejc, 2),dtype=np.float64)
-
-        sigmas[0,0] = .00001
-        sigmas[0,1] = .99999
-        
-        half_point = cantejc // 2
-        
-        weights = (1+np.arange(half_point-1)) / (cantejc - 1)
-        sigmas[1:half_point,0] = weights
-        sigmas[1:half_point,1] = 1 - weights
-
-        sigmas[half_point,:] = [.5,.5]
-        
-        sigmas[half_point+1:-1,0] = 1 - weights
-        sigmas[half_point+1:-1,1] = weights
-        
-        sigmas[-1,:] = [0.99999,0.00001]
-
-        logger.info("Escribiendo sigmas (parámetro para multiobj)")
-        dat_file.write("param sigma\n")
-        dat_file.write(": 1   2 :=\n")
-        for i, [sigma_a, sigma_b] in enumerate(sigmas):
-            dat_file.write(f"{i+1} {sigma_a:.5f} {sigma_b:.5f}\n")
-        dat_file.write(";\n")
+        write_sigmas(dat_file)
 
         # Set of students
         logger.info("Calculando conjunto de estudiantes")
@@ -240,7 +243,175 @@ def main(XML_instance, model_dir, output, nm_timeslots, room_cap, class_lim):
         dat_file.write(";\n\n")
         
         logger.info("Instancia creada con éxito!")
+
+def parse_sori(nm_students, nm_courses, nm_rooms, nm_timeslots, rho, sigma_class, output_path):
+    out_file = Path(f"{output_path}")
+    students = np.arange(1, nm_students+1, dtype=int)
+    courses = np.arange(1, nm_courses+1, dtype=int)
+    rooms = np.arange(1, nm_rooms+1, dtype=int)
+
+    logger.info("Generating sets and parameters...")
+
+    # Generate timeslots
+    n_days = 5
+    blocks = [f"{i}_{i+1}" for i in range(1,nm_timeslots,2)]
+    T = []
+    for day in range(1,n_days+1):
+        for id_block in blocks:
+            T.append(f"{day}_{id_block}")
     
+    T = np.array(T)
+
+    # Generate activities for courses and final activities set
+    n_activities_per_course = np.random.randint(2,4, nm_courses, dtype=int)
+    n_activities_per_course = { c : n_activities_per_course[idx] for idx, c in enumerate(courses)}
+    Ac = { int(c) : [f"{c}_{n_act+1}" for n_act in np.arange(n_acts)] for c, n_acts in n_activities_per_course.items()}
+
+    activities = list(Ac.values())
+    activities = [x for xs in activities for x in xs]
+
+    # Generate room availability for activities
+    n_rooms_per_activity = np.random.randint(1, nm_rooms+1, len(activities))
+    n_rooms_per_activity = {a : n_rooms_per_activity[idx] for idx, a in enumerate(activities)}
+
+    Ra = { a : sorted(np.random.choice(rooms, n_rooms, replace=False).tolist()) for a, n_rooms in n_rooms_per_activity.items()}
+    
+    # Generate student course demand
+
+    n_courses_per_student = np.random.randint(4, nm_courses // 4 + 1, nm_students)
+    n_courses_per_student = { e : n_courses_per_student[idx] for idx, e in enumerate(students)}
+
+    Cs = { int(e) : sorted(np.random.choice(courses, n_courses, replace=False).tolist()) for e, n_courses in n_courses_per_student.items()}
+
+    # Generate student timeslot demand
+    n_timeslots_per_student = np.random.randint(3, T.size // 3, nm_students)
+    n_timeslots_per_student = { e: n_timeslots_per_student[idx] for idx, e in enumerate(students)}
+
+    Ts = { int(e) : T[sorted(np.random.choice(np.arange(T.size), n_tslots, replace=False).tolist())].tolist() for e, n_tslots in n_timeslots_per_student.items()}
+
+    # kmin and kmax
+    wmin = .5
+    kmin = { int(e) : int(np.floor(wmin * n_courses_per_student[e])) for e in students}
+    kmax = { int(e) : int(n_courses_per_student[e]) for e in students}
+
+    logger.info("DONE")
+    with open(out_file, "w") as dat_file:
+        logger.info(f"\tWritting to {output_path}")
+
+        write_sigmas(dat_file)
+
+        logger.info("\tWritting set of students...")
+        dat_file.write("set S:=\n")
+        for e in students:
+            dat_file.write(f"{int(e)} ")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of courses...")
+        dat_file.write("set C:=\n")
+        for c in courses:
+            dat_file.write(f"{int(c)} ")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of activities...")
+        dat_file.write("set A:=\n")
+        for act in activities:
+            dat_file.write(f"{act} ")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of Timeslots...")
+        dat_file.write("set T:=\n")
+        for i, ts in enumerate(T.tolist()):
+            dat_file.write(f"{ts} ")
+            if (i+1) % (5 * (nm_timeslots / 10)) == 0:
+                dat_file.write("\n")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of rooms...")
+        dat_file.write("set R:=\n")
+        for r in rooms:
+            dat_file.write(f"{int(r)} ")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of course activities...")
+        for c, acts in Ac.items():
+            dat_file.write(f"set Ac[{c}]:=\n")
+            for a in acts:
+                dat_file.write(f"{a} ")
+            dat_file.write(";\n")
+        dat_file.write("\n")
+        logger.info("DONE")
+        
+        logger.info("\tWritting set of student course preferenes...")
+        for e, courses in Cs.items():
+            dat_file.write(f"set Cs[{e}]:=\n")
+            for c in courses:
+                dat_file.write(f"{c} ")
+            dat_file.write(";\n")
+        dat_file.write("\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of room availbalities...")
+        for a, rooms in Ra.items():
+            dat_file.write(f"set Ra[{a}]:=\n")
+            for r in rooms:
+                dat_file.write(f"{r} ")
+            dat_file.write(";\n")
+        dat_file.write("\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting set of student timeslot preferences...")
+        for s, tslots in Ts.items():
+            dat_file.write(f"set Ts[{s}]:=\n")
+            for ts in tslots:
+                dat_file.write(f"{ts} ")
+            dat_file.write(";\n")
+        dat_file.write("\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting room capacity...")
+        dat_file.write("param rho:=\n")
+        for r in rooms:
+            dat_file.write(f"{r} {rho}\n")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting course capacity...")
+        dat_file.write("param sigma_class:=\n")
+        for c in courses:
+            dat_file.write(f"{c} {sigma_class}\n")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting kmin...")
+        dat_file.write("param kmin:=\n")
+        for s, k in kmin.items():
+            dat_file.write(f"{s} {k}\n")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("\tWritting kmax...")
+        dat_file.write("param kmax:=\n")
+        for s, k in kmax.items():
+            dat_file.write(f"{s} {k}\n")
+        dat_file.write(";\n\n")
+        logger.info("DONE")
+
+        logger.info("Instancia creada con éxito!")
+
+
+
+def main(alg, args_dict):
+    if alg == "sori":
+        logger.info("Empezando a crear instancia con algoritmo SORI...")
+        parse_sori(**args_dict)
+    elif alg == "itc":
+        logger.info("Empezando a crear instancia con algoritmo para archivos de la ITC...")
+        parse_itc(**args_dict)
 
 if __name__ == "__main__":
     
@@ -248,24 +419,39 @@ if __name__ == "__main__":
     import threading
 
     parser = argparse.ArgumentParser(
-        prog="ITC instance parser"
+        prog="General Instance Parser"
     )
 
-    parser.add_argument("XML_instance")
-    parser.add_argument("model_dir")
-    parser.add_argument("output")
-    parser.add_argument("nm_timeslots", type=int)
-    parser.add_argument("room_cap", type=int)
-    parser.add_argument("class_lim", type=int)
+    subparser = parser.add_subparsers(dest="algorithm", required=True)
+
+    parser_sori = subparser.add_parser("sori")
+    parser_itc = subparser.add_parser("itc")
+
+    # SORI algorithm arguments
+    parser_sori.add_argument("nm_students", type=int)
+    parser_sori.add_argument("nm_courses", type=int)
+    parser_sori.add_argument("nm_rooms", type=int)
+    parser_sori.add_argument("nm_timeslots", type=int)
+    parser_sori.add_argument("rho", type=int)
+    parser_sori.add_argument("sigma_class", type=int)
+    parser_sori.add_argument("output_path")
+
+    # ITC algorithm arguments
+    parser_itc.add_argument("XML_instance")
+    parser_itc.add_argument("model_dir")
+    parser_itc.add_argument("output")
+    parser_itc.add_argument("nm_timeslots", type=int)
+    parser_itc.add_argument("room_cap", type=int)
+    parser_itc.add_argument("class_lim", type=int)
 
     args = parser.parse_args()
 
-    thread = threading.Thread(name="ITC instance parser", target=main,
-                              args=(args.XML_instance, args.model_dir, args.output, 
-                                    args.nm_timeslots, args.room_cap, args.class_lim))
+    args_dict = vars(args).copy()
+    alg = args_dict.pop("algorithm")
+
+    thread = threading.Thread(name="Instance parser", target=main,
+                              args=(alg, args_dict))
     
     thread.start()
     thread.join()
-
-    logger.info(f"Creada instancia para {args.XML_instance}")
     

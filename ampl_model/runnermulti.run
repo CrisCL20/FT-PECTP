@@ -1,6 +1,6 @@
 reset ;
 model modelomulti.mod ;
-data Instance1.dat ;
+data Instance4.dat ;
 
 option reset_initial_guesses 1;
 option solver "./gurobi" ;
@@ -11,7 +11,7 @@ option solver "./gurobi" ;
 # option presolve 10 ;
 # option show_stats 1 ;
 #option gurobi_options 'timelim = 3600' ;
-option gurobi_options 'threads=4 mipgap=0.05 nonconvex=2 iisfind=1';
+option gurobi_options 'threads=4';
 #option gurobi_options 'timelim=3600 threads=4 mipgap=0.05 nonconvex=2';
 #option gentimes 1 ;
 
