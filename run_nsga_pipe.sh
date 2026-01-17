@@ -2,13 +2,15 @@
 
 instance=$1
 instance_code=$2
+popsize=$3
+gens=$4
+
+mkdir nsga_results_${instance_code}
 
 cd nsga2-gnuplot-v1.1.6_+Instancia
 
 seeds=("0.01" "0.05" "0.125" "0.232" "0.345" "0.463" "0.587" "0.712" "0.852" "0.999")
-p_muts=("0.01" "0.05" "0.4" "0.8" "0.9" "0.95")
-popsize="152"
-gens="1000"
+p_muts=("0.7" "0.8" "0.85" "0.9" "0.95" "0.97" "0.99")
 nobj="2"
 pcross="0.95"
 
