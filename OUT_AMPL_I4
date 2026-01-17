@@ -1,0 +1,190 @@
+106695283      0 lrwxrwxrwx   1 csoriano csoriano       29 ene 15 22:15 ./runnermulti.run -> ../ampl_model/runnermulti.run
+106695282      0 lrwxrwxrwx   1 csoriano csoriano       29 ene 15 22:15 ./modelomulti.mod -> ../ampl_model/modelomulti.mod
+106695281      0 lrwxrwxrwx   1 csoriano csoriano       33 ene 15 22:15 ./Instance6.dat -> ../instances_parsed/Instance6.dat
+106695280      0 lrwxrwxrwx   1 csoriano csoriano       33 ene 15 22:15 ./Instance5.dat -> ../instances_parsed/Instance5.dat
+106695225      0 lrwxrwxrwx   1 csoriano csoriano       33 ene 15 22:15 ./Instance4.dat -> ../instances_parsed/Instance4.dat
+  Objetivo ::::::: 1
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0
+2905 simplex iterations
+1 branching node
+FO1 = 0
+
+MVF[1] = 0
+PVF[1] = 0
+MVF[2] = 57
+PVF[2] = 57
+  Objetivo ::::::: 2
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0
+8834 simplex iterations
+1 branching node
+FO1 = 0
+
+MVF[1] = 0
+PVF[1] = 38
+MVF[2] = 0
+PVF[2] = 57
+PV[i] = 76
+PVF[i] = 76
+
+PV[i] = 114
+PVF[i] = 114
+
+==> Ejecucion ::::::: 1
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 4.078070166e-06
+7285 simplex iterations
+1 branching node
+absmipgap=1.27864e-16, relmipgap=0
+FO1 = 0
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 2
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.006578946439
+28140 simplex iterations
+1 branching node
+FO1 = 0
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 3
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.01315789111
+5.09107e+06 simplex iterations
+1473 branching nodes
+ 
+------------ WARNINGS ------------
+WARNING:  "Tolerance violations"
+  Type                         MaxAbs [Name]   MaxRel [Name]
+* algebraic con(s)             1E-06           -             
+*: Using the solver's aux variable values.
+Documentation: mp.ampl.com/modeling-tools.html#automatic-solution-check.
+FO1 = 0
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 4
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.01622806691
+9.78303e+06 simplex iterations
+10713 branching nodes
+absmipgap=2.77556e-17, relmipgap=0
+FO1 = 2
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 5
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.01578947262
+1.00171e+07 simplex iterations
+3138 branching nodes
+FO1 = 3
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 6
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.01315789363
+9.86198e+06 simplex iterations
+6215 branching nodes
+absmipgap=7.42958e-10, relmipgap=5.64648e-08
+FO1 = 3
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 7
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.002631577673
+186593 simplex iterations
+1 branching node
+absmipgap=1.4138e-16, relmipgap=0
+FO1 = 3
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 8
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.005263156662
+512739 simplex iterations
+70 branching nodes
+absmipgap=1.30104e-17, relmipgap=0
+FO1 = 3
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 9
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.007894735651
+5.62588e+06 simplex iterations
+1967 branching nodes
+absmipgap=2.37657e-16, relmipgap=0
+FO1 = 3
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 10
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 0.01052631464
+5.16796e+06 simplex iterations
+1843 branching nodes
+absmipgap=5.89806e-16, relmipgap=0
+FO1 = 3
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+==> Ejecucion ::::::: 11
+Gurobi 13.0.0:   tech:threads = 4
+Gurobi 13.0.0: optimal solution; objective 8.758771966e-07
+5777 simplex iterations
+1 branching node
+absmipgap=1.05879e-21, relmipgap=0
+FO1 = 10
+
+MV[1] - PV[1] = -76
+
+MV[2] - PV[2] = -114
+
+
+
+:    MVF    PVF TCPU1   f1   f2    :=
+1   1e-07    76    2     0   57
+2   1e-07   114    1    38    0
+;
+
+:      FN1        FN2         F1       F2  TCPU2    :=
+1    0.592105   1          31           0      1
+2    0.934211   1           5           0      5
+3    0.934211   1           5           0    598
+4    0.986842   0.982456    0.999997    2    757
+5    1          0.973684    0           3   1472
+6    1          0.973684    0           3    888
+7    1          0.973684    0           3     78
+8    1          0.973684    0           3    159
+9    1          0.973684    0           3    911
+10   1          0.973684    0           3    927
+11   1          0.912281    0          10      3
+;
+
