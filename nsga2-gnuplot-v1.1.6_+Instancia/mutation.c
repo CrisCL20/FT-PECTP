@@ -32,113 +32,102 @@ int cmp(const void *a, const void *b)
     return ((*(timeslot_counter *)a).counter - (*(timeslot_counter *)b).counter);
 }
 
+size_t get_act_idx(problem_instance *pi, t_activity a)
+{
+    size_t i;
+    for (i = 0; i < pi->nm_Activity; i++)
+    {
+        if (strcmp(pi->A[i].id, a.id) == 0)
+            return i;
+    }
+
+    return 0;
+}
+
 /* Function to perform mutation of an individual */
 void mutation_ind(individual *ind, problem_instance *pi)
 {
-    int r, t;
+    int r, t, tt, a, c, rr;
 
-    /* select random activity and its timeslot student counter */
-    unsigned act_idx = rnd(0, pi->nm_Activity - 1);
-    int original_tslot_idx = 0, room_idx = 0;
-    for (r = 0; r < pi->nm_Rooms; r++)
+    size_t s_idx = rnd(0, pi->nm_Students - 1);
+
+    // Get T - T[s]
+    int *available_timeslots = (int *)calloc(pi->nm_TimeSlots - pi->Ts[s_idx].nm_timeslots, sizeof(int));
+    size_t av_ts_idx = 0;
+    int *real_freetime_tslot_idx = (int *)calloc(pi->Ts[s_idx].nm_timeslots, sizeof(int));
+    size_t ft_ts_idx = 0;
+
+    for (t = 0; t < pi->nm_TimeSlots; t++)
     {
-        for (t = 0; t < pi->nm_TimeSlots; t++)
+        int found = 0;
+        for (tt = 0; tt < pi->Ts[s_idx].nm_timeslots; ++tt)
         {
-            if (cmpactivity(ind->gene[r][t], pi->A[act_idx]) == 0)
+            if (strcmp(pi->T[t].ts, pi->Ts[s_idx].timeslots[tt].ts) == 0)
             {
-                original_tslot_idx = t;
-                room_idx = r;
+                found = 1;
+                real_freetime_tslot_idx[ft_ts_idx++] = t;
                 break;
             }
         }
+
+        if (!found)
+            available_timeslots[av_ts_idx++] = t;
     }
 
-    size_t s, c, a, found_activity = 0, original_tslot_student_counter = 0, tmp_tslot_idx;
-    timeslot_counter *timeslots_counter = (timeslot_counter *)calloc(pi->nm_TimeSlots, sizeof(timeslot_counter));
-
-    for (s = 0; s < pi->nm_Students; ++s)
+    for (c = 0; c < pi->Cs[s_idx].nm_courses; c++)
     {
-        for (c = 0; c < pi->Cs[s].nm_courses; ++c)
+        if (ind->student_courses[s_idx][c])
         {
-            for (a = 0; a < pi->Ac[c].nm_activities; ++a)
+            size_t course_idx = pi->Cs[s_idx].courses[c].id - 1;
+            int act_count = 0;
+            for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
             {
-                // if the student wants to assist the course that has the activity...
-                if (cmpactivity(pi->Ac[c].activities[a], pi->A[act_idx]) == 0)
+                for (r = 0; r < pi->nm_Rooms; r++)
                 {
-
-                    for (t = 0; t < pi->Ts[s].nm_timeslots; ++t)
+                    int found_act = 0;
+                    for (t = 0; t < pi->Ts[s_idx].nm_timeslots; t++)
                     {
-
-                        char tmp_ts[10];
-                        strcpy(tmp_ts, pi->Ts[s].timeslots[t].ts);
-                        // printf("ESTUDIANTE %d TIMESLOT %s \n", pi->S[s].id, pi->Ts[s].timeslots[t].ts);
-                        char **tokens = str_split(tmp_ts, '_');
-
-                        if (tokens)
+                        if (strcmp(ind->gene[r][real_freetime_tslot_idx[t]].id, pi->Ac[course_idx].activities[a].id) == 0)
                         {
-                            unsigned d = atol(tokens[0]);
-                            unsigned b1 = atol(tokens[1]);
+                            found_act = 1;
+                            size_t act_idx = get_act_idx(pi, pi->Ac[course_idx].activities[a]);
+                            int rooms_for_class[pi->Ra[act_idx].nm_rooms];
 
-                            tmp_tslot_idx = calculate_ts_idx(d, b1, pi->nm_TimeSlots);
-                        }
+                            for (rr = 0; rr < pi->Ra[act_idx].nm_rooms; rr++)
+                                rooms_for_class[rr] = pi->Ra[act_idx].rooms[rr].id - 1;
 
-                        free(tokens);
+                            shuffle(rooms_for_class, pi->Ra[act_idx].nm_rooms);
 
-                        // ... calculate free time request frequency
-                        if (timeslots_counter[tmp_tslot_idx].counter == 0)
-                            timeslots_counter[tmp_tslot_idx].timeslot_idx = tmp_tslot_idx;
-                        timeslots_counter[tmp_tslot_idx].counter++;
-                        // ... if free time request is the same as the original timeslot
-                        if (tmp_tslot_idx == original_tslot_idx)
-                        {
-                            original_tslot_student_counter++;
+                            // move the activity to first available timeslot in any room that it is suitable for
+                            for (tt = 0; tt < av_ts_idx; tt++)
+                            {
+                                int swapped = 0;
+                                for (rr = 0; rr < pi->Ra[act_idx].nm_rooms; rr++)
+                                {
+                                    if (strcmp(ind->gene[rr][available_timeslots[tt]].id, EmptyActivity.id) == 0)
+                                    {
+                                        swapped = 1;
+                                        ind->gene[rr][available_timeslots[tt]] = ind->gene[r][real_freetime_tslot_idx[t]];
+                                        ind->gene[r][real_freetime_tslot_idx[t]] = EmptyActivity;
+                                        break;
+                                    }
+                                }
+                                if (swapped)
+                                    break;
+                            }
+
                             break;
                         }
                     }
-
-                    found_activity = 1;
-                    break;
-                }
-            }
-            if (found_activity)
-            {
-                // reset value for next student
-                found_activity = 0;
-                break;
-            }
-        }
-    }
-
-    /* if there is at least one free time request on the original timeslot, see if it can be moved to the timeslot with lowest counter */
-    qsort(timeslots_counter, pi->nm_TimeSlots, sizeof(timeslot_counter), cmp);
-
-    if (original_tslot_student_counter > 0)
-    {
-        // try until there is an available cell
-        size_t lower_idx = 0;
-        int found_empty_cell = 0;
-
-        int rooms[pi->Ra[act_idx].nm_rooms];
-        for (r = 0; r < pi->Ra[act_idx].nm_rooms; ++r)
-            rooms[r] = pi->Ra[act_idx].rooms[r].id - 1;
-
-        shuffle(rooms, pi->Ra[act_idx].nm_rooms);
-
-        for (r = 0; r < pi->Ra[act_idx].nm_rooms; ++r)
-        {
-            for (lower_idx = 0; lower_idx < pi->nm_TimeSlots; lower_idx++)
-            {
-                size_t lowest = timeslots_counter[lower_idx].timeslot_idx;
-                if (strcmp(ind->gene[rooms[r]][lowest].id, EmptyActivity.id) == 0)
-                {
-                    found_empty_cell = 1;
-                    strcpy(ind->gene[rooms[r]][lowest].id, pi->A[act_idx].id);
-                    strcpy(ind->gene[room_idx][original_tslot_idx].id, EmptyActivity.id);
-                    break;
+                    if (found_act)
+                    {
+                        act_count++;
+                        break;
+                    }
                 }
             }
 
-            if (found_empty_cell)
+            if (act_count == pi->Cs[s_idx].nm_courses)
                 break;
         }
     }

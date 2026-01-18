@@ -34,70 +34,44 @@ int calculate_ts_idx(unsigned d, unsigned b1, unsigned T)
 /*FO1: preferencias horarias*/
 void countTimesRequestsMet(unsigned **student_schedule, t_activity **gene, double *obj, problem_instance *pi)
 {
-    int i, j, k;
+    int i, j, k, r, t, tt;
     unsigned long counts = 0;
 
     for (i = 0; i < pi->nm_Students; i++)
     {
         /*count where the student goes to classes in a time period they did not request*/
-        unsigned n_prefs = pi->Ts[i].nm_timeslots;
-        char ts[10];
-        for (j = 0; j < n_prefs; j++)
+
+        for (j = 0; j < pi->Cs[i].nm_courses; ++j)
         {
-            strcpy(ts, pi->Ts[i].timeslots[j].ts);
-            char **tokens = str_split(ts, '_');
-            unsigned ts_idx; /*idx of the student preference*/
-
-            if (tokens)
+            if (student_schedule[i][j])
             {
-                unsigned d = atol(tokens[0]);
-                unsigned b1 = atol(tokens[1]);
-
-                ts_idx = calculate_ts_idx(d, b1, pi->nm_TimeSlots);
-            }
-
-            for (unsigned tmp = 0; tmp < sizeof(tokens) / sizeof(char **); tmp++)
-                free(tokens[tmp]);
-            free(tokens);
-
-            /*if the student does not attend to a class in that timeslot, increase counts*/
-            /*find classes the student takes -> see if one of those classes is scheduled in ts_idx*/
-            /*counts++ per each activity the student has on a free time request*/
-            unsigned nm_activities = 0;
-            for (k = 0; k < pi->Cs[i].nm_courses; ++k)
-                if (student_schedule[i][k])
-                    nm_activities += pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities;
-
-            // get all of the activities that student i attends
-            t_activity *student_activities = (t_activity *)malloc(nm_activities * sizeof(t_activity));
-            unsigned l = 0;
-            for (k = 0; k < pi->Cs[i].nm_courses; ++k)
-            {
-                if (student_schedule[i][k])
+                size_t c_idx = pi->Cs[i].courses[j].id - 1;
+                for (k = 0; k < pi->Ac[c_idx].nm_activities; k++)
                 {
-                    memcpy(
-                        student_activities + l,
-                        pi->Ac[pi->Cs[i].courses[k].id - 1].activities,
-                        pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities * sizeof(t_activity));
-                    l += pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities;
-                    if (l >= nm_activities)
-                        l -= pi->Ac[pi->Cs[i].courses[k].id - 1].nm_activities;
-                }
-            }
-
-            for (unsigned r = 0; r < pi->nm_Rooms; ++r)
-            {
-                for (unsigned a = 0; a < nm_activities; ++a)
-                {
-                    if (cmpactivity(gene[r][ts_idx], student_activities[a]) == 0)
+                    int found_act = 0;
+                    for (r = 0; r < pi->nm_Rooms; ++r)
                     {
-                        counts++;
-                        break;
+                        for (t = 0; t < pi->nm_TimeSlots; ++t)
+                        {
+                            if (strcmp(gene[r][t].id, pi->Ac[c_idx].activities[k].id) == 0)
+                            {
+                                found_act = 1;
+                                for (tt = 0; tt < pi->Ts[i].nm_timeslots; tt++)
+                                {
+                                    if (strcmp(pi->T[t].ts, pi->Ts[i].timeslots[tt].ts) == 0)
+                                    {
+                                        counts++;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        if (found_act)
+                            break;
                     }
                 }
             }
-
-            free(student_activities);
         }
     }
 
