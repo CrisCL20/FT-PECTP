@@ -113,24 +113,17 @@ void check_room_cap(individual *ind, problem_instance *pi)
         unsigned long n_students = 0;
         for (t = 0; t < pi->nm_TimeSlots; t++)
         {
-            char cid[10];
-            strcpy(cid, ind->gene[r][t].id);
             for (s = 0; s < pi->nm_Students; s++)
             {
                 for (m = 0; m < pi->Cs[s].nm_courses; m++)
                 {
-                    if (ind->student_courses[s][m] == pi->Cs[s].courses[m].id)
+                    if (ind->student_courses[s][m])
                     {
-                        t_activity *course_activities = (t_activity *)malloc(pi->Ac[pi->Cs[s].courses[m].id - 1].nm_activities * sizeof(t_activity));
-                        memcpy(
-                            course_activities,
-                            pi->Ac[pi->Cs[s].courses[m].id - 1].activities,
-                            pi->Ac[pi->Cs[s].courses[m].id - 1].nm_activities * sizeof(t_activity));
-
-                        for (unsigned a = 0; a < pi->Ac[pi->Cs[s].courses[m].id - 1].nm_activities; ++a)
+                        size_t course_idx = pi->Cs[s].courses[m].id - 1;
+                        for (unsigned a = 0; a < pi->Ac[course_idx].nm_activities; ++a)
                         {
 
-                            if (strcmp(cid, course_activities[a].id) == 0)
+                            if (strcmp(ind->gene[r][t].id, pi->Ac[course_idx].activities[a].id) == 0)
                             {
                                 n_students++;
                                 break;

@@ -176,7 +176,7 @@ void assign_students(individual *ind, problem_instance *pi)
     for (s = 0; s < pi->nm_Students; s++)
     {
         /*get total clashes per course*/
-        course_prios *priorities = (course_prios *)calloc(pi->Cs[s].nm_courses, sizeof(course_prios));
+        course_prios priorities[pi->Cs[s].nm_courses];
         for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
         {
             unsigned *clashes_arr = mod_mat[pi->Cs[s].courses[midx].id - 1];

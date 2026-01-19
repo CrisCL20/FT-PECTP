@@ -132,6 +132,9 @@ void mutation_ind(individual *ind, problem_instance *pi)
         }
     }
 
+    free(available_timeslots);
+    free(real_freetime_tslot_idx);
+
     assign_students(ind, pi);
 
     return;
