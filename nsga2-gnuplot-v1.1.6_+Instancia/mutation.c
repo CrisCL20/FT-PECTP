@@ -79,7 +79,6 @@ void mutation_ind(individual *ind, problem_instance *pi)
         if (ind->student_courses[s_idx][c])
         {
             size_t course_idx = pi->Cs[s_idx].courses[c].id - 1;
-            int act_count = 0;
             for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
             {
                 for (r = 0; r < pi->nm_Rooms; r++)
@@ -104,10 +103,10 @@ void mutation_ind(individual *ind, problem_instance *pi)
                                 int swapped = 0;
                                 for (rr = 0; rr < pi->Ra[act_idx].nm_rooms; rr++)
                                 {
-                                    if (strcmp(ind->gene[rr][available_timeslots[tt]].id, EmptyActivity.id) == 0)
+                                    if (strcmp(ind->gene[rooms_for_class[rr]][available_timeslots[tt]].id, EmptyActivity.id) == 0)
                                     {
                                         swapped = 1;
-                                        ind->gene[rr][available_timeslots[tt]] = ind->gene[r][real_freetime_tslot_idx[t]];
+                                        ind->gene[rooms_for_class[rr]][available_timeslots[tt]] = ind->gene[r][real_freetime_tslot_idx[t]];
                                         ind->gene[r][real_freetime_tslot_idx[t]] = EmptyActivity;
                                         break;
                                     }
@@ -121,14 +120,12 @@ void mutation_ind(individual *ind, problem_instance *pi)
                     }
                     if (found_act)
                     {
-                        act_count++;
                         break;
                     }
                 }
             }
 
-            if (act_count == pi->Cs[s_idx].nm_courses)
-                break;
+            break;
         }
     }
 

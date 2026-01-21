@@ -135,7 +135,7 @@ void check_room_cap(individual *ind, problem_instance *pi)
         }
 
         if (n_students > room_cap)
-            ind->constr_violation++;
+            ind->constr_violation--;
     }
 }
 
@@ -152,7 +152,7 @@ void check_course_lim(individual *ind, problem_instance *pi)
                     course_count++;
 
         if (course_count > course_lim)
-            ind->constr_violation++;
+            ind->constr_violation--;
     }
 }
 
@@ -168,7 +168,7 @@ void check_min_mods(individual *ind, problem_instance *pi)
                 mods++;
 
         if (mods < min_mods)
-            ind->constr_violation++;
+            ind->constr_violation--;
     }
 }
 
@@ -184,7 +184,7 @@ void check_max_mods(individual *ind, problem_instance *pi)
                 mods++;
 
         if (mods > max_mods)
-            ind->constr_violation++;
+            ind->constr_violation--;
         mods = 0;
     }
 }
