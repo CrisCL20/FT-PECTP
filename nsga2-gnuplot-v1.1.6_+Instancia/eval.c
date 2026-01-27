@@ -21,20 +21,10 @@ void evaluate_pop(population *pop, problem_instance *pi)
 
 /*Acá la evaluación completa. Deben setearse los valores de obj y constr_violation. */
 
-int get_ts_block_idx(const unsigned b1, const unsigned T)
-{
-    return ((2 * T / 5) - b1 - 1) / 2;
-}
-
-int calculate_ts_idx(unsigned d, unsigned b1, unsigned T)
-{
-    return ((T / 5) * d) - 1 - get_ts_block_idx(b1, T);
-}
-
 /*FO1: preferencias horarias*/
 void countTimesRequestsMet(unsigned **student_schedule, t_activity **gene, double *obj, problem_instance *pi)
 {
-    int i, j, k, r, t, tt;
+    int i, j, k, r, t;
     unsigned long counts = 0;
 
     for (i = 0; i < pi->nm_Students; i++)
@@ -51,22 +41,17 @@ void countTimesRequestsMet(unsigned **student_schedule, t_activity **gene, doubl
                     int found_act = 0;
                     for (r = 0; r < pi->nm_Rooms; ++r)
                     {
-                        for (t = 0; t < pi->nm_TimeSlots; ++t)
+                        for (t = 0; t < pi->Ts[i].nm_timeslots; t++)
                         {
-                            if (strcmp(gene[r][t].id, pi->Ac[c_idx].activities[k].id) == 0)
+                            int ts_idx = get_timeslot_idx(pi, pi->Ts[i].timeslots[t]);
+                            if (ts_idx != -1 && strcmp(gene[r][ts_idx].id, pi->Ac[c_idx].activities[k].id) == 0)
                             {
                                 found_act = 1;
-                                for (tt = 0; tt < pi->Ts[i].nm_timeslots; tt++)
-                                {
-                                    if (strcmp(pi->T[t].ts, pi->Ts[i].timeslots[tt].ts) == 0)
-                                    {
-                                        counts++;
-                                        break;
-                                    }
-                                }
+                                counts++;
                                 break;
                             }
                         }
+
                         if (found_act)
                             break;
                     }
@@ -103,39 +88,35 @@ void countCourseRequestsMet(unsigned **students_schedule, double *obj, problem_i
 
 void check_room_cap(individual *ind, problem_instance *pi)
 {
-    int r, t, s, m;
+    int r, s, t;
 
     for (r = 0; r < pi->nm_Rooms; r++)
     {
-        unsigned room_cap = pi->rho[r];
-        /*get count of students that attend a class in r per time slot*/
-        /**/
-        unsigned long n_students = 0;
+        int room_cap = pi->rho[r];
+
+        // see that in each timeslot, the room does not have more than pi->rho[r] students, if it does, decrease constr_violation
         for (t = 0; t < pi->nm_TimeSlots; t++)
         {
+            int n_students = 0;
+            t_activity act = ind->gene[r][t];
+
+            // if the cell is empty, go to next timeslot
+            if (strcmp(act.id, EmptyActivity.id) == 0)
+                continue;
+
+            int parent_course_id = get_course_activity(pi, act);
+
             for (s = 0; s < pi->nm_Students; s++)
             {
-                for (m = 0; m < pi->Cs[s].nm_courses; m++)
-                {
-                    if (ind->student_courses[s][m])
-                    {
-                        size_t course_idx = pi->Cs[s].courses[m].id - 1;
-                        for (unsigned a = 0; a < pi->Ac[course_idx].nm_activities; ++a)
-                        {
-
-                            if (strcmp(ind->gene[r][t].id, pi->Ac[course_idx].activities[a].id) == 0)
-                            {
-                                n_students++;
-                                break;
-                            }
-                        }
-                    }
-                }
+                // if the student is enrolled in activity parent course, then he assists to the activity
+                int course_idx_in_student_pref = course_in_student_preference(pi, s, parent_course_id);
+                if (course_idx_in_student_pref != -1 && ind->student_courses[s][course_idx_in_student_pref])
+                    n_students++;
             }
-        }
 
-        if (n_students > room_cap)
-            ind->constr_violation--;
+            if (n_students > room_cap)
+                ind->constr_violation--;
+        }
     }
 }
 

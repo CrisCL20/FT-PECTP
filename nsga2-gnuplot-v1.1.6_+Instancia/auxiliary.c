@@ -101,3 +101,50 @@ int cpyactivity(t_activity a1, t_activity a2)
     strcpy(a1.id, a2.id);
     return 0;
 }
+
+size_t get_act_idx(problem_instance *pi, t_activity a)
+{
+    size_t i;
+    for (i = 0; i < pi->nm_Activity; i++)
+    {
+        if (strcmp(pi->A[i].id, a.id) == 0)
+            return i;
+    }
+
+    return 0;
+}
+
+size_t get_course_activity(problem_instance *pi, t_activity act)
+{
+    int c, a;
+    for (c = 0; c < pi->nm_Courses; c++)
+    {
+        for (a = 0; a < pi->Ac[c].nm_activities; a++)
+        {
+            if (strcmp(pi->Ac[c].activities[a].id, act.id) == 0)
+            {
+                return pi->C[c].id;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid)
+{
+    int c;
+    for (c = 0; c < pi->Cs[s_idx].nm_courses; c++)
+        if (cid == pi->Cs[s_idx].courses[c].id)
+            return c;
+    return -1;
+}
+
+int get_timeslot_idx(problem_instance *pi, t_timeslot timeslot)
+{
+    int t;
+    for (t = 0; t < pi->nm_TimeSlots; t++)
+        if (strcmp(pi->T[t].ts, timeslot.ts) == 0)
+            return t;
+    return -1;
+}

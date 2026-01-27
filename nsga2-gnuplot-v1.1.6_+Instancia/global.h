@@ -152,8 +152,10 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
-int cmpactivity(t_activity a1, t_activity a2);
-int cpyactivity(t_activity a1, t_activity a2);
+size_t get_act_idx(problem_instance *pi, t_activity a);
+int get_timeslot_idx(problem_instance *pi, t_timeslot timeslot);
+size_t get_course_activity(problem_instance *pi, t_activity act);
+int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);

@@ -14,6 +14,12 @@ typedef struct
     size_t counter;
 } timeslot_counter;
 
+typedef struct
+{
+    t_activity picked_act;
+    size_t room_id;
+} t_activity_choice;
+
 /* Function to perform mutation in a population */
 void mutation_pop(population *pop, problem_instance *pi)
 {
@@ -32,105 +38,151 @@ int cmp(const void *a, const void *b)
     return ((*(timeslot_counter *)a).counter - (*(timeslot_counter *)b).counter);
 }
 
-size_t get_act_idx(problem_instance *pi, t_activity a)
+int ts_in_student_preference(timeslot_preference student_preference, char *ts)
 {
-    size_t i;
-    for (i = 0; i < pi->nm_Activity; i++)
-    {
-        if (strcmp(pi->A[i].id, a.id) == 0)
-            return i;
-    }
+    int t;
+    for (t = 0; t < student_preference.nm_timeslots; t++)
+        if (strcmp(ts, student_preference.timeslots[t].ts))
+            return 1;
 
     return 0;
+}
+
+int get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind)
+{
+    int r, t, s, c, a;
+
+    timeslot_counter *ts_counter = (timeslot_counter *)calloc(pi->nm_TimeSlots, sizeof(timeslot_counter));
+
+    for (s = 0; s < pi->nm_Students; s++)
+    {
+        for (c = 0; c < pi->Cs[s].nm_courses; c++)
+        {
+            if (ind->student_courses[s][c])
+            {
+                for (a = 0; a < pi->Ac[pi->Cs[s].courses[c].id - 1].nm_activities; a++)
+                {
+                    int found_act = 0;
+                    for (r = 0; r < pi->nm_TimeSlots; r++)
+                    {
+                        for (t = 0; t < pi->nm_TimeSlots; t++)
+                        {
+                            if (strcmp(ind->gene[r][t].id, pi->Ac[pi->Cs[s].courses[c].id - 1].activities[a].id) == 0 && ts_in_student_preference(pi->Ts[s], pi->T[t].ts))
+                            {
+                                found_act = 1;
+                                ts_counter[t].counter++;
+                                ts_counter[t].timeslot_idx = t;
+                                break;
+                            }
+                        }
+                        if (found_act)
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    qsort(ts_counter, pi->nm_TimeSlots, sizeof(timeslot_counter), cmp);
+
+    size_t worst_idx = ts_counter[pi->nm_TimeSlots - 1].timeslot_idx;
+    free(ts_counter);
+
+    return worst_idx;
+}
+
+t_activity_choice pick_activity(problem_instance *pi, individual *ind, int worst_ts)
+{
+    int r, a, count_act = 0;
+    for (r = 0; r < pi->nm_Rooms; r++)
+        if (strcmp(ind->gene[r][worst_ts].id, EmptyActivity.id) != 0)
+            count_act++;
+
+    int activities_in_ts_index[count_act];
+    for (a = 0; a < count_act; a++)
+        activities_in_ts_index[a] = a;
+
+    t_activity_choice activities_in_ts[count_act];
+    int activities_idx = 0;
+    for (r = 0; r < pi->nm_Rooms; r++)
+        if (strcmp(ind->gene[r][worst_ts].id, EmptyActivity.id) != 0)
+            activities_in_ts[activities_idx++] = (t_activity_choice){.picked_act = ind->gene[r][worst_ts], .room_id = r};
+
+    shuffle(activities_in_ts_index, count_act);
+
+    return activities_in_ts[activities_in_ts_index[0]];
+}
+
+int is_feasible(problem_instance *pi, individual *ind, t_activity a, int ts)
+{
+    size_t act_idx = get_act_idx(pi, a);
+    int r;
+
+    for (r = 0; r < pi->Ra[act_idx].nm_rooms; r++)
+        if (strcmp(ind->gene[pi->Ra[act_idx].rooms[r].id - 1][ts].id, EmptyActivity.id) == 0)
+            return 1;
+
+    return 0;
+}
+
+int count_free_time_violations(problem_instance *pi, individual *ind, t_activity act, int ts)
+{
+    int s, c_idx, count = 0;
+    int course_idx = get_course_activity(pi, act);
+    for (s = 0; s < pi->nm_Students; s++)
+    {
+        c_idx = course_in_student_preference(pi, s, course_idx);
+        if (ts_in_student_preference(pi->Ts[s], pi->T[ts].ts) && c_idx != -1 && ind->student_courses[s][c_idx])
+            count++;
+    }
+
+    return count;
+}
+
+void swap_activity(problem_instance *pi, individual *ind, t_activity_choice act_choice, int previous_timeslot, int new_timeslot)
+{
+    int r;
+    int act_idx = get_act_idx(pi, act_choice.picked_act);
+
+    for (r = 0; r < pi->Ra[act_idx].nm_rooms; r++)
+    {
+        if (strcmp(ind->gene[pi->Ra[act_idx].rooms[r].id - 1][new_timeslot].id, EmptyActivity.id) == 0)
+        {
+            ind->gene[pi->Ra[act_idx].rooms[r].id - 1][new_timeslot] = act_choice.picked_act;
+            ind->gene[act_choice.room_id][previous_timeslot] = EmptyActivity;
+            break;
+        }
+    }
+
+    return;
 }
 
 /* Function to perform mutation of an individual */
 void mutation_ind(individual *ind, problem_instance *pi)
 {
-    int r, t, tt, a, c, rr;
+    int t;
+    int worst_tslot = get_most_conflicted_free_timeslot(pi, ind);
+    t_activity_choice act_to_swap = pick_activity(pi, ind, worst_tslot);
 
-    size_t s_idx = rnd(0, pi->nm_Students - 1);
-
-    // Get T - T[s]
-    int *available_timeslots = (int *)calloc(pi->nm_TimeSlots - pi->Ts[s_idx].nm_timeslots, sizeof(int));
-    size_t av_ts_idx = 0;
-    int *real_freetime_tslot_idx = (int *)calloc(pi->Ts[s_idx].nm_timeslots, sizeof(int));
-    size_t ft_ts_idx = 0;
+    int best_target_ts = -1;
+    int min_new_conflicts = 1e9;
 
     for (t = 0; t < pi->nm_TimeSlots; t++)
     {
-        int found = 0;
-        for (tt = 0; tt < pi->Ts[s_idx].nm_timeslots; ++tt)
+        if (is_feasible(pi, ind, act_to_swap.picked_act, t))
         {
-            if (strcmp(pi->T[t].ts, pi->Ts[s_idx].timeslots[tt].ts) == 0)
+            int score = count_free_time_violations(pi, ind, act_to_swap.picked_act, t);
+            if (score < min_new_conflicts)
             {
-                found = 1;
-                real_freetime_tslot_idx[ft_ts_idx++] = t;
-                break;
+                min_new_conflicts = score;
+                best_target_ts = t;
             }
-        }
-
-        if (!found)
-            available_timeslots[av_ts_idx++] = t;
-    }
-
-    for (c = 0; c < pi->Cs[s_idx].nm_courses; c++)
-    {
-        if (ind->student_courses[s_idx][c])
-        {
-            size_t course_idx = pi->Cs[s_idx].courses[c].id - 1;
-            for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
-            {
-                for (r = 0; r < pi->nm_Rooms; r++)
-                {
-                    int found_act = 0;
-                    for (t = 0; t < pi->Ts[s_idx].nm_timeslots; t++)
-                    {
-                        if (strcmp(ind->gene[r][real_freetime_tslot_idx[t]].id, pi->Ac[course_idx].activities[a].id) == 0)
-                        {
-                            found_act = 1;
-                            size_t act_idx = get_act_idx(pi, pi->Ac[course_idx].activities[a]);
-                            int rooms_for_class[pi->Ra[act_idx].nm_rooms];
-
-                            for (rr = 0; rr < pi->Ra[act_idx].nm_rooms; rr++)
-                                rooms_for_class[rr] = pi->Ra[act_idx].rooms[rr].id - 1;
-
-                            shuffle(rooms_for_class, pi->Ra[act_idx].nm_rooms);
-
-                            // move the activity to first available timeslot in any room that it is suitable for
-                            for (tt = 0; tt < av_ts_idx; tt++)
-                            {
-                                int swapped = 0;
-                                for (rr = 0; rr < pi->Ra[act_idx].nm_rooms; rr++)
-                                {
-                                    if (strcmp(ind->gene[rooms_for_class[rr]][available_timeslots[tt]].id, EmptyActivity.id) == 0)
-                                    {
-                                        swapped = 1;
-                                        ind->gene[rooms_for_class[rr]][available_timeslots[tt]] = ind->gene[r][real_freetime_tslot_idx[t]];
-                                        ind->gene[r][real_freetime_tslot_idx[t]] = EmptyActivity;
-                                        break;
-                                    }
-                                }
-                                if (swapped)
-                                    break;
-                            }
-
-                            break;
-                        }
-                    }
-                    if (found_act)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            break;
         }
     }
 
-    free(available_timeslots);
-    free(real_freetime_tslot_idx);
+    // swap activity from worst_tslot to new best_target_ts
+    if (best_target_ts != -1)
+        swap_activity(pi, ind, act_to_swap, worst_tslot, best_target_ts);
 
     assign_students(ind, pi);
 
