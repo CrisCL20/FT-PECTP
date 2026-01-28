@@ -1,0 +1,49 @@
+Call: /usr/bin/ruby ../scripts/param_ils_2_3_run.rb "-numRun" "1" "-approach" "focused" "-userunlog" "1" "-validN" "0" "-pruning" "0" "-maxEvals" "100000" "-scenariofile" "All.scn"
+
+
+seed: 2468
+algo: bash NSGA2.sh
+tunerTimeout (CPU time): 100000000.0
+maxWallTime: 8640000.0
+maxEvals: 100000
+run_obj: runlength
+overall_obj: mean
+instance_file: All.inst
+test_instance_file: All.inst
+N: 2000
+cutoff_time: 1000000000.0
+cutoff_length: 2147483647
+R: 10
+pertubation_strength_basic: 
+pertubation_strength_scaling: false
+p_restart: 0.01
+Run 2
+Level 
+========================================================
+Starting ILS for level 1, i.e. a limit of N=2000, and cutoff time=1000000000.0.
+Current CPU time = 0, this run goes until 100000000.0 
+========================================================
+New Incumbent: 0, 100000000 [0, 0]. With state p=20, pc=0.8, pm=0.05
+ Same incumbent, new precision:
+New Incumbent: 0.1, -59.0 [1, 1000000000.0]. With state p=20, pc=0.8, pm=0.05
+        -> Worse random: p=100 pc=0.5 pm=0.25 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=10 pc=0.6 pm=0.25 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=10 pc=0.5 pm=0.05 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=10 pc=0.1 pm=0.25 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=10 pc=0.5 pm=0.10 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=100 pc=1 pm=0.10 (-42.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=100 pc=0.25 pm=0.25 (-35.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=50 pc=0.8 pm=0.25 (-35.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=10 pc=0.8 pm=0.01 (-35.0 [based on 1 runs with cutoff 1000000000.0])
+        -> Worse random: p=20 pc=0.8 pm=0.10 (-45.0 [based on 1 runs with cutoff 1000000000.0])
+   BLS in iteration 1, start with p=20 pc=0.8 pm=0.05 (-59.0 [based on 1 runs with cutoff 1000000000.0])
+    Changing ["pc: 0.8->0.1"], evaluating ...
+        -> worse: (-58.0 [based on 1 runs with cutoff 1000000000.0])
+    Changing ["pc: 0.8->0.25"], evaluating ...
+New inc: -60.0
+New Incumbent: 1.3, -60.0 [1, 1000000000.0]. With state p=20, pc=0.25, pm=0.05
+          -> Take improving step to neighbour p=20 pc=0.25 pm=0.05 (-60.0 [based on 1 runs with cutoff 1000000000.0]) with flip 1
+
+          
+============= Performing 2 bonus runs of state: p=20 pc=0.25 pm=0.05 (-60.0 [based on 1 runs with cutoff 1000000000.0]) ============ 
+

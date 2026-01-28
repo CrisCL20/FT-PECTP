@@ -1,0 +1,106 @@
+max wall time = 8640000
+/home/emontero/Bryan/ExampleParamILS_/All.params
+3 parameters in total
+0 parameters are conditional.
+0 parameter combinations are forbidden.
+num_params = 3, num_combos=120
+seed: 2468
+Run 2
+Level 
+========================================================
+Starting ILS for level 1, i.e. a limit of N=2000, and cutoff time=1000000000.0.
+Current CPU time = 0, this run goes until 100000000.0 
+========================================================
+New Incumbent: 0, 100000000 [0, 0]. With state p=20, pc=0.8, pm=0.05
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.8 -pm 0.05 > /tmp/tmp-2025-12-0811:32:09-0.6082137823104858
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.8 -pm 0.05 > /tmp/tmp-2025-12-0811:32:09-0.6082137823104858
+Result: SAT, 0, -59.01, 0, 599162946
+ Same incumbent, new precision:
+New Incumbent: 0.1, -59.0 [1, 1000000000.0]. With state p=20, pc=0.8, pm=0.05
+now 2025-12-08 11:32:40 -0300; start 2025-12-08 11:32:09 -0300; time-start 30.729067847; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 100 -pc 0.5 -pm 0.25 > /tmp/tmp-2025-12-0811:32:40-0.0023741722106933594
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 100 -pc 0.5 -pm 0.25 > /tmp/tmp-2025-12-0811:32:40-0.0023741722106933594
+Result: SAT, 0, -49.80, 0, 599162946
+        -> Worse random: p=100 pc=0.5 pm=0.25 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:33:13 -0300; start 2025-12-08 11:32:09 -0300; time-start 63.678099708; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.6 -pm 0.25 > /tmp/tmp-2025-12-0811:33:13-0.34099340438842773
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.6 -pm 0.25 > /tmp/tmp-2025-12-0811:33:13-0.34099340438842773
+Result: SAT, 0, -49.80, 0, 599162946
+        -> Worse random: p=10 pc=0.6 pm=0.25 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:33:13 -0300; start 2025-12-08 11:32:09 -0300; time-start 63.724218623; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.5 -pm 0.05 > /tmp/tmp-2025-12-0811:33:13-0.20670413970947266
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.5 -pm 0.05 > /tmp/tmp-2025-12-0811:33:13-0.20670413970947266
+Result: SAT, 0, -49.80, 0, 599162946
+        -> Worse random: p=10 pc=0.5 pm=0.05 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:33:13 -0300; start 2025-12-08 11:32:09 -0300; time-start 63.767617597; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.1 -pm 0.25 > /tmp/tmp-2025-12-0811:33:13-0.3804483413696289
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.1 -pm 0.25 > /tmp/tmp-2025-12-0811:33:13-0.3804483413696289
+Result: SAT, 0, -49.80, 0, 599162946
+        -> Worse random: p=10 pc=0.1 pm=0.25 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:33:13 -0300; start 2025-12-08 11:32:09 -0300; time-start 63.81381646; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.5 -pm 0.10 > /tmp/tmp-2025-12-0811:33:13-0.9927377700805664
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.5 -pm 0.10 > /tmp/tmp-2025-12-0811:33:13-0.9927377700805664
+Result: SAT, 0, -49.80, 0, 599162946
+        -> Worse random: p=10 pc=0.5 pm=0.10 (-49.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:33:13 -0300; start 2025-12-08 11:32:09 -0300; time-start 63.85920462; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 100 -pc 1 -pm 0.10 > /tmp/tmp-2025-12-0811:33:13-0.19740867614746094
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 100 -pc 1 -pm 0.10 > /tmp/tmp-2025-12-0811:33:13-0.19740867614746094
+Result: SAT, 0, -42.11, 0, 599162946
+        -> Worse random: p=100 pc=1 pm=0.10 (-42.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:33:47 -0300; start 2025-12-08 11:32:09 -0300; time-start 97.930424124; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 100 -pc 0.25 -pm 0.25 > /tmp/tmp-2025-12-0811:33:47-0.15531706809997559
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 100 -pc 0.25 -pm 0.25 > /tmp/tmp-2025-12-0811:33:47-0.15531706809997559
+Result: SAT, 0, -35.28, 0, 599162946
+        -> Worse random: p=100 pc=0.25 pm=0.25 (-35.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:34:20 -0300; start 2025-12-08 11:32:09 -0300; time-start 130.623999966; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 50 -pc 0.8 -pm 0.25 > /tmp/tmp-2025-12-0811:34:20-0.21798992156982422
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 50 -pc 0.8 -pm 0.25 > /tmp/tmp-2025-12-0811:34:20-0.21798992156982422
+Result: SAT, 0, -35.28, 0, 599162946
+        -> Worse random: p=50 pc=0.8 pm=0.25 (-35.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:34:20 -0300; start 2025-12-08 11:32:09 -0300; time-start 130.670288323; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.8 -pm 0.01 > /tmp/tmp-2025-12-0811:34:20-0.006388664245605469
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 10 -pc 0.8 -pm 0.01 > /tmp/tmp-2025-12-0811:34:20-0.006388664245605469
+Result: SAT, 0, -35.28, 0, 599162946
+        -> Worse random: p=10 pc=0.8 pm=0.01 (-35.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:34:20 -0300; start 2025-12-08 11:32:09 -0300; time-start 130.715584098; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.8 -pm 0.10 > /tmp/tmp-2025-12-0811:34:20-0.4048299789428711
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.8 -pm 0.10 > /tmp/tmp-2025-12-0811:34:20-0.4048299789428711
+Result: SAT, 0, -45.98, 0, 599162946
+        -> Worse random: p=20 pc=0.8 pm=0.10 (-45.0 [based on 1 runs with cutoff 1000000000.0])
+   BLS in iteration 1, start with p=20 pc=0.8 pm=0.05 (-59.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:34:51 -0300; start 2025-12-08 11:32:09 -0300; time-start 161.473137685; maxWall 8640000.0
+now 2025-12-08 11:34:51 -0300; start 2025-12-08 11:32:09 -0300; time-start 161.473234076; maxWall 8640000.0
+    Changing ["pc: 0.8->0.1"], evaluating ...
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.1 -pm 0.05 > /tmp/tmp-2025-12-0811:34:51-0.40906667709350586
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.1 -pm 0.05 > /tmp/tmp-2025-12-0811:34:51-0.40906667709350586
+Result: SAT, 0, -58.85, 0, 599162946
+        -> worse: (-58.0 [based on 1 runs with cutoff 1000000000.0])
+now 2025-12-08 11:35:21 -0300; start 2025-12-08 11:32:09 -0300; time-start 191.381095638; maxWall 8640000.0
+    Changing ["pc: 0.8->0.25"], evaluating ...
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.25 -pm 0.05 > /tmp/tmp-2025-12-0811:35:21-0.22726821899414062
+Executing cmd: bash NSGA2.sh Instance16.dat "" 1000000000.0000001 2147483647 599162946 -p 20 -pc 0.25 -pm 0.05 > /tmp/tmp-2025-12-0811:35:21-0.22726821899414062
+Result: SAT, 0, -60.76, 0, 599162946
+New inc: -60.0
+New Incumbent: 1.3, -60.0 [1, 1000000000.0]. With state p=20, pc=0.25, pm=0.05
+          -> Take improving step to neighbour p=20 pc=0.25 pm=0.05 (-60.0 [based on 1 runs with cutoff 1000000000.0]) with flip 1
+
+          
+============= Performing 2 bonus runs of state: p=20 pc=0.25 pm=0.05 (-60.0 [based on 1 runs with cutoff 1000000000.0]) ============ 
+
+now 2025-12-08 11:35:51 -0300; start 2025-12-08 11:32:09 -0300; time-start 221.4125178; maxWall 8640000.0
+getAlgoResultsForInstsAndParams.
+  Trial 1 for calling: bash NSGA2.sh Instance23.dat "" 1000000000.0000001 2147483647 521355292 -p 20 -pc 0.25 -pm 0.05 > /tmp/tmp-2025-12-0811:35:51-0.7148294448852539
+Executing cmd: bash NSGA2.sh Instance23.dat "" 1000000000.0000001 2147483647 521355292 -p 20 -pc 0.25 -pm 0.05 > /tmp/tmp-2025-12-0811:35:51-0.7148294448852539

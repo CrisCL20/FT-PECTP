@@ -1,0 +1,1 @@
+time ruby paramils2.3.8-source/param_ils_2_3_run.rb -numRun 1 -approach focused -userunlog 1 -validN 0 -pruning 0 -maxEvals 100000 -scenariofile All.scn > ParamILS_AILS_IAll_S1.out
