@@ -104,7 +104,11 @@ void swap_activity(problem_instance *pi, individual *ind, t_activity_choice act_
 void mutation_ind(individual *ind, problem_instance *pi)
 {
     int t;
-    int worst_tslot = get_most_conflicted_free_timeslot(pi, ind)[0].timeslot_idx;
+
+    timeslot_counter *bad_tslots = get_most_conflicted_free_timeslot(pi, ind);
+    int worst_tslot = bad_tslots[0].timeslot_idx;
+    free(bad_tslots);
+
     t_activity_choice act_to_swap = pick_activity(pi, ind, worst_tslot);
 
     int best_target_ts = -1;
