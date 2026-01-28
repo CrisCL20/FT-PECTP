@@ -9,6 +9,7 @@
 #include "rand.h"
 
 #define PENALIZATION 1E6
+#define FREETIME_PENALIZATION 1E2
 
 typedef struct
 {
@@ -44,88 +45,47 @@ int find_course(const problem_instance *pi, const t_activity act)
 
 void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
 {
-    int i, j, jj, r, t;
+    int *act_to_ts = malloc(pi->nm_Activity * sizeof(int));
+    for (int i = 0; i < pi->nm_Activity; i++)
+        act_to_ts[i] = -1;
 
-    for (i = 0; i < pi->nm_Courses; i++)
+    for (int r = 0; r < pi->nm_Rooms; r++)
     {
-        /*finding timeslot index for all activities in i*/
-        int *acts_ts_idx = (int *)malloc(pi->Ac[i].nm_activities * sizeof(int));
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-            acts_ts_idx[j] = -1;
-        // int all_found = 1;
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
+        for (int t = 0; t < pi->nm_TimeSlots; t++)
         {
-            for (r = 0; r < pi->nm_Rooms; r++)
+            if (strcmp(ind->gene[r][t].id, EmptyActivity.id) != 0)
             {
-
-                for (t = 0; t < pi->nm_TimeSlots; t++)
-                {
-
-                    if (strcmp(ind->gene[r][t].id, pi->Ac[i].activities[j].id) == 0)
-                    {
-                        acts_ts_idx[j] = t;
-                        break;
-                    }
-                }
+                int a_idx = get_act_idx(pi, ind->gene[r][t]);
+                if (a_idx != -1)
+                    act_to_ts[a_idx] = t;
             }
         }
-
-        // printf("TS idx for each activity in course %d\n", pi->C[i].id);
-        // for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-        //     printf("%d ", acts_ts_idx[j]);
-        // printf("\n");
-        /*if any of the activities in course i clash, then it will be penalized*/
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-        {
-
-            for (jj = 0; jj < pi->Ac[i].nm_activities; ++jj)
-            {
-
-                if (acts_ts_idx[j] == acts_ts_idx[jj] && strcmp(pi->Ac[i].activities[j].id, pi->Ac[i].activities[jj].id) != 0)
-                {
-                    mat[i][i] = PENALIZATION;
-                    break;
-                }
-            }
-        }
-
-        // find clashing activities
-        int *clashes_with_aj__ = (int *)calloc(pi->Ac[i].nm_activities, sizeof(int));
-        t_activity **clashing_activities_course_i = (t_activity **)malloc(pi->Ac[i].nm_activities * sizeof(t_activity *));
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-            clashing_activities_course_i[j] = (t_activity *)calloc((pi->nm_Rooms - 1), sizeof(t_activity));
-
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-        {
-
-            for (r = 0; r < pi->nm_Rooms; r++)
-            {
-                if (
-                    strcmp(ind->gene[r][acts_ts_idx[j]].id, EmptyActivity.id) != 0 && strcmp(ind->gene[r][acts_ts_idx[j]].id, pi->Ac[i].activities[j].id) != 0)
-                {
-                    // printf("GENE ACTIVITY %s ACTIVITY %s\n", ind->gene[r][acts_ts_idx[j]].id, pi->Ac[i].activities[j].id);
-                    clashing_activities_course_i[j][clashes_with_aj__[j]++] = ind->gene[r][acts_ts_idx[j]];
-                    break;
-                }
-            }
-        }
-
-        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
-        {
-            for (jj = 0; jj < clashes_with_aj__[j]; ++jj)
-            {
-                size_t other_course_idx = find_course(pi, clashing_activities_course_i[j][jj]);
-
-                mat[i][other_course_idx] = 1;
-            }
-        }
-
-        free(clashes_with_aj__);
-        for (j = 0; j < pi->Ac[i].nm_activities; j++)
-            free(clashing_activities_course_i[j]);
-        free(clashing_activities_course_i);
-        free(acts_ts_idx);
     }
+
+    // 2. Llenado de matriz de colisiones entre cursos
+    for (int i = 0; i < pi->nm_Courses; i++)
+    {
+        for (int a_idx = 0; a_idx < pi->Ac[i].nm_activities; a_idx++)
+        {
+            int current_act = get_act_idx(pi, pi->Ac[i].activities[a_idx]);
+            int t1 = act_to_ts[current_act];
+            if (t1 == -1)
+                continue;
+
+            // Revisar qué otras cosas hay en ese mismo bloque t1 en otros salones
+            for (int r = 0; r < pi->nm_Rooms; r++)
+            {
+                if (strcmp(ind->gene[r][t1].id, EmptyActivity.id) != 0 &&
+                    strcmp(ind->gene[r][t1].id, pi->Ac[i].activities[a_idx].id) != 0)
+                {
+
+                    int other_course = find_course(pi, ind->gene[r][t1]);
+                    mat[i][other_course] = 1;
+                }
+            }
+        }
+    }
+    free(act_to_ts);
 }
 
 int comp(const void *a, const void *b)
@@ -143,21 +103,16 @@ size_t find_idx_in_student_preference(problem_instance *pi, size_t s_idx, size_t
     return 0;
 }
 
-void printCourseMatrix(unsigned **mod_mat, problem_instance *pi)
+int find_activity_timeslot(problem_instance *pi, individual *ind, t_activity activity)
 {
-    size_t c1, c2;
-    for (c1 = 0; c1 < pi->nm_Courses; c1++)
-    {
-        printf("\nCursos conflictivos con %d:\n\t", pi->C[c1].id);
-        for (c2 = 0; c2 < pi->nm_Courses; c2++)
-        {
-            if (mod_mat[c1][c2])
-            {
-                printf("%d (VAL %d)", pi->C[c2].id, mod_mat[c1][c2]);
-            }
-        }
-        printf("\n");
-    }
+    int r, t;
+
+    for (r = 0; r < pi->nm_Rooms; r++)
+        for (t = 0; t < pi->nm_TimeSlots; t++)
+            if (strcmp(ind->gene[r][t].id, activity.id) == 0)
+                return t;
+
+    return -1;
 }
 
 void assign_students(individual *ind, problem_instance *pi)
@@ -172,19 +127,31 @@ void assign_students(individual *ind, problem_instance *pi)
     // printCourseMatrix(mod_mat, pi);
     // printf("==== Matriz de colisiones ====\n");
 
-    int s, midx;
+    int s, midx, a;
     for (s = 0; s < pi->nm_Students; s++)
     {
         /*get total clashes per course*/
         course_prios priorities[pi->Cs[s].nm_courses];
         for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
         {
-            unsigned *clashes_arr = mod_mat[pi->Cs[s].courses[midx].id - 1];
+            size_t course_idx = pi->Cs[s].courses[midx].id - 1;
             priorities[midx].mid = pi->Cs[s].courses[midx].id;
             priorities[midx].degree = 0;
+
+            unsigned course_conflict = 0;
             for (i = 0; i < pi->nm_Courses; i++)
-                priorities[midx].degree += clashes_arr[i];
-            // free(clashes_arr);
+                course_conflict += mod_mat[course_idx][i];
+
+            // add free time conflict penalization
+            unsigned freetime_conflict = 0;
+            for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
+            {
+                int act_ts = find_activity_timeslot(pi, ind, pi->Ac[course_idx].activities[a]);
+                if (act_ts != -1 && timeslot_in_student_preference(pi, s, pi->T[act_ts]))
+                    freetime_conflict += FREETIME_PENALIZATION;
+            }
+
+            priorities[midx].degree += freetime_conflict;
         }
 
         /**************/

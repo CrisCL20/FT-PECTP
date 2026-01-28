@@ -55,6 +55,14 @@ void printProblemInstance(problem_instance *pi)
         printf("\n");
     }
 
+    printf("Actividades: %d\n\t", pi->nm_Activity);
+
+    for (i = 0; i < pi->nm_Activity; i++)
+    {
+        printf("%s ", pi->A[i].id);
+    }
+    printf("\n");
+
     for (i = 0; i < pi->nm_Activity; i++)
     {
         printf("Salones que son adecuados para realizar la actividad %s:\n\t", pi->A[i].id);

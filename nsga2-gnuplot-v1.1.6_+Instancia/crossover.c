@@ -8,24 +8,42 @@
 #include "global.h"
 #include "rand.h"
 
+int index_in_tscounter(int idx, timeslot_counter *ts_counter, int T)
+{
+    int i;
+    for (i = 0; i < T; i++)
+        if (idx == ts_counter[i].timeslot_idx)
+            return 1;
+
+    return 0;
+}
+
 // get random timeslots idx of size n_tslots for both p1 and p2
-void assign_unique_block_indices(int *tslot_idx_p1, int *tslot_idx_p2, int T, int n_tslots)
+int assign_unique_block_indices(int **tslot_idx_p1, int **tslot_idx_p2, timeslot_counter *worst_tslots_p1, timeslot_counter *worst_tslots_p2, int T)
 {
     int i;
     int *all = malloc(T * sizeof(int));
+    int all_size = 0;
     for (i = 0; i < T; i++)
-        all[i] = i;
-
-    shuffle(all, T);
+        if (!index_in_tscounter(i, worst_tslots_p1, T) && !index_in_tscounter(i, worst_tslots_p2, T))
+            all[all_size++] = i;
 
     /*Asignar sin solapamiento*/
+    shuffle(all, all_size);
+    int n_tslots = floor(all_size / 3) + 1;
+
+    *tslot_idx_p1 = (int *)realloc(*tslot_idx_p1, n_tslots * sizeof(int));
+    *tslot_idx_p2 = (int *)realloc(*tslot_idx_p2, n_tslots * sizeof(int));
+
     for (i = 0; i < n_tslots; i++)
     {
-        tslot_idx_p1[i] = all[i];
-        tslot_idx_p2[i] = all[i + n_tslots];
+        (*tslot_idx_p1)[i] = all[i];
+        (*tslot_idx_p2)[i] = all[i + n_tslots];
     }
 
     free(all);
+
+    return n_tslots;
 }
 
 /* Function to cross two individuals */
@@ -33,19 +51,27 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 {
     unsigned r, t, tp, i;
 
-    int n_tslots = floor(pi->nm_TimeSlots / 4) + 1;
+    int *tslot_idx_p1 = (int *)malloc(pi->nm_TimeSlots * sizeof(int));
+    int *tslot_idx_p2 = (int *)malloc(pi->nm_TimeSlots * sizeof(int));
 
-    int *tslot_idx_p1 = malloc(n_tslots * sizeof(int));
-    int *tslot_idx_p2 = malloc(n_tslots * sizeof(int));
+    timeslot_counter *most_conflicted_timeslots_p1 = get_most_conflicted_free_timeslot(pi, parent1);
+    timeslot_counter *most_conflicted_timeslots_p2 = get_most_conflicted_free_timeslot(pi, parent2);
 
-    assign_unique_block_indices(tslot_idx_p1, tslot_idx_p2, pi->nm_TimeSlots, n_tslots);
+    most_conflicted_timeslots_p1 = (timeslot_counter *)realloc(most_conflicted_timeslots_p1, floor(pi->nm_TimeSlots / 2) * sizeof(timeslot_counter));
+    most_conflicted_timeslots_p2 = (timeslot_counter *)realloc(most_conflicted_timeslots_p2, floor(pi->nm_TimeSlots / 2) * sizeof(timeslot_counter));
+
+    // Sample in T - most_conflicted_timeslots_pi
+    int n_tslots = assign_unique_block_indices(&tslot_idx_p1, &tslot_idx_p2, most_conflicted_timeslots_p1, most_conflicted_timeslots_p2, (int)floor(pi->nm_TimeSlots / 2));
+
+    free(most_conflicted_timeslots_p1);
+    free(most_conflicted_timeslots_p2);
 
     t_activity assigned_classes_p1[pi->nm_Activity];
     int count_assigned_p1 = 0;
     t_activity assigned_classes_p2[pi->nm_Activity];
     int count_assigned_p2 = 0;
 
-    int *not_used_tslots_idx = malloc((pi->nm_TimeSlots - n_tslots) * sizeof(int));
+    int *not_used_tslots_idx = (int *)malloc((pi->nm_TimeSlots - n_tslots) * sizeof(int));
     int count_not_used_tslots = 0;
     /*inicializar hijos sin ninguna clase*/
     for (r = 0; r < pi->nm_Rooms; r++)

@@ -76,13 +76,9 @@ R9_2 {s in S} : sum{c in Cs[s]} yC[s,c] >= kmin[s]; # Un estudiante cumple con s
 
 # R10_2 {s in S, c in Cs[s]} : M*yC[s,c] <= sum {a in Ac[c]} yA[s,a] ;
 
-R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a];
+R10_1 {s in S, c in Cs[s]} : M*yC[s,c] >= sum{a in  Ac[c]} yA[s,a]; # si todas las  actividades de un curso son programadas para el estudiante s, entonces s asiste al curso 
 
-R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ;
-
-R11T_1 {s in S, t in T, a in A} : tau[s,a,t] >= yA[s,a];
-
-R11T_2 {s in S, t in T, a in A} : tau[s,a,t] >= yT[a,t];
+R10_2 {s in S, c in Cs[s]} : card(Ac[c]) * yC[s,c] <= sum {a in Ac[c]} yA[s,a] ; # Si el estudiante asiste a un curso, entonces debe ir a todas las actividades del curso
 
 R11 {s in S, t in T, a in A} : yA[s,a] + yT[a,t] - 1 <= tau[s,a,t]; # Para cada alumno, en cada instante de tiempo se indica que el alumno s tiene clases en el periodo t siempre y cuando el alumno asista a alguna clase que se dicte en ese bloque de tiempo.
 

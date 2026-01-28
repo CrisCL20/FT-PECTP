@@ -47,6 +47,12 @@ typedef struct
 
 typedef struct
 {
+    size_t timeslot_idx;
+    size_t counter;
+} timeslot_counter;
+
+typedef struct
+{
     unsigned id;
 } t_room;
 
@@ -152,10 +158,12 @@ void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
-size_t get_act_idx(problem_instance *pi, t_activity a);
+int get_act_idx(problem_instance *pi, t_activity a);
 int get_timeslot_idx(problem_instance *pi, t_timeslot timeslot);
 size_t get_course_activity(problem_instance *pi, t_activity act);
 int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid);
+int timeslot_in_student_preference(problem_instance *pi, int s_idx, t_timeslot timeslot);
+timeslot_counter *get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
