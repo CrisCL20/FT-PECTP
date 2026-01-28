@@ -98,33 +98,41 @@ rm -rf ${screen}
 
 # Ejecutar NSGA2
 echo "./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${instance} ${params} > out/${screen}"
-./${dirNSGA}/nsga2r 0.${seed} ${dirInstances}/${instance} ${params} > ${screen}
+./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${instance} ${params} > ${screen}
 
 # Buscar óptimo en archivo
-exec<"optimos.txt"
+
+optimo=0
+pr1=0
+pr2=0
 # nombreinstancia hv pr1 pr2
-while read line; do
-    set -- $line
-    name=$1
+while read -r line || [[ -n "$line" ]]; do
+    line=$(echo "$line" | tr -d '\r')
+    read -r name val_opt val_pr1 val_pr2 <<< "$line"
+    
+    echo ${name}
     if [[ ${instance} == ${name} ]]; then
-        optimo=$2
-        pr1=$3
-        pr2=$4
+        optimo=${val_opt}
+        pr1=${val_pr1}
+        pr2=${val_pr2}
         echo "nombre: ${name}, optimo: ${optimo}, pr1: ${pr1}, pr2: ${pr2}"
     fi
-done
+done < "optimos.txt"
 
 # Calcular hv y guardar en quality
 echo ${pr1}
 echo ${pr2}
 factor=2
+name=$(echo ${instance} | awk '{gsub(/.dat/, ""); print}' )
 pr1=$(awk "BEGIN {printf \"%.1f\",${pr1}*${factor} }" | sed 's/,/./')
 pr2=$(awk "BEGIN {printf \"%.1f\",${pr2}*${factor} }" | sed 's/,/./')
 echo ${pr1}
 echo ${pr2}
 
-echo "./${dirhv}/hv -r \"${pr1} ${pr2}\" of.out > ${screen2}"
-./${dirhv}/hv -r "${pr1} ${pr2}" of.out > ${screen2}
+echo "./${dirhv}/hv -r \"${pr1} ${pr2}\" solutions_${name}.out > ${screen2}"
+./${dirhv}/hv -r "${pr1} ${pr2}" solutions_${name}.out > ${screen2}
+
+echo ${screen2}
 
 hv=$(tail -1 ${screen2})
 gap=$(awk "BEGIN {printf \"%.2f\",100.00*(${optimo}-${hv})/${optimo}}")
