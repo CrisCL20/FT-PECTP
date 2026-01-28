@@ -1,592 +1,693 @@
+/* Routine for evaluating population members  */
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
+
 #include "global.h"
+#include "rand.h"
 
-#define MAX_LINE_LENGTH 1024
-
-void readEmployees(FILE *f, problem_instance *pi);
-void readHorizon(FILE *f, problem_instance *pi);
-void readShifts(FILE *f, problem_instance *pi);
-void readShiftLengths(FILE *f, problem_instance *pi);
-void readMaxShifts(FILE *f, problem_instance *pi);
-void readMinMaxMinutes(FILE *f, problem_instance *pi);
-void readConsecutiveShifts(FILE *f, problem_instance *pi);
-void readConsecutiveDaysOff(FILE *f, problem_instance *pi);
-void readMaxWeekends(FILE *f, problem_instance *pi);
-void readShiftOnOffRequests(FILE *f, problem_instance *pi);
-void readCoverRequirements(FILE *f, problem_instance *pi);
-void readCoverWeights(FILE *f, problem_instance *pi);
-void readEmployeeDaysOff(FILE *f, problem_instance *pi);
-void readIncompatibleShifts(FILE *f, problem_instance *pi);
-
-void findDef(FILE *f, const char *def) {
-    char word[MAX_LINE_LENGTH];
-    while (fscanf(f, " %1023s", word) == 1) {
-        if (strcmp(word, def) == 0) break;
+void findDef(FILE *f, char *def)
+{
+    char word[4096];
+    /* assumes no word exceeds length of 1023 */
+    while (fscanf(f, " %4096s\n", word))
+    {
+        if (strcmp(word, def) == 0)
+            break;
     }
 }
 
-void removeSemicolon(char *line) {
-    char *semicolon = strchr(line, ';');
-    if (semicolon) *semicolon = '\0';
+void removeSemicolon(char *line)
+{
+    strtok(line, ";");
 }
-int countWords(const char *line) {
-    if (line == NULL) {
-        fprintf(stderr, "Input line is NULL.\n");
-        return -1;
-    }
 
-    int words = 0;
-    char *token, *copy;
-    size_t len = strlen(line) + 1;  
-    copy = (char *)malloc(len);
-    if (copy == NULL) {
-        perror("malloc");
-        return -1;
-    }
-    strncpy(copy, line, len);
+int countWords(char *line)
+{
+    int words;
+    char linet[4096], *token;
+    strcpy(linet, line);
 
-    token = strtok(copy, " \t\n");
-    while (token != NULL) {
+    words = 0;
+    token = strtok(linet, " ");
+
+    while (token != NULL)
+    {
         words++;
-        token = strtok(NULL, " \t\n");
+        token = strtok(NULL, " ");
     }
 
-    free(copy);
+    free(token);
     return words;
 }
 
+void readStudents(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, id = 0;
+    char *token;
 
+    char line[4096];
+    fgets(line, sizeof(line), fh);
 
-int readInputFile(const char* filePath, problem_instance *pi) {
-    FILE* fh = fopen(filePath, "r");
-    if (fh == NULL) {
-        printf("File does not exist: %s\n", filePath);
-        return 0;
+    if (debug)
+        printf("Line: %s\n", line);
+    removeSemicolon(line);
+    if (debug)
+        printf("Line: %s\n", line);
+
+    pi->nm_Students = countWords(line);
+    if (debug)
+        printf("|S|: %d\n", pi->nm_Students);
+    pi->S = (t_student *)malloc(pi->nm_Students * sizeof(t_student));
+    pi->Cs = (course_preference *)malloc(pi->nm_Students * sizeof(course_preference));
+    pi->Ts = (timeslot_preference *)malloc(pi->nm_Students * sizeof(timeslot_preference));
+    pi->kmaxs = (unsigned int *)malloc(pi->nm_Students * sizeof(unsigned int));
+    pi->kmins = (unsigned int *)malloc(pi->nm_Students * sizeof(unsigned int));
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        if (debug)
+            printf("Estudiante %s\n", token);
+        pi->S[id].id = atoi(token);
+        token = strtok(NULL, " ");
+        id++;
     }
 
-    readEmployees(fh, pi);
-    printf("Read employees\n");
-
-    readEmployeeDaysOff(fh, pi);
-    printf("Read employee days off\n");
-
-    readHorizon(fh, pi);
-    printf("Read horizon\n");
-
-    readShifts(fh, pi);
-    printf("Read shifts\n");
-
-    readShiftLengths(fh, pi);
-    printf("Read shift lengths\n");
-
-    readMaxShifts(fh, pi);
-    printf("Read max shifts\n");
-
-    readIncompatibleShifts(fh, pi);
-    printf("Read incompatible shifts\n");
-
-    readMinMaxMinutes(fh, pi);
-    printf("Read min/max minutes\n");
-
-    readConsecutiveShifts(fh, pi);
-    printf("Read consecutive shifts\n");
-
-    readConsecutiveDaysOff(fh, pi);
-    printf("Read consecutive days off\n");
-
-    readMaxWeekends(fh, pi);
-    printf("Read max weekends\n");
-
-    readShiftOnOffRequests(fh, pi);
-    printf("Read shift on/off requests\n");
-
-    readCoverRequirements(fh, pi);
-    printf("Read cover requirements\n");
-
-    readCoverWeights(fh, pi);
-    printf("Read cover weights\n");
-
-    printProblemInstance(pi);
-
-    nreal = pi->num_employees * pi->horizon_length;
-    nbin = 0;
-    nobj = 2;
-    ncon = 8;
-    max_realvar = malloc(nreal * sizeof(double));
-    min_realvar = malloc(nreal * sizeof(double));
-    // for (int i = 0; i < nreal; i++) {
-    //     max_realvar[i] = pi->num_shifts-1;
-    //     min_realvar[i] = 0;
-    // }
-
-    //days off 
-    for (int i = 0; i < pi->horizon_length; i++)
+    if (debug)
     {
-        for (int j = 0; j < pi->num_employees; j++)
+        for (id = 0; id < pi->nm_Students; id++)
         {
-            //days off
-            if (pi->employees[j].num_days_off > 0)
-            {
-                for (int k = 0; k < pi->employees[j].num_days_off; k++)
-                {
-                    if (i == pi->employees[j].days_off[k])
-                    {
-                        max_realvar[i * pi->num_employees + j] = 0;
-                        min_realvar[i * pi->num_employees + j] = 0;
-                        break;
-                    }
-                    else
-                    {
-                        max_realvar[i * pi->num_employees + j] = pi->num_shifts-1;
-                        min_realvar[i * pi->num_employees + j] = 0;
-                    }
-                }
-            }
-            else
-            {
-                max_realvar[i * pi->num_employees + j] = pi->num_shifts-1;
-                min_realvar[i * pi->num_employees + j] = 0;
-            }
+            printf("%d\n", pi->S[id].id);
         }
     }
-    
-    
-    
-    
+
+    free(token);
+}
+
+void readActivities(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+    removeSemicolon(line);
+    if (debug)
+        printf("Line: %s\n", line);
+
+    pi->nm_Activity = countWords(line);
+    if (debug)
+        printf("Size of activities: %d\n", pi->nm_Activity);
+    pi->A = (t_activity *)malloc(pi->nm_Activity * sizeof(t_activity));
+    pi->Ra = (adequate_rooms *)malloc(pi->nm_Activity * sizeof(adequate_rooms));
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        if (debug)
+            printf("Token: %s\n", token);
+        strcpy(pi->A[id].id, token);
+
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        for (id = 0; id < pi->nm_Activity; id++)
+            printf("%s\n", pi->A[id].id);
+    }
+
+    free(token);
+}
+
+void readCourses(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+    removeSemicolon(line);
+
+    pi->nm_Courses = countWords(line);
+    if (debug)
+        printf("|C|: %d\n", pi->nm_Courses);
+    pi->C = (t_course *)malloc(pi->nm_Courses * sizeof(t_course));
+    pi->Ac = (course_activities *)malloc(pi->nm_Courses * sizeof(course_activities));
+    pi->sigma_class = (unsigned int *)malloc(pi->nm_Courses * sizeof(unsigned int));
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        pi->C[id].id = atoi(token);
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        for (id = 0; id < pi->nm_Courses; id++)
+            printf("Modulo %d\n", pi->C[id].id);
+    }
+
+    free(token);
+}
+
+void readRooms(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+
+    removeSemicolon(line);
+
+    pi->nm_Rooms = countWords(line);
+    if (debug)
+        printf("|R|: %d\n", pi->nm_Rooms);
+    pi->R = (t_room *)malloc(pi->nm_Rooms * sizeof(t_room));
+    pi->rho = (unsigned int *)malloc(pi->nm_Rooms * sizeof(unsigned int));
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        pi->R[id].id = atoi(token);
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        for (id = 0; id < pi->nm_Rooms; id++)
+            printf("Salón %d\n", pi->R[id].id);
+    }
+
+    free(token);
+}
+
+void readTimeSlots(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, id = 0, d = 0, i = 0;
+    char *token;
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+
+    pi->nm_TimeSlots = 5 * countWords(line);
+    if (debug)
+        printf("|T|: %d\n", pi->nm_TimeSlots);
+    pi->T = (t_timeslot *)malloc(pi->nm_TimeSlots * sizeof(t_timeslot));
+
+    for (d = 0; d < 5; d++)
+    {
+
+        token = strtok(line, " ");
+        while (token != NULL)
+        {
+            token[strcspn(token, "\n")] = 0;
+            strcpy(pi->T[id].ts, token);
+            token = strtok(NULL, " ");
+            id++;
+        }
+        fgets(line, sizeof(line), fh);
+        if (debug)
+            printf("Line: %s\n", line);
+    }
+
+    if (debug)
+    {
+        for (i = 0; i < pi->nm_TimeSlots; i++)
+            printf("Timeslot %s.\n", pi->T[i].ts);
+    }
+
+    free(token);
+}
+
+void readCourseActivities(FILE *fh, problem_instance *pi, unsigned cid)
+{
+
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    removeSemicolon(line);
+    if (debug)
+        printf("Line: %s.\n", line);
+
+    pi->Ac[cid].nm_activities = countWords(line);
+    if (debug)
+        printf("|Ac[%d]| = %ld\n", pi->C[cid].id, pi->Ac[cid].nm_activities);
+    pi->Ac[cid].activities = (t_activity *)malloc(pi->Ac[cid].nm_activities * sizeof(t_activity));
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        strcpy(pi->Ac[cid].activities[id].id, token);
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        printf("Curso %d requiere las siguientes actividades:\n\t", pi->C[cid].id);
+        for (unsigned i = 0; i < pi->Ac[cid].nm_activities; ++i)
+            printf("%s ", pi->Ac[cid].activities[i].id);
+        printf("\n");
+    }
+
+    free(token);
+}
+
+void readCoursePreference(FILE *fh, problem_instance *pi, unsigned sid)
+{
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    removeSemicolon(line);
+    if (debug)
+        printf("Line: %s\n", line);
+
+    pi->Cs[sid].nm_courses = countWords(line);
+    pi->Cs[sid].courses = (t_course *)malloc(pi->Cs[sid].nm_courses * sizeof(t_course));
+
+    if (debug)
+        printf("El estudiante %d tiene preferencia por %lu cursos.\n",
+               pi->S[sid].id,
+               pi->Cs[sid].nm_courses);
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        pi->Cs[sid].courses[id].id = atoi(token);
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        printf("El estudiante %d pre-inscribe los siguientes cursos:\n", pi->S[sid].id);
+        for (id = 0; id < pi->Cs[sid].nm_courses; id++)
+        {
+            printf("%d ", pi->Cs[sid].courses[id].id);
+        }
+        printf("\n");
+    }
+
+    free(token);
+}
+
+void readAdequateRooms(FILE *fh, problem_instance *pi, unsigned aid)
+{
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    removeSemicolon(line);
+    if (debug)
+        printf("Line: %s", line);
+
+    pi->Ra[aid].nm_rooms = countWords(line);
+    pi->Ra[aid].rooms = (t_room *)malloc(pi->Ra[aid].nm_rooms * sizeof(t_room));
+
+    token = strtok(line, " ");
+    while (token != NULL)
+    {
+        pi->Ra[aid].rooms[id].id = atoi(token);
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        printf("La actividad %s puede realizarse en los siguientes salones:\n", pi->A[aid].id);
+        for (id = 0; id < pi->Ra[aid].nm_rooms; id++)
+        {
+            printf("%d ", pi->Ra[aid].rooms[id].id);
+        }
+        printf("\n");
+    }
+
+    free(token);
+}
+
+void readTimeSlotPreference(FILE *fh, problem_instance *pi, unsigned sid)
+{
+    int debug = 0, id = 0;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    removeSemicolon(line);
+    if (debug)
+        printf("Line: %s.\n", line);
+
+    if (strstr(line, ";"))
+    {
+        pi->Ts[sid].nm_timeslots = 0;
+    }
+    else
+    {
+        pi->Ts[sid].nm_timeslots = countWords(line);
+    }
+
+    if (debug)
+        printf("|Ts[%d]| = %ld\n", pi->S[sid].id, pi->Ts[sid].nm_timeslots);
+    pi->Ts[sid].timeslots = (t_timeslot *)malloc(pi->Ts[sid].nm_timeslots * sizeof(t_timeslot));
+
+    token = strtok(line, " ");
+    while (token != NULL && pi->Ts[sid].nm_timeslots > 0)
+    {
+        strcpy(pi->Ts[sid].timeslots[id].ts, token);
+        token = strtok(NULL, " ");
+        id++;
+    }
+
+    if (debug)
+    {
+        printf("El estudiante %d tiene %ld preferencias horarias:\n\t", pi->S[sid].id, pi->Ts[sid].nm_timeslots);
+        for (id = 0; id < pi->Ts[sid].nm_timeslots; id++)
+        {
+            printf("%s ", pi->Ts[sid].timeslots[id].ts);
+        }
+        printf(".\n");
+    }
+
+    if (pi->Ts[sid].nm_timeslots > 0)
+        free(token);
+}
+
+void readRoomCapacity(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, i = 0, rcap;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+
+    for (i = 0; i < pi->nm_Rooms; i++)
+    {
+        token = strtok(line, " ");
+        token = strtok(NULL, " ");
+        rcap = atoi(token);
+
+        pi->rho[i] = rcap;
+        fgets(line, sizeof(line), fh);
+        if (debug)
+            printf("Line: %s\n", line);
+    }
+
+    if (debug)
+    {
+        for (i = 0; i < pi->nm_Rooms; i++)
+            printf("Capacidad del salon %d: %d\n", pi->R[i].id, pi->rho[i]);
+    }
+
+    // free(token);
+}
+
+void ReadActivityLimit(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, i = 0, clim;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+
+    for (i = 0; i < pi->nm_Courses; i++)
+    {
+        token = strtok(line, " ");
+        token = strtok(NULL, " ");
+        clim = atoi(token);
+
+        pi->sigma_class[i] = clim;
+        fgets(line, sizeof(line), fh);
+        if (debug)
+            printf("Line: %s\n", line);
+    }
+
+    if (debug)
+    {
+        for (i = 0; i < pi->nm_Courses; i++)
+            printf("Limite del curso %d: %d\n", pi->C[i].id, pi->sigma_class[i]);
+    }
+
+    // free(token);
+}
+
+void readKmin(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, i = 0, sid, kmin;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+
+    for (i = 0; i < pi->nm_Students; i++)
+    {
+        token = strtok(line, " ");
+        sid = atoi(token);
+        token = strtok(NULL, " ");
+        kmin = atoi(token);
+
+        pi->kmins[i] = kmin;
+        if (debug)
+            printf("Cursos mínimos para el estudiante %d: %d\n", pi->S[i].id, pi->kmins[sid - 1]);
+        fgets(line, sizeof(line), fh);
+        if (debug)
+            printf("Line: %s\n", line);
+    }
+
+    if (debug)
+    {
+        for (i = 0; i < pi->nm_Students; i++)
+            printf("Limite inferior para el estudiante %d: %d\n", pi->S[i].id, pi->kmins[i]);
+    }
+
+    // free(token);
+}
+
+void readKmax(FILE *fh, problem_instance *pi)
+{
+    int debug = 0, i = 0, sid, kmax;
+    char *token;
+
+    char line[4096];
+    fgets(line, sizeof(line), fh);
+
+    if (debug)
+        printf("Line: %s\n", line);
+
+    for (i = 0; i < pi->nm_Students; i++)
+    {
+        token = strtok(line, " ");
+        sid = atoi(token);
+        token = strtok(NULL, " ");
+        kmax = atoi(token);
+
+        pi->kmaxs[sid - 1] = kmax;
+        fgets(line, sizeof(line), fh);
+        if (debug)
+            printf("Line: %s\n", line);
+    }
+
+    if (debug)
+    {
+        for (i = 0; i < pi->nm_Students; i++)
+            printf("Limite superior para el estudiante %d: %d\n", pi->S[i].id, pi->kmaxs[i]);
+    }
+
+    // free(token);
+}
+
+int readInputFile(char *filePath, problem_instance *pi)
+{
+    int debug = 0, i = 0;
+    FILE *fh = fopen(filePath, "r");
+
+    /*check if file exists*/
+    if (fh == NULL)
+    {
+        printf("File does not exists %s", filePath);
+        exit(1);
+    }
+
+    if (debug)
+        printf("Reading: %s \n", filePath);
+
+    /**
+     *
+     * @note: reemplazar definiciones por ucttp
+     *
+     **/
+
+    if (debug)
+        printf("Reading students...\n");
+    findDef(fh, "S:=");
+    readStudents(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading courses...\n");
+    findDef(fh, "C:=");
+    readCourses(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading activities...\n");
+    findDef(fh, "A:=");
+    readActivities(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading timeslots...\n");
+    findDef(fh, "T:=");
+    if (debug)
+        printf("Found timeslots definition!\n");
+    readTimeSlots(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading rooms...\n");
+    findDef(fh, "R:=");
+    readRooms(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading course activities...\n");
+    for (i = 0; i < pi->nm_Courses; i++)
+    {
+        char Ac[128];
+        sprintf(Ac, "Ac[%d]:=", pi->C[i].id);
+        if (debug)
+            printf("Reading activities for course %d...\n", pi->C[i].id);
+        findDef(fh, Ac);
+        readCourseActivities(fh, pi, i);
+        if (debug)
+            printf("END\n");
+    }
+
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading student course preferences...\n");
+    for (i = 0; i < pi->nm_Students; i++)
+    {
+        char Cs[128];
+        sprintf(Cs, "Cs[%d]:=", pi->S[i].id);
+        findDef(fh, Cs);
+        readCoursePreference(fh, pi, pi->S[i].id - 1);
+    }
+
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading activity room compatibility...\n");
+    for (i = 0; i < pi->nm_Activity; i++)
+    {
+        char Rc[128];
+        sprintf(Rc, "Ra[%s]:=", pi->A[i].id);
+        findDef(fh, Rc);
+        readAdequateRooms(fh, pi, i);
+    }
+
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading student time preference...\n");
+    for (i = 0; i < pi->nm_Students; i++)
+    {
+        char Ts[128];
+        sprintf(Ts, "Ts[%d]:=", pi->S[i].id);
+        findDef(fh, Ts);
+        readTimeSlotPreference(fh, pi, i);
+    }
+
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading room capacity...\n");
+    findDef(fh, "rho:=");
+    readRoomCapacity(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading class limit...\n");
+    findDef(fh, "sigma_class:=");
+    ReadActivityLimit(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading kmin...\n");
+    findDef(fh, "kmin:=");
+    readKmin(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    if (debug)
+        printf("Reading kmax...\n");
+    findDef(fh, "kmax:=");
+    readKmax(fh, pi);
+    if (debug)
+        printf("END\n");
+
+    /*************/
+    /*************/
+    /*************/
+    /*************/
+    /*************/
+    /*************/
+    /*************/
 
     fclose(fh);
-    return 1;
-}
+    if (debug)
+        printf("End Reading! \n");
 
-void readEmployees(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "I:=");
-    fgets(line, sizeof(line), f);
-    removeSemicolon(line);
-    pi->num_employees = countWords(line);
-    pi->employees = malloc(pi->num_employees * sizeof(employee));
-    
-    char *token = strtok(line, " \t\n");
-    for (int i = 0; i < pi->num_employees; i++) {
-        pi->employees[i].id = i;
-        pi->employees[i].name = strcpy(malloc(strlen(token) + 1), token);
-        token = strtok(NULL, " \t\n");
-    }
-    printf("Employees: %d\n", pi->num_employees);
-}
+    if (debug)
+        printProblemInstance(pi);
 
-void readEmployeeDaysOff(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    char set_name[MAX_LINE_LENGTH];
-    
-    for (int i = 0; i < pi->num_employees; i++) {
-        sprintf(set_name, "N[%s]:=", pi->employees[i].name);
-        rewind(f);
-        findDef(f, set_name);
-        if (fgets(line, sizeof(line), f) == NULL) {
-            // Handle error if `fgets` fails
-            continue;
-        }
-
-        if (fgets(line, sizeof(line), f) != NULL && line[0] != ';') {
-            // Allocate initial memory
-            pi->employees[i].num_days_off = 0;
-            pi->employees[i].days_off = malloc(pi->horizon_length * sizeof(int));
-            if (pi->employees[i].days_off == NULL) {
-                // Handle allocation failure
-                continue;
-            }
-
-            do {
-                int day;
-                if (sscanf(line, "%d", &day) == 1) {
-                    // Reallocate only if necessary
-                    if (pi->employees[i].num_days_off >= pi->horizon_length) {
-                        int new_size = (pi->employees[i].num_days_off + 1) * sizeof(int);
-                        int* temp = realloc(pi->employees[i].days_off, new_size);
-                        if (temp == NULL) {
-                            // Handle reallocation failure and exit loop
-                            free(pi->employees[i].days_off);
-                            pi->employees[i].days_off = NULL;
-                            break;
-                        }
-                        pi->employees[i].days_off = temp;
-                    }
-                    pi->employees[i].days_off[pi->employees[i].num_days_off++] = day - 1;  // Convert to 0-based index
-                }
-            } while (fgets(line, sizeof(line), f) && line[0] != ';');
-
-            // Shrink the allocated memory to fit the actual size
-            int* temp = realloc(pi->employees[i].days_off, pi->employees[i].num_days_off * sizeof(int));
-            if (temp == NULL && pi->employees[i].num_days_off > 0) {
-                // Handle reallocation failure
-                free(pi->employees[i].days_off);
-                pi->employees[i].days_off = NULL;
-            } else {
-                pi->employees[i].days_off = temp;
-            }
-        } else {
-            pi->employees[i].num_days_off = 0;
-            pi->employees[i].days_off = NULL;
-        }
-    }
-}
-
-void readHorizon(FILE *f, problem_instance *pi) {
-    rewind(f);
-    findDef(f, "h:=");
-    fscanf(f, "%d", &pi->horizon_length);
-}
-
-void readShifts(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "T:=");
-    fgets(line, sizeof(line), f);
-    removeSemicolon(line);
-    pi->num_shifts = countWords(line)+1;
-    pi->shifts = malloc(((pi->num_shifts)+1) * sizeof(shift));
-
-    //add empty shift
-    pi->shifts[0].id = 0;
-    pi->shifts[0].name = strcpy(malloc(strlen("-") + 1), "-");
-    pi->shifts[0].length = 0;
-    pi->shifts[0].num_incompatible_shifts = NULL;
-
-
-    
-    char *token = strtok(line, " \t\n");
-    for (int i = 1; i < (pi->num_shifts); i++) {
-        pi->shifts[i].id = i;
-        pi->shifts[i].name = strcpy(malloc(strlen(token) + 1), token);
-        token = strtok(NULL, " \t\n");
-    }
-}
-void readIncompatibleShifts(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    char set_name[MAX_LINE_LENGTH];
-    
-    for (int i = 0; i < pi->num_shifts; i++) {
-        sprintf(set_name, "R[%s]:=", pi->shifts[i].name);
-        rewind(f);
-        findDef(f, set_name);
-        if (fgets(line, sizeof(line), f) != NULL && line[0] != ';') {
-            removeSemicolon(line);
-            pi->shifts[i].num_incompatible_shifts = countWords(line);
-            pi->shifts[i].incompatible_shifts = malloc(pi->shifts[i].num_incompatible_shifts * sizeof(int));
-            
-            int index = 0;
-            char *token = strtok(line, " \t\n");
-            while (token != NULL) {
-                for (int j = 0; j < pi->num_shifts; j++) {
-                    if (strcmp(token, pi->shifts[j].name) == 0) {
-                        pi->shifts[i].incompatible_shifts[index++] = j;
-                        break;
-                    }
-                }
-                token = strtok(NULL, " \t\n");
-            }
-        } else {
-            pi->shifts[i].num_incompatible_shifts = 0;
-            pi->shifts[i].incompatible_shifts = NULL;
-        }
-    }
-}
-
-
-void readShiftLengths(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "l:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char shift_name[MAX_LINE_LENGTH];
-        int length;
-        sscanf(line, "%s %d", shift_name, &length);
-        for (int i = 0; i < pi->num_shifts; i++) {
-            if (strcmp(pi->shifts[i].name, shift_name) == 0) {
-                pi->shifts[i].length = length;
-                break;
-            }
-        }
-    }
-}
-
-void readMaxShifts(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "m:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH], shift_name[MAX_LINE_LENGTH];
-        int max_shifts;
-        sscanf(line, "[%[^,],%[^]]] %d", emp_name, shift_name, &max_shifts);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                if (pi->employees[i].max_shifts == NULL) {
-                    pi->employees[i].max_shifts = malloc(pi->num_shifts * sizeof(int));
-                    for (int j = 0; j < pi->num_shifts; j++) {
-                        if(j==0){
-                            pi->employees[i].max_shifts[j] = pi->horizon_length;
-                        }else{
-                            pi->employees[i].max_shifts[j] = 0;
-                        }   
-                    }
-                }
-                int shift_id;
-                for (shift_id = 0; shift_id < pi->num_shifts; shift_id++) {
-                    if (strcmp(pi->shifts[shift_id].name, shift_name) == 0) {
-                        break;
-                    }
-                }
-                pi->employees[i].max_shifts[shift_id] = max_shifts;
-                break;
-            }
-        }
-    }
-}
-
-void readMinMaxMinutes(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "b:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH];
-        int min_minutes;
-        sscanf(line, "%s %d", emp_name, &min_minutes);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                pi->employees[i].min_total_minutes = min_minutes;
-                break;
-            }
-        }
-    }
-
-    rewind(f);
-    findDef(f, "c:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH];
-        int max_minutes;
-        sscanf(line, "%s %d", emp_name, &max_minutes);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                pi->employees[i].max_total_minutes = max_minutes;
-                break;
-            }
-        }
-    }
-}
-
-void readConsecutiveShifts(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "f:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH];
-        int min_consecutive;
-        sscanf(line, "%s %d", emp_name, &min_consecutive);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                pi->employees[i].min_consecutive_shifts = min_consecutive;
-                break;
-            }
-        }
-    }
-
-    rewind(f);
-    findDef(f, "g:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH];
-        int max_consecutive;
-        sscanf(line, "%s %d", emp_name, &max_consecutive);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                pi->employees[i].max_consecutive_shifts = max_consecutive;
-                break;
-            }
-        }
-    }
-}
-
-void readConsecutiveDaysOff(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "o:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH];
-        int min_days_off;
-        sscanf(line, "%s %d", emp_name, &min_days_off);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                pi->employees[i].min_consecutive_days_off = min_days_off;
-                break;
-            }
-        }
-    }
-}
-
-void readMaxWeekends(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "a:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH];
-        int max_weekends;
-        sscanf(line, "%s %d", emp_name, &max_weekends);
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                pi->employees[i].max_weekends = max_weekends;
-                break;
-            }
-        }
-    }
-}
-
-void readShiftOnOffRequests(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-
-    // Allocate memory for shift on/off requests
-    pi->shift_on_requests = malloc(pi->num_employees * sizeof(int**));
-    pi->shift_off_requests = malloc(pi->num_employees * sizeof(int**));
-    for (int i = 0; i < pi->num_employees; i++) {
-        pi->shift_on_requests[i] = malloc(pi->horizon_length * sizeof(int*));
-        pi->shift_off_requests[i] = malloc(pi->horizon_length * sizeof(int*));
-        for (int j = 0; j < pi->horizon_length; j++) {
-            pi->shift_on_requests[i][j] = calloc(pi->num_shifts, sizeof(int));
-            pi->shift_off_requests[i][j] = calloc(pi->num_shifts, sizeof(int));
-        }
-    }
-
-    // Read shift on requests (q parameter)
-    findDef(f, "q:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH], shift_name[MAX_LINE_LENGTH];
-        int day, weight;
-        sscanf(line, "[%[^,],%d,%[^]]] %d", emp_name, &day, shift_name, &weight);
-        day--; // Adjust for 0-based indexing
-        int emp_index = -1, shift_index = -1;
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                emp_index = i;
-                break;
-            }
-        }
-        for (int i = 0; i < pi->num_shifts; i++) {
-            if (strcmp(pi->shifts[i].name, shift_name) == 0) {
-                shift_index = i;
-                break;
-            }
-        }
-        if (emp_index != -1 && shift_index != -1) {
-            pi->shift_on_requests[emp_index][day][shift_index] = weight;
-        }
-    }
-    
-    // Read shift off requests (p parameter)
-    findDef(f, "p:=");
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        char emp_name[MAX_LINE_LENGTH], shift_name[MAX_LINE_LENGTH];
-        int day, weight;
-        sscanf(line, "[%[^,],%d,%[^]]] %d", emp_name, &day, shift_name, &weight);
-        day--; // Adjust for 0-based indexing
-        int emp_index = -1, shift_index = -1;
-        for (int i = 0; i < pi->num_employees; i++) {
-            if (strcmp(pi->employees[i].name, emp_name) == 0) {
-                emp_index = i;
-                break;
-            }
-        }
-        for (int i = 0; i < pi->num_shifts; i++) {
-            if (strcmp(pi->shifts[i].name, shift_name) == 0) {
-                shift_index = i;
-                break;
-            }
-        }
-        if (emp_index != -1 && shift_index != -1) {
-            pi->shift_off_requests[emp_index][day][shift_index] = weight;
-        }
-    }
-}
-
-void readCoverRequirements(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-    findDef(f, "s:=");
-    fgets(line, sizeof(line), f);
-    
-    pi->cover_requirements = malloc(pi->horizon_length * sizeof(int *));
-    for (int i = 0; i < pi->horizon_length; i++) {
-        pi->cover_requirements[i] = malloc(pi->num_shifts * sizeof(int));
-    }
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        int day, requirement;
-        char shift_name[MAX_LINE_LENGTH];
-        sscanf(line, "[%d,%[^]]] %d", &day, shift_name, &requirement);
-        day--; // Adjust for 0-based indexing
-        for (int i = 0; i < pi->num_shifts; i++) {
-            if (strcmp(pi->shifts[i].name, shift_name) == 0) {
-                pi->cover_requirements[day][i] = requirement;
-                break;
-            }
-        }
-    }
-}
-
-void readCoverWeights(FILE *f, problem_instance *pi) {
-    rewind(f);
-    char line[MAX_LINE_LENGTH];
-
-    // Allocate memory for cover weights
-    pi->under_cover_weights = malloc(pi->horizon_length * sizeof(int*));
-    pi->over_cover_weights = malloc(pi->horizon_length * sizeof(int*));
-    for (int i = 0; i < pi->horizon_length; i++) {
-        pi->under_cover_weights[i] = calloc(pi->num_shifts, sizeof(int));
-        pi->over_cover_weights[i] = calloc(pi->num_shifts, sizeof(int));
-    }
-
-    // Read under cover weights (u parameter)
-    findDef(f, "u:=");
-    fgets(line, sizeof(line), f);
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        int day;
-        char shift_name[MAX_LINE_LENGTH];
-        int weight;
-        sscanf(line, "[%d,%[^]]] %d", &day, shift_name, &weight);
-        day--; // Adjust for 0-based indexing
-        int shift_index = -1;
-        for (int i = 0; i < pi->num_shifts; i++) {
-            if (strcmp(pi->shifts[i].name, shift_name) == 0) {
-                shift_index = i;
-                break;
-            }
-        }
-        if (shift_index != -1) {
-            pi->under_cover_weights[day][shift_index] = weight;
-        }
-    }
-
-    // Read over cover weights (v parameter)
-    findDef(f, "v:=");
-    fgets(line, sizeof(line), f);
-    while (fgets(line, sizeof(line), f) && line[0] != ';') {
-        int day;
-        char shift_name[MAX_LINE_LENGTH];
-        int weight;
-        sscanf(line, "[%d,%[^]]] %d", &day, shift_name, &weight);
-        day--; // Adjust for 0-based indexing
-        int shift_index = -1;
-        for (int i = 0; i < pi->num_shifts; i++) {
-            if (strcmp(pi->shifts[i].name, shift_name) == 0) {
-                shift_index = i;
-                break;
-            }
-        }
-        if (shift_index != -1) {
-            pi->over_cover_weights[day][shift_index] = weight;
-        }
-    }
+    return 0;
 }

@@ -10,6 +10,7 @@ evaluaciones=1000000
 # Inicialización de variables
 pm=0
 pc=0
+gen=0
 p=0
 instance=""
 execution_params=()
@@ -51,6 +52,15 @@ while [ $# -gt 0 ]; do
                 exit 1
             fi
             ;;
+        -gen)
+            if [ $# -gt 1 ]; then
+                gen="$2"
+                shift 2
+            else
+                echo "Error: -gen requiere un valor"
+                exit 1
+            fi
+            ;;
         -p)
             if [ $# -gt 1 ]; then
                 p="$2"
@@ -75,8 +85,9 @@ done
 
 # Calcular mi, número de objetivos y parámetros
 mi=$(awk "BEGIN {printf \"%d\",(${evaluaciones}/${p})}")
+echo "valor de mi: ${mi}"
 no=2 # número de objetivos
-params="${p} ${mi} ${no} ${pc} ${pm}"
+params="${p} ${gen} ${no} ${pc} ${pm}"
 echo "Parámetros: ${params}"
 
 screen=salida
@@ -86,8 +97,8 @@ screen2=salida2
 rm -rf ${screen}
 
 # Ejecutar NSGA2
-echo "./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${dirInstances}/${instance} ${params} > out/${screen}"
-./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${dirInstances}/${instance} ${params} > ${screen}
+echo "./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${instance} ${params} > out/${screen}"
+./${dirNSGA}/nsga2r 0.${seed} ${dirInstances}/${instance} ${params} > ${screen}
 
 # Buscar óptimo en archivo
 exec<"optimos.txt"
@@ -107,8 +118,8 @@ done
 echo ${pr1}
 echo ${pr2}
 factor=2
-pr1=$(awk "BEGIN {printf \"%.1f\",${pr1}*${factor}}" | sed 's/,/./')
-pr2=$(awk "BEGIN {printf \"%.1f\",${pr2}*${factor}}" | sed 's/,/./')
+pr1=$(awk "BEGIN {printf \"%.1f\",${pr1}*${factor} }" | sed 's/,/./')
+pr2=$(awk "BEGIN {printf \"%.1f\",${pr2}*${factor} }" | sed 's/,/./')
 echo ${pr1}
 echo ${pr2}
 
@@ -119,7 +130,7 @@ hv=$(tail -1 ${screen2})
 gap=$(awk "BEGIN {printf \"%.2f\",100.00*(${optimo}-${hv})/${optimo}}")
 runlength=$(echo ${gap} | sed 's/,/./')
 
-solved="SAT"
+solved="${instance}"
 runtime=0
 best_sol=0
 

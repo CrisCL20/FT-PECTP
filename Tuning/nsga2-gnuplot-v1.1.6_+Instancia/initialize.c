@@ -1,225 +1,267 @@
 /* Data initializtion routines */
 
-# include <stdio.h>
-# include <stdlib.h>
-# include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
-# include "global.h"
-# include "rand.h"
-# include <stdbool.h>
+#include "global.h"
+#include "rand.h"
 
-int fullprint=1;
+#define PENALIZATION 1E6
+#define FREETIME_PENALIZATION 1E2
+
+typedef struct
+{
+    unsigned mid;
+    unsigned degree;
+} course_prios;
+
 /* Function to initialize a population randomly */
-void initialize_pop (population *pop, problem_instance *pi)
+void initialize_pop(population *pop, problem_instance *pi)
 {
     int i;
-    printf("Initializing population\n");
-    for (i=0; i<popsize; i++)
+    for (i = 0; i < popsize; i++)
     {
-        //initialize_ind (&(pop->ind[i]));
-        initialize_backtracking_ind(&(pop->ind[i]), pi);
-        printf("Individual %d initialized\n", i);
+        initialize_ind(&(pop->ind[i]), pi);
     }
     return;
 }
 
+int find_course(const problem_instance *pi, const t_activity act)
+{
+    size_t i, j;
+    for (i = 0; i < pi->nm_Courses; ++i)
+    {
+        for (j = 0; j < pi->Ac[i].nm_activities; ++j)
+        {
+            if (strcmp(pi->Ac[i].activities[j].id, act.id) == 0)
+                return pi->C[i].id - 1;
+        }
+    }
+
+    return 0;
+}
+
+void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
+{
+    int *act_to_ts = malloc(pi->nm_Activity * sizeof(int));
+    for (int i = 0; i < pi->nm_Activity; i++)
+        act_to_ts[i] = -1;
+
+    for (int r = 0; r < pi->nm_Rooms; r++)
+    {
+        for (int t = 0; t < pi->nm_TimeSlots; t++)
+        {
+            if (strcmp(ind->gene[r][t].id, EmptyActivity.id) != 0)
+            {
+                int a_idx = get_act_idx(pi, ind->gene[r][t]);
+                if (a_idx != -1)
+                    act_to_ts[a_idx] = t;
+            }
+        }
+    }
+
+    // 2. Llenado de matriz de colisiones entre cursos
+    for (int i = 0; i < pi->nm_Courses; i++)
+    {
+        for (int a_idx = 0; a_idx < pi->Ac[i].nm_activities; a_idx++)
+        {
+            int current_act = get_act_idx(pi, pi->Ac[i].activities[a_idx]);
+            int t1 = act_to_ts[current_act];
+            if (t1 == -1)
+                continue;
+
+            // Revisar qué otras cosas hay en ese mismo bloque t1 en otros salones
+            for (int r = 0; r < pi->nm_Rooms; r++)
+            {
+                if (strcmp(ind->gene[r][t1].id, EmptyActivity.id) != 0 &&
+                    strcmp(ind->gene[r][t1].id, pi->Ac[i].activities[a_idx].id) != 0)
+                {
+
+                    int other_course = find_course(pi, ind->gene[r][t1]);
+                    mat[i][other_course] = 1;
+                }
+            }
+        }
+    }
+    free(act_to_ts);
+}
+
+int comp(const void *a, const void *b)
+{
+    return (*(course_prios *)a).degree - (*(course_prios *)b).degree;
+}
+
+size_t find_idx_in_student_preference(problem_instance *pi, size_t s_idx, size_t course_id)
+{
+    size_t c;
+    for (c = 0; c < pi->Cs[s_idx].nm_courses; ++c)
+        if (pi->Cs[s_idx].courses[c].id == course_id)
+            return c;
+
+    return 0;
+}
+
+int find_activity_timeslot(problem_instance *pi, individual *ind, t_activity activity)
+{
+    int r, t;
+
+    for (r = 0; r < pi->nm_Rooms; r++)
+        for (t = 0; t < pi->nm_TimeSlots; t++)
+            if (strcmp(ind->gene[r][t].id, activity.id) == 0)
+                return t;
+
+    return -1;
+}
+
+void assign_students(individual *ind, problem_instance *pi)
+{
+    int i, j;
+    unsigned **mod_mat = (unsigned **)malloc(pi->nm_Courses * sizeof(unsigned *));
+    for (i = 0; i < pi->nm_Courses; i++)
+        mod_mat[i] = (unsigned *)calloc(pi->nm_Courses, sizeof(unsigned));
+
+    // printf("==== Matriz de colisiones ====\n");
+    set_modules_matrix(ind, mod_mat, pi);
+    // printCourseMatrix(mod_mat, pi);
+    // printf("==== Matriz de colisiones ====\n");
+
+    int s, midx, a;
+    for (s = 0; s < pi->nm_Students; s++)
+    {
+        /*get total clashes per course*/
+        course_prios priorities[pi->Cs[s].nm_courses];
+        for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
+        {
+            size_t course_idx = pi->Cs[s].courses[midx].id - 1;
+            priorities[midx].mid = pi->Cs[s].courses[midx].id;
+            priorities[midx].degree = 0;
+
+            unsigned course_conflict = 0;
+            for (i = 0; i < pi->nm_Courses; i++)
+                course_conflict += mod_mat[course_idx][i];
+
+            // add free time conflict penalization
+            unsigned freetime_conflict = 0;
+            for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
+            {
+                int act_ts = find_activity_timeslot(pi, ind, pi->Ac[course_idx].activities[a]);
+                if (act_ts != -1 && timeslot_in_student_preference(pi, s, pi->T[act_ts]))
+                    freetime_conflict += FREETIME_PENALIZATION;
+            }
+
+            priorities[midx].degree += freetime_conflict;
+        }
+
+        /**************/
+        /*do the greedy lol*/
+        /**************/
+
+        // sort priorities by degree
+        qsort(priorities, pi->Cs[s].nm_courses, sizeof(course_prios), comp);
+
+        int *assigned = (int *)calloc(pi->Cs[s].nm_courses, sizeof(int));
+        int count_assigned = 0;
+
+        int _priorities_idx = 0;
+        for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
+        {
+            /*select module with least degree*/
+            unsigned least_conflicted_idx = priorities[_priorities_idx].mid - 1;
+
+            /* is there any problem in assigning current least_conflicted with any of the previous assignations? */
+            int conflict = 0;
+            for (j = 0; j < count_assigned; j++)
+            {
+                if (mod_mat[least_conflicted_idx][assigned[j]])
+                {
+                    conflict = 1;
+                    break;
+                }
+            }
+
+            /*assign module if it has no conflict*/
+            if (!conflict && priorities[_priorities_idx].degree <= pi->nm_Courses)
+            {
+                assigned[count_assigned++] = least_conflicted_idx;
+                // this write should be on the idx in student_courses rather than the global idx
+                // ex: least_conflicted=C13 but in the student array that could correspond to idx 2
+                int _idx = find_idx_in_student_preference(pi, s, priorities[_priorities_idx].mid);
+                ind->student_courses[s][_idx] = 1;
+            }
+            _priorities_idx++;
+        }
+
+        free(assigned);
+        // free(priorities);
+    }
+
+    for (i = 0; i < pi->nm_Courses; i++)
+        free(mod_mat[i]);
+    free(mod_mat);
+}
+
+void printInd(individual *ind, problem_instance *pi)
+{
+    size_t s, c, r, t;
+
+    for (s = 0; s < pi->nm_Students; ++s)
+    {
+        printf("\nAsignación de cursos para el estudiante %d:\n\t", pi->S[s].id);
+        for (c = 0; c < pi->Cs[s].nm_courses; ++c)
+            printf("%d ", ind->student_courses[s][c]);
+    }
+    printf("\n");
+
+    for (r = 0; r < pi->nm_Rooms; ++r)
+        for (t = 0; t < pi->nm_TimeSlots; ++t)
+            if (strcmp(ind->gene[r][t].id, EmptyActivity.id) != 0)
+                printf("ACTIVIDAD %s EN EL SALON %d EN EL BLOQUE %s\n", ind->gene[r][t].id, pi->R[r].id, pi->T[t].ts);
+}
 
 /* Function to initialize an individual randomly */
-void initialize_ind (individual *ind)
+void initialize_ind(individual *ind, problem_instance *pi)
 {
-    int j, k;
-    if (nreal!=0)
+    int i, j;
+
+    for (i = 0; i < pi->nm_Rooms; i++)
+        for (j = 0; j < pi->nm_TimeSlots; j++)
+            ind->gene[i][j] = EmptyActivity;
+
+    for (i = 0; i < pi->nm_Activity; i++)
     {
-        for (j=0; j<nreal; j++)
+        /*asignar la clase i a un salón y timeslot aleatorio*/
+
+        while (1)
         {
-            ind->xreal[j] = rnd (min_realvar[j], max_realvar[j]);
-        }
-    }
-    if (nbin!=0)
-    {
-        for (j=0; j<nbin; j++)
-        {
-            for (k=0; k<nbits[j]; k++)
+            /*asegurarnos que el salón elegido sea adecuado para la clase*/
+            const int room_choice_idx = rnd(0, pi->Ra[i].nm_rooms - 1);
+            const unsigned rid = pi->Ra[i].rooms[room_choice_idx].id;
+
+            int ts_choice_idx = rnd(0, pi->nm_TimeSlots - 1);
+
+            if (strcmp(ind->gene[rid - 1][ts_choice_idx].id, EmptyActivity.id) == 0)
             {
-                if (randomperc() <= 0.5)
-                {
-                    ind->gene[j][k] = 0;
-                }
-                else
-                {
-                    ind->gene[j][k] = 1;
-                }
+
+                ind->gene[rid - 1][ts_choice_idx] = pi->A[i];
+                strcpy(ind->gene[rid - 1][ts_choice_idx].id, pi->A[i].id);
+                break;
             }
         }
     }
+
+    // printf("======================= ANTES DE ASIGNACION ESTUDIANTIL ==========================\n");
+    // printInd(ind, pi);
+
+    // printf("======================= =============================== ==========================\n");
+
+    assign_students(ind, pi);
+
+    // printf("========================================================\n");
+    // printInd(ind, pi);
+    // printf("========================================================\n");
+    // exit(0);
+
     return;
 }
-
-bool is_valid_assignment(individual *ind, problem_instance *pi, int day, int employee, int shift) {
-    int num_employees = pi->num_employees;
-    int horizon_length = pi->horizon_length;
-    int num_shifts = pi->num_shifts;
-    int consecutive_shifts = 0;
-    int consecutive_off = 0;
-    int *shift_ammount = (int *)malloc(num_shifts * sizeof(int));
-    if (shift_ammount == NULL) return false;
-    memset(shift_ammount, 0, num_shifts * sizeof(int)); // Initialize to zero
-
-    int weekcount = 0;
-    int total_minutes = 0;
-
-    for (int i = 0; i <= day; i++) {
-        int shift_id = ind->xreal[i * num_employees + employee];
-
-        //Max shifts
-        if (shift_id != -1) {
-            shift_ammount[shift_id]++;
-            if (shift_ammount[shift_id] > pi->employees[employee].max_shifts[shift_id]) {
-                free(shift_ammount);
-                return false;
-            }
-        }
-        //Check if the shift is compatible with the previous one
-        if (i != 0) {
-            int prev_shift = ind->xreal[(i - 1) * num_employees + employee];
-            for (int j = 0; j < pi->shifts[prev_shift].num_incompatible_shifts; j++) {
-                if (pi->shifts[prev_shift].incompatible_shifts[j] == shift_id) {
-                    free(shift_ammount);
-                    return false;
-                }
-            }
-        }
-        //Check if the employee is respecting the min consecutive shifts and days off
-        if ((shift_id == 0 && consecutive_shifts > 0 && consecutive_shifts < pi->employees[employee].min_consecutive_shifts) ||
-            (shift_id != 0 && consecutive_off > 0 && consecutive_off < pi->employees[employee].min_consecutive_days_off)) {
-            free(shift_ammount);
-            return false;
-        }
-
-        if (shift_id != 0) {
-            consecutive_shifts++;
-            consecutive_off = 0;
-        } else {
-            consecutive_shifts = 0;
-            consecutive_off++;
-        }
-
-        if (consecutive_shifts > pi->employees[employee].max_consecutive_shifts) {
-            free(shift_ammount);
-            return false;
-        }
-        //Check if the employee is respecting the max total minutes
-        if (i % 7 == 5) {
-            if (shift_id != 0) {
-                weekcount++;
-            } else {
-                if (i + 1 < horizon_length) {
-                    int next_shift = ind->xreal[(i + 1) * num_employees + employee];
-                    if (next_shift != 0) {
-                        weekcount++;
-                    }
-                }
-            }
-        }
-        //Count shifts and minutes
-        total_minutes += pi->shifts[shift_id].length;
-        if (total_minutes > pi->employees[employee].max_total_minutes) {
-            free(shift_ammount);
-            return false;
-        }
-    }
-    //Check if the employee is respecting the max weekends
-    if (weekcount > pi->employees[employee].max_weekends) {
-        free(shift_ammount);
-        return false;
-    }
-
-    int max_shift_length = 0;
-    for (int i = 0; i < pi->num_shifts; i++) {
-        if (pi->shifts[i].length > max_shift_length) {
-            max_shift_length = pi->shifts[i].length;
-        }
-    }
-    //Check if the employee is respecting the min total minutes
-    if (total_minutes < pi->employees[employee].min_total_minutes) {
-        int remaining_days = horizon_length - 1 - day;
-        int max_remaining_minutes = remaining_days * max_shift_length;
-        if (total_minutes + max_remaining_minutes < pi->employees[employee].min_total_minutes) {
-            free(shift_ammount);
-            return false;
-        }
-    }
-
-    free(shift_ammount);
-    return true;
-}
-
-
-bool backtrack(individual *ind, problem_instance *pi, int day, int employee) {
-    if (day == pi->horizon_length) {
-        return backtrack(ind, pi, 0, employee + 1); // Move to the next employee
-    }
-    
-    if (employee == pi->num_employees) {
-        return true; // All employees have been assigned
-    }
-    
-    // Generate the list of possible shifts (excluding 0 for now)
-    int num_possible_shifts = pi->num_shifts - 1;
-    int possible_shifts[num_possible_shifts];
-    for (int i = 1; i <= num_possible_shifts; i++) {
-        possible_shifts[i - 1] = i;
-    }
-
-    // Shuffle the list of possible shifts
-    shuffle(possible_shifts, num_possible_shifts);
-
-    // Try assigning each shift in random order
-    for (int i = 0; i < num_possible_shifts; i++) {
-        int shift = possible_shifts[i];
-        ind->xreal[day * pi->num_employees + employee] = shift;
-        if (max_realvar[day * pi->num_employees + employee] < shift) {
-            continue;
-        }
-        
-        if (is_valid_assignment(ind, pi, day, employee, shift)) {
-            if (backtrack(ind, pi, day + 1, employee)) {
-                return true; // Found a valid assignment
-            }
-        }
-    }
-
-    // Finally, try the empty shift (0)
-    int shift = 0;
-    ind->xreal[day * pi->num_employees + employee] = shift;
-    if (is_valid_assignment(ind, pi, day, employee, shift)) {
-        if (backtrack(ind, pi, day + 1, employee)) {
-            return true; // Found a valid assignment
-        }
-    }
-    
-    ind->xreal[day * pi->num_employees + employee] = -1; // Reset assignment
-    return false; // No valid assignment found
-}
-
-void initialize_backtracking_ind(individual *ind, problem_instance *pi) {
-    // Initialize all assignments to -1 (unassigned)
-    for (int i = 0; i < pi->horizon_length * pi->num_employees; i++) {
-        ind->xreal[i] = -1;
-    }
-    
-    // Start backtracking from day 0, employee 0
-    if (!backtrack(ind, pi, 0, 0)) {
-        printf("Failed to find a valid initial assignment\n");
-        // Handle failure case (e.g., by using a different initialization method)
-    }
-    fullprint=0;
-    
-    
-}
-
-
-
-
-
-

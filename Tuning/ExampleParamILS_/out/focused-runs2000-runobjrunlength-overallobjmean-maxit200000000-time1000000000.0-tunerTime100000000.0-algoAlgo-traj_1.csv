@@ -1,4 +1,2 @@
 "Total Time","Mean Performance","Wallclock Time","Incumbent ID","Automatic Configurator Time","Configuration..."
-0.1337, 100000000, 0.0003, 0, 0.1337, p='20', pc='0.8', pm='0.05'
-0.2348, -59.0, 31.7289, 0, 0.1348, p='20', pc='0.8', pm='0.05'
-1.4468, -60.0, 222.4124, 12, 0.1468, p='20', pc='0.25', pm='0.05'
+0.0857, 100000000, 0.0006, 0, 0.0857, gen='1000', p='256', pc='1', pm='0.85'

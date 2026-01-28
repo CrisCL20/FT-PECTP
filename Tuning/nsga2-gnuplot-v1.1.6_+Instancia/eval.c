@@ -3,10 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 #include "global.h"
 #include "rand.h"
 
-int maxprint = 1;
 /* Routine to evaluate objective function values and constraints for a population */
 void evaluate_pop(population *pop, problem_instance *pi)
 {
@@ -18,182 +19,176 @@ void evaluate_pop(population *pop, problem_instance *pi)
     return;
 }
 
-/* Routine to evaluate objective function values and constraints for an individual */
-/*void evaluate_ind (individual *ind)
+/*Acá la evaluación completa. Deben setearse los valores de obj y constr_violation. */
+
+/*FO1: preferencias horarias*/
+void countTimesRequestsMet(unsigned **student_schedule, t_activity **gene, double *obj, problem_instance *pi)
 {
-    int j;
-    test_problem (ind->xreal, ind->xbin, ind->gene, ind->obj, ind->constr);
-    if (ncon==0)
+    int i, j, k, r, t;
+    unsigned long counts = 0;
+
+    for (i = 0; i < pi->nm_Students; i++)
     {
-        ind->constr_violation = 0.0;
-    }
-    else
-    {
-        ind->constr_violation = 0.0;
-        for (j=0; j<ncon; j++)
+        /*count where the student goes to classes in a time period they did not request*/
+
+        for (j = 0; j < pi->Cs[i].nm_courses; ++j)
         {
-            if (ind->constr[j]<0.0)
+            if (student_schedule[i][j])
             {
-                ind->constr_violation += ind->constr[j];
+                size_t c_idx = pi->Cs[i].courses[j].id - 1;
+                for (k = 0; k < pi->Ac[c_idx].nm_activities; k++)
+                {
+                    int found_act = 0;
+                    for (r = 0; r < pi->nm_Rooms; ++r)
+                    {
+                        for (t = 0; t < pi->Ts[i].nm_timeslots; t++)
+                        {
+                            int ts_idx = get_timeslot_idx(pi, pi->Ts[i].timeslots[t]);
+                            if (ts_idx != -1 && strcmp(gene[r][ts_idx].id, pi->Ac[c_idx].activities[k].id) == 0)
+                            {
+                                found_act = 1;
+                                counts++;
+                                break;
+                            }
+                        }
+
+                        if (found_act)
+                            break;
+                    }
+                }
             }
         }
     }
-    return;
-}*/
+
+    obj[0] = counts;
+}
+
+/*FO2: cantidad de modulos preferidos no asignados*/
+void countCourseRequestsMet(unsigned **students_schedule, double *obj, problem_instance *pi)
+{
+    int i, j;
+    unsigned long counts = 0;
+
+    for (i = 0; i < pi->nm_Students; i++)
+    {
+        unsigned met = 0;
+        for (j = 0; j < pi->Cs[i].nm_courses; j++)
+            met += students_schedule[i][j];
+
+        // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
+
+        counts += pi->Cs[i].nm_courses - met;
+    }
+
+    // printf("\nObjetivo 2: %ld\n", counts);
+    // exit(0);
+
+    obj[1] = counts;
+}
+
+void check_room_cap(individual *ind, problem_instance *pi)
+{
+    int r, s, t;
+
+    for (r = 0; r < pi->nm_Rooms; r++)
+    {
+        int room_cap = pi->rho[r];
+
+        // see that in each timeslot, the room does not have more than pi->rho[r] students, if it does, decrease constr_violation
+        for (t = 0; t < pi->nm_TimeSlots; t++)
+        {
+            int n_students = 0;
+            t_activity act = ind->gene[r][t];
+
+            // if the cell is empty, go to next timeslot
+            if (strcmp(act.id, EmptyActivity.id) == 0)
+                continue;
+
+            int parent_course_id = get_course_activity(pi, act);
+
+            for (s = 0; s < pi->nm_Students; s++)
+            {
+                // if the student is enrolled in activity parent course, then he assists to the activity
+                int course_idx_in_student_pref = course_in_student_preference(pi, s, parent_course_id);
+                if (course_idx_in_student_pref != -1 && ind->student_courses[s][course_idx_in_student_pref])
+                    n_students++;
+            }
+
+            if (n_students > room_cap)
+                ind->constr_violation--;
+        }
+    }
+}
+
+void check_course_lim(individual *ind, problem_instance *pi)
+{
+    int c, s, aux_c;
+    for (c = 0; c < pi->nm_Courses; c++)
+    {
+        unsigned course_lim = pi->sigma_class[c];
+        unsigned long course_count = 0;
+        for (s = 0; s < pi->nm_Students; s++)
+            for (aux_c = 0; aux_c < pi->Cs[s].nm_courses; aux_c++)
+                if (ind->student_courses[s][aux_c] && pi->Cs[s].courses[aux_c].id == pi->C[c].id)
+                    course_count++;
+
+        if (course_count > course_lim)
+            ind->constr_violation--;
+    }
+}
+
+void check_min_mods(individual *ind, problem_instance *pi)
+{
+    int s, m;
+    for (s = 0; s < pi->nm_Students; s++)
+    {
+        unsigned min_mods = pi->kmins[s];
+        unsigned mods = 0;
+        for (m = 0; m < pi->Cs[s].nm_courses; m++)
+            if (ind->student_courses[s][m])
+                mods++;
+
+        if (mods < min_mods)
+            ind->constr_violation--;
+    }
+}
+
+void check_max_mods(individual *ind, problem_instance *pi)
+{
+    int s, m;
+    unsigned mods = 0;
+    for (s = 0; s < pi->nm_Students; s++)
+    {
+        unsigned max_mods = pi->kmaxs[s];
+        for (m = 0; m < pi->Cs[s].nm_courses; m++)
+            if (ind->student_courses[s][m])
+                mods++;
+
+        if (mods > max_mods)
+            ind->constr_violation--;
+        mods = 0;
+    }
+}
+
+void test_problem(individual *ind, problem_instance *pi)
+{
+    /*objective functions*/
+    countTimesRequestsMet(ind->student_courses, ind->gene, ind->obj, pi);
+    countCourseRequestsMet(ind->student_courses, ind->obj, pi);
+
+    /*constraint handling*/
+    ind->constr_violation = 0;
+    check_room_cap(ind, pi);
+    check_course_lim(ind, pi);
+    check_min_mods(ind, pi);
+    check_max_mods(ind, pi);
+}
 
 /* Routine to evaluate objective function values and constraints for an individual */
 void evaluate_ind(individual *ind, problem_instance *pi)
 {
-    /*Acá la evaluación completa. Deben setearse los valores de obj y constr_violation. */
 
-    int j;
-    coveringIndividual(ind, pi,0);
-    preferenceIndividual(ind, pi,0);
-
-    // restrictions
-    if (ncon == 0)
-    {
-        ind->constr_violation = 0.0;
-    }
-    else
-    {
-
-        ind->constr_violation = 0.0;
-        int horizon_length = pi->horizon_length;
-        int num_employees = pi->num_employees;
-        int num_shifts = pi->num_shifts;
-
-        for (int i = 0; i < num_employees; i++)
-        {
-            int consecutive_shifts = 0;
-            int consecutive_off = 0;
-            int total_minutes = 0;
-            int weekend_count = 0;
-            int *shifts_count = calloc(num_shifts, sizeof(int));
-
-            for (int d = 0; d < horizon_length; d++)
-            {
-                int shift = ind->xreal[d * num_employees + i];
-
-                // Shift rotation
-                if (d > 0)
-                {
-                    int prev_shift = ind->xreal[(d - 1) * num_employees + i];
-                    if (is_incompatible(shift, pi->shifts[prev_shift].incompatible_shifts, pi->shifts[prev_shift].num_incompatible_shifts))
-                    {
-                        if(maxprint){
-                            printf("Incompatible shift: employee %d, day %d, shift %d\n", i, d, shift);
-                        }
-                        ind->constr_violation -= 1;
-                    }
-                }
-                // Min consecutive shifts and days off
-                // if(maxprint){
-                //     printf("Employee: %s, consecutive_shifts: %d, consecutive_off: %d\n", pi->employees[i].name, consecutive_shifts, consecutive_off);
-                // }
-                if ((shift == 0 && consecutive_shifts > 0 && consecutive_shifts < pi->employees[i].min_consecutive_shifts) ||
-                    (shift != 0 && consecutive_off > 0 && consecutive_off < pi->employees[i].min_consecutive_days_off))
-                {
-                    if (maxprint){
-                        printf("Consecutive off: employee %d: %d\n", i, consecutive_off);
-                    }
-                    ind->constr_violation -= 1;
-                }
-
-                // Count shifts and minutes
-                if (shift != 0)
-                {
-                    shifts_count[shift]++;
-                    total_minutes += pi->shifts[shift].length;
-                    consecutive_shifts++;
-                    consecutive_off = 0;
-                }
-                else
-                {
-                    consecutive_off++;
-                    consecutive_shifts = 0;
-                }
-
-                // Max consecutive shifts
-                if (consecutive_shifts > pi->employees[i].max_consecutive_shifts)
-                {
-                    if(maxprint){
-                        printf("Consecutive shifts: employee %d: %d\n", i, consecutive_shifts);
-                    }
-
-                    ind->constr_violation -= 1;
-                }
-
-                
-
-                // Weekend work
-                if ((d % 7 == 5 ))
-                {
-                    //check next day
-                    if (shift != 0)
-                    {
-                        weekend_count++;
-                    }else{
-                        if (d + 1 < horizon_length)
-                        {
-                        int next_shift = ind->xreal[(d + 1) * num_employees + i];
-                        
-                        if (next_shift != 0){
-                            weekend_count++;
-                            }
-                        }
-                    }
-                    
-                    
-                }
-            }
-
-            // Max shifts of each type
-            for (int j = 0; j < num_shifts; j++)
-            {
-                if (shifts_count[j] > pi->employees[i].max_shifts[j])
-                {
-                    if(maxprint){
-                        printf("Shift count: employee %d, shift %d: %d\n", i, j, shifts_count[j]);
-                    }
-                    ind->constr_violation -= 1;
-                }
-            }
-
-            // Min and max work time
-            if (total_minutes < pi->employees[i].min_total_minutes || total_minutes > pi->employees[i].max_total_minutes)
-            {
-                
-                //ponderate the violation by the difference
-                if (total_minutes < pi->employees[i].min_total_minutes){
-                    ind->constr_violation -= (pi->employees[i].min_total_minutes - total_minutes)/100;
-                    if(maxprint){
-                        printf("Total minutes: employee %s, penalty: %d\n", pi->employees[i].name, (pi->employees[i].min_total_minutes - total_minutes)/100);
-                    }
-                }else{
-                    ind->constr_violation -= (total_minutes - pi->employees[i].max_total_minutes)/100;
-                    if(maxprint){
-                        printf("Total minutes: employee %s, penalty: %d\n", pi->employees[i].name, (total_minutes - pi->employees[i].max_total_minutes)/100);
-                    }
-                }   
-
-                
-            }
-
-            // Max working weekends
-            if (weekend_count > pi->employees[i].max_weekends)
-            {
-                if(maxprint){
-                    printf("Week count: employee %s: %d\n", pi->employees[i].name, weekend_count);
-                }
-                ind->constr_violation -= 1;
-            }
-
-            free(shifts_count);
-            
-        }
-        maxprint = 0;
-    }
+    test_problem(ind, pi);
 
     return;
 }
