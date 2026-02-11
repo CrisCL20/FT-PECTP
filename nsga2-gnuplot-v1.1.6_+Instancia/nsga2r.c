@@ -79,6 +79,8 @@ int main(int argc, char **argv)
     readInputFile(instance_route, pi);
     printf("DONE\n");
 
+    printProblemInstance(pi);
+
     popsize = atoi(argv[3]);
     if (popsize < 4 || (popsize % 4) != 0)
     {

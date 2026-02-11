@@ -5,7 +5,7 @@ set T; # conjunto de bloques disponibles
 set R; # conjunto de salones
 set Ac {C} within A; # actividades obligatorias del curso C
 set Cs {S} within C; # cursos que preinscribe cada estudiante
-set Ra {A} within R; # salones que cumplen todas las features que necesita la actividad C
+#set Ra {A} within R; # salones que cumplen todas las features que necesita la actividad C
 set Ts {S} within T; # bloques por los que el estudiante s marca preferencia
 #param CM {M,C} default 0; # 1 si el ramo m in M tiene como requisito la clase c in C, 0 eoc
 param rho {R}; # capacidad de cada salon
@@ -54,7 +54,7 @@ R2_1 {t in T, a in A} : M*yT[a,t] >= sum{r in R} x[a,r,t];  #Si la clase c se as
 
 R2_2 {t in T, a in A} : yT[a,t] <= sum{r in R} x[a,r,t];  #Si la clase c se asigna al timeslot t, entonces debe asignarse a alguno de las salas
 
-R3 {a in A, r in R diff Ra[a]} : sum{t in T} x[a,r,t] = 0;
+#R3 {a in A, r in R diff Ra[a]} : sum{t in T} x[a,r,t] = 0;
 
 R4 {a in A} : sum{t in T} yT[a,t] = 1; # Todas las clases son asignadas a exactamente un horario
 

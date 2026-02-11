@@ -183,14 +183,14 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     {
         int assigned = 0;
         // shuffle rooms to get distinct assignations each time
-        int rooms_for_class[pi->Ra[unassigned_classes_c1[c1]].nm_rooms];
+        int rooms_for_class[pi->nm_Rooms];
 
-        for (r = 0; r < pi->Ra[unassigned_classes_c1[c1]].nm_rooms; r++)
-            rooms_for_class[r] = pi->Ra[unassigned_classes_c1[c1]].rooms[r].id - 1;
+        for (r = 0; r < pi->nm_Rooms; r++)
+            rooms_for_class[r] = r;
 
-        shuffle(rooms_for_class, pi->Ra[unassigned_classes_c1[c1]].nm_rooms);
+        shuffle(rooms_for_class, pi->nm_Rooms);
 
-        for (r = 0; r < pi->Ra[unassigned_classes_c1[c1]].nm_rooms; ++r)
+        for (r = 0; r < pi->nm_Rooms; ++r)
         {
             for (t = 0; t < count_not_used_tslots; t++)
             {
@@ -210,14 +210,14 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     {
         int assigned = 0;
         // shuffle rooms to get distinct assignations each time
-        int rooms_for_class[pi->Ra[unassigned_classes_c2[c2]].nm_rooms];
+        int rooms_for_class[pi->nm_Rooms];
 
-        for (r = 0; r < pi->Ra[unassigned_classes_c2[c2]].nm_rooms; r++)
-            rooms_for_class[r] = pi->Ra[unassigned_classes_c2[c2]].rooms[r].id - 1;
+        for (r = 0; r < pi->nm_Rooms; r++)
+            rooms_for_class[r] = r;
 
-        shuffle(rooms_for_class, pi->Ra[unassigned_classes_c2[c2]].nm_rooms);
+        shuffle(rooms_for_class, pi->nm_Rooms);
 
-        for (r = 0; r < pi->Ra[unassigned_classes_c2[c2]].nm_rooms; ++r)
+        for (r = 0; r < pi->nm_Rooms; ++r)
         {
             for (t = 0; t < count_not_used_tslots; t++)
             {

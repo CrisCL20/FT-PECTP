@@ -105,7 +105,6 @@ void readActivities(FILE *fh, problem_instance *pi)
     if (debug)
         printf("Size of activities: %d\n", pi->nm_Activity);
     pi->A = (t_activity *)malloc(pi->nm_Activity * sizeof(t_activity));
-    pi->Ra = (adequate_rooms *)malloc(pi->nm_Activity * sizeof(adequate_rooms));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -310,42 +309,6 @@ void readCoursePreference(FILE *fh, problem_instance *pi, unsigned sid)
         for (id = 0; id < pi->Cs[sid].nm_courses; id++)
         {
             printf("%d ", pi->Cs[sid].courses[id].id);
-        }
-        printf("\n");
-    }
-
-    free(token);
-}
-
-void readAdequateRooms(FILE *fh, problem_instance *pi, unsigned aid)
-{
-    int debug = 0, id = 0;
-    char *token;
-
-    char line[4096];
-    fgets(line, sizeof(line), fh);
-
-    removeSemicolon(line);
-    if (debug)
-        printf("Line: %s", line);
-
-    pi->Ra[aid].nm_rooms = countWords(line);
-    pi->Ra[aid].rooms = (t_room *)malloc(pi->Ra[aid].nm_rooms * sizeof(t_room));
-
-    token = strtok(line, " ");
-    while (token != NULL)
-    {
-        pi->Ra[aid].rooms[id].id = atoi(token);
-        token = strtok(NULL, " ");
-        id++;
-    }
-
-    if (debug)
-    {
-        printf("La actividad %s puede realizarse en los siguientes salones:\n", pi->A[aid].id);
-        for (id = 0; id < pi->Ra[aid].nm_rooms; id++)
-        {
-            printf("%d ", pi->Ra[aid].rooms[id].id);
         }
         printf("\n");
     }
@@ -619,16 +582,6 @@ int readInputFile(char *filePath, problem_instance *pi)
 
     if (debug)
         printf("END\n");
-
-    if (debug)
-        printf("Reading activity room compatibility...\n");
-    for (i = 0; i < pi->nm_Activity; i++)
-    {
-        char Rc[128];
-        sprintf(Rc, "Ra[%s]:=", pi->A[i].id);
-        findDef(fh, Rc);
-        readAdequateRooms(fh, pi, i);
-    }
 
     if (debug)
         printf("END\n");

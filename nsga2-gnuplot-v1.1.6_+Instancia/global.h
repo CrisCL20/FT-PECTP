@@ -64,12 +64,6 @@ typedef struct
 
 typedef struct
 {
-    t_room *rooms;
-    size_t nm_rooms;
-} adequate_rooms;
-
-typedef struct
-{
     t_timeslot *timeslots;
     size_t nm_timeslots;
 } timeslot_preference;
@@ -108,7 +102,6 @@ typedef struct
     t_timeslot *T;
     t_room *R;
     course_activities *Ac;
-    adequate_rooms *Ra;
     course_preference *Cs;
     timeslot_preference *Ts;
 

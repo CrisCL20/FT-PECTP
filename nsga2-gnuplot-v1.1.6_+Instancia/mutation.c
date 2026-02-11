@@ -55,19 +55,6 @@ t_activity_choice pick_activity(problem_instance *pi, individual *ind, int worst
     return activities_in_ts[activities_in_ts_index[0]];
 }
 
-int is_feasible(problem_instance *pi, individual *ind, t_activity a, int ts)
-{
-    int act_idx = get_act_idx(pi, a);
-    int r;
-
-    if (act_idx != -1)
-        for (r = 0; r < pi->Ra[act_idx].nm_rooms; r++)
-            if (strcmp(ind->gene[pi->Ra[act_idx].rooms[r].id - 1][ts].id, EmptyActivity.id) == 0)
-                return 1;
-
-    return 0;
-}
-
 int count_free_time_violations(problem_instance *pi, individual *ind, t_activity act, int ts)
 {
     int s, c_idx, count = 0;
@@ -85,13 +72,11 @@ int count_free_time_violations(problem_instance *pi, individual *ind, t_activity
 void swap_activity(problem_instance *pi, individual *ind, t_activity_choice act_choice, int previous_timeslot, int new_timeslot)
 {
     int r;
-    int act_idx = get_act_idx(pi, act_choice.picked_act);
-
-    for (r = 0; r < pi->Ra[act_idx].nm_rooms; r++)
+    for (r = 0; r < pi->nm_Rooms; r++)
     {
-        if (strcmp(ind->gene[pi->Ra[act_idx].rooms[r].id - 1][new_timeslot].id, EmptyActivity.id) == 0)
+        if (strcmp(ind->gene[r][new_timeslot].id, EmptyActivity.id) == 0)
         {
-            ind->gene[pi->Ra[act_idx].rooms[r].id - 1][new_timeslot] = act_choice.picked_act;
+            ind->gene[r][new_timeslot] = act_choice.picked_act;
             ind->gene[act_choice.room_id][previous_timeslot] = EmptyActivity;
             break;
         }
@@ -116,14 +101,12 @@ void mutation_ind(individual *ind, problem_instance *pi)
 
     for (t = 0; t < pi->nm_TimeSlots; t++)
     {
-        if (is_feasible(pi, ind, act_to_swap.picked_act, t))
+
+        int score = count_free_time_violations(pi, ind, act_to_swap.picked_act, t);
+        if (score < min_new_conflicts)
         {
-            int score = count_free_time_violations(pi, ind, act_to_swap.picked_act, t);
-            if (score < min_new_conflicts)
-            {
-                min_new_conflicts = score;
-                best_target_ts = t;
-            }
+            min_new_conflicts = score;
+            best_target_ts = t;
         }
     }
 

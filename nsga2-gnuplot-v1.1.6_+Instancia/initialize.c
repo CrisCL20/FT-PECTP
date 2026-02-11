@@ -236,16 +236,15 @@ void initialize_ind(individual *ind, problem_instance *pi)
         while (1)
         {
             /*asegurarnos que el salón elegido sea adecuado para la clase*/
-            const int room_choice_idx = rnd(0, pi->Ra[i].nm_rooms - 1);
-            const unsigned rid = pi->Ra[i].rooms[room_choice_idx].id;
+            const int r = rnd(0, pi->nm_Rooms - 1);
+            // const unsigned rid = pi->R[room_choice_idx].id;
 
             int ts_choice_idx = rnd(0, pi->nm_TimeSlots - 1);
 
-            if (strcmp(ind->gene[rid - 1][ts_choice_idx].id, EmptyActivity.id) == 0)
+            if (strcmp(ind->gene[r][ts_choice_idx].id, EmptyActivity.id) == 0)
             {
-
-                ind->gene[rid - 1][ts_choice_idx] = pi->A[i];
-                strcpy(ind->gene[rid - 1][ts_choice_idx].id, pi->A[i].id);
+                ind->gene[r][ts_choice_idx] = pi->A[i];
+                strcpy(ind->gene[r][ts_choice_idx].id, pi->A[i].id);
                 break;
             }
         }
