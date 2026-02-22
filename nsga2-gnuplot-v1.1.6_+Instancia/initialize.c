@@ -43,49 +43,49 @@ int find_course(const problem_instance *pi, const t_activity act)
     return 0;
 }
 
-void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi)
+void set_modules_penalties(problem_instance *pi, individual *ind, unsigned *mat, int *act_ts)
 {
-    int *act_to_ts = malloc(pi->nm_Activity * sizeof(int));
-    for (int i = 0; i < pi->nm_Activity; i++)
-        act_to_ts[i] = -1;
-
-    for (int r = 0; r < pi->nm_Rooms; r++)
+    // Get map of activities to timeslots
+    for (int a = 0; a < pi->nm_Activity; a++)
     {
-        for (int t = 0; t < pi->nm_TimeSlots; t++)
+        for (int r = 0; r < pi->nm_Rooms; r++)
         {
-            if (strcmp(ind->gene[r][t].id, EmptyActivity.id) != 0)
+            int found_act = 0;
+            for (int t = 0; t < pi->nm_TimeSlots; t++)
             {
-                int a_idx = get_act_idx(pi, ind->gene[r][t]);
-                if (a_idx != -1)
-                    act_to_ts[a_idx] = t;
-            }
-        }
-    }
-
-    // 2. Llenado de matriz de colisiones entre cursos
-    for (int i = 0; i < pi->nm_Courses; i++)
-    {
-        for (int a_idx = 0; a_idx < pi->Ac[i].nm_activities; a_idx++)
-        {
-            int current_act = get_act_idx(pi, pi->Ac[i].activities[a_idx]);
-            int t1 = act_to_ts[current_act];
-            if (t1 == -1)
-                continue;
-
-            // Revisar qué otras cosas hay en ese mismo bloque t1 en otros salones
-            for (int r = 0; r < pi->nm_Rooms; r++)
-            {
-                if (strcmp(ind->gene[r][t1].id, EmptyActivity.id) != 0 &&
-                    strcmp(ind->gene[r][t1].id, pi->Ac[i].activities[a_idx].id) != 0)
+                if (strcmp(ind->gene[r][t].id, pi->A[a].id) == 0)
                 {
-
-                    int other_course = find_course(pi, ind->gene[r][t1]);
-                    mat[i][other_course] = 1;
+                    act_ts[a] = t;
+                    found_act = 1;
                 }
             }
+            if (found_act)
+                break;
         }
     }
-    free(act_to_ts);
+
+    // penalizar cursos que tengan topes consigo mismos
+    for (int c = 0; c < pi->nm_Courses; c++)
+    {
+        int penalized = 0;
+        for (int a_c = 0; a_c < pi->Ac[c].nm_activities; a_c++)
+        {
+            int current_act_idx = get_act_idx(pi, pi->Ac[c].activities[a_c]);
+            int t = act_ts[current_act_idx];
+            // ver si hay otra actividad del curso c en el bloque t
+            for (int aa_c = 0; aa_c < pi->Ac[c].nm_activities; aa_c++)
+            {
+                if (aa_c != a_c && act_ts[get_act_idx(pi, pi->Ac[c].activities[aa_c])] == t)
+                {
+                    mat[c] = PENALIZATION;
+                    break;
+                }
+            }
+
+            if (penalized)
+                break;
+        }
+    }
 }
 
 int comp(const void *a, const void *b)
@@ -117,13 +117,11 @@ int find_activity_timeslot(problem_instance *pi, individual *ind, t_activity act
 
 void assign_students(individual *ind, problem_instance *pi)
 {
-    int i, j;
-    unsigned **mod_mat = (unsigned **)malloc(pi->nm_Courses * sizeof(unsigned *));
-    for (i = 0; i < pi->nm_Courses; i++)
-        mod_mat[i] = (unsigned *)calloc(pi->nm_Courses, sizeof(unsigned));
+    unsigned *course_penalties = (unsigned *)calloc(pi->nm_Courses, sizeof(unsigned *));
+    int *acts_ts = (int *)calloc(pi->nm_Activity, sizeof(int));
 
     // printf("==== Matriz de colisiones ====\n");
-    set_modules_matrix(ind, mod_mat, pi);
+    set_modules_penalties(pi, ind, course_penalties, acts_ts);
     // printCourseMatrix(mod_mat, pi);
     // printf("==== Matriz de colisiones ====\n");
 
@@ -135,71 +133,37 @@ void assign_students(individual *ind, problem_instance *pi)
         for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
         {
             size_t course_idx = pi->Cs[s].courses[midx].id - 1;
-            priorities[midx].mid = pi->Cs[s].courses[midx].id;
-            priorities[midx].degree = 0;
-
-            unsigned course_conflict = 0;
-            for (i = 0; i < pi->nm_Courses; i++)
-                course_conflict += mod_mat[course_idx][i];
 
             // add free time conflict penalization
             unsigned freetime_conflict = 0;
             for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
             {
-                int act_ts = find_activity_timeslot(pi, ind, pi->Ac[course_idx].activities[a]);
-                if (act_ts != -1 && timeslot_in_student_preference(pi, s, pi->T[act_ts]))
+                int ts_act = acts_ts[get_act_idx(pi, pi->Ac[course_idx].activities[a])];
+                if (ts_act != -1 && timeslot_in_student_preference(pi, s, pi->T[ts_act]))
                     freetime_conflict += FREETIME_PENALIZATION;
             }
 
-            priorities[midx].degree += freetime_conflict;
+            priorities[midx] = (course_prios){
+                .mid = pi->Cs[s].courses[midx].id,
+                .degree = freetime_conflict + course_penalties[course_idx]};
         }
 
         /**************/
         /*do the greedy lol*/
         /**************/
+        // assign all courses that have less than FREETIME_PENALIZATION degree
 
-        // sort priorities by degree
-        qsort(priorities, pi->Cs[s].nm_courses, sizeof(course_prios), comp);
-
-        int *assigned = (int *)calloc(pi->Cs[s].nm_courses, sizeof(int));
-        int count_assigned = 0;
-
-        int _priorities_idx = 0;
-        for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
+        for (int c = 0; c < pi->Cs[s].nm_courses; c++)
         {
-            /*select module with least degree*/
-            unsigned least_conflicted_idx = priorities[_priorities_idx].mid - 1;
-
-            /* is there any problem in assigning current least_conflicted with any of the previous assignations? */
-            int conflict = 0;
-            for (j = 0; j < count_assigned; j++)
+            if (priorities[c].degree <= FREETIME_PENALIZATION)
             {
-                if (mod_mat[least_conflicted_idx][assigned[j]])
-                {
-                    conflict = 1;
-                    break;
-                }
+                ind->student_courses[s][c] = 1;
             }
-
-            /*assign module if it has no conflict*/
-            if (!conflict && priorities[_priorities_idx].degree <= pi->nm_Courses)
-            {
-                assigned[count_assigned++] = least_conflicted_idx;
-                // this write should be on the idx in student_courses rather than the global idx
-                // ex: least_conflicted=C13 but in the student array that could correspond to idx 2
-                int _idx = find_idx_in_student_preference(pi, s, priorities[_priorities_idx].mid);
-                ind->student_courses[s][_idx] = 1;
-            }
-            _priorities_idx++;
         }
-
-        free(assigned);
-        // free(priorities);
     }
 
-    for (i = 0; i < pi->nm_Courses; i++)
-        free(mod_mat[i]);
-    free(mod_mat);
+    free(course_penalties);
+    free(acts_ts);
 }
 
 void printInd(individual *ind, problem_instance *pi)

@@ -109,7 +109,7 @@ int get_act_idx(problem_instance *pi, t_activity a)
         if (strcmp(pi->A[i].id, a.id) == 0)
             return i;
 
-    return -1;
+    return 0;
 }
 
 size_t get_course_activity(problem_instance *pi, t_activity act)
