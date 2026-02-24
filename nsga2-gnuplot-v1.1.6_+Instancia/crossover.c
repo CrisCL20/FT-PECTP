@@ -211,9 +211,6 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
             }
         }
 
-        assign_students(child1, pi);
-        assign_students(child2, pi);
-
         free(tslot_idx_p1);
         free(tslot_idx_p2);
         free(not_used_tslots_idx);

@@ -43,51 +43,6 @@ int find_course(const problem_instance *pi, const t_activity act)
     return 0;
 }
 
-void set_modules_penalties(problem_instance *pi, individual *ind, unsigned *mat, int *act_ts)
-{
-    // Get map of activities to timeslots
-    for (int a = 0; a < pi->nm_Activity; a++)
-    {
-        for (int r = 0; r < pi->nm_Rooms; r++)
-        {
-            int found_act = 0;
-            for (int t = 0; t < pi->nm_TimeSlots; t++)
-            {
-                if (strcmp(ind->gene[r][t].id, pi->A[a].id) == 0)
-                {
-                    act_ts[a] = t;
-                    found_act = 1;
-                }
-            }
-            if (found_act)
-                break;
-        }
-    }
-
-    // penalizar cursos que tengan topes consigo mismos
-    for (int c = 0; c < pi->nm_Courses; c++)
-    {
-        int penalized = 0;
-        for (int a_c = 0; a_c < pi->Ac[c].nm_activities; a_c++)
-        {
-            int current_act_idx = get_act_idx(pi, pi->Ac[c].activities[a_c]);
-            int t = act_ts[current_act_idx];
-            // ver si hay otra actividad del curso c en el bloque t
-            for (int aa_c = 0; aa_c < pi->Ac[c].nm_activities; aa_c++)
-            {
-                if (aa_c != a_c && act_ts[get_act_idx(pi, pi->Ac[c].activities[aa_c])] == t)
-                {
-                    mat[c] = PENALIZATION;
-                    break;
-                }
-            }
-
-            if (penalized)
-                break;
-        }
-    }
-}
-
 int comp(const void *a, const void *b)
 {
     return (*(course_prios *)a).degree - (*(course_prios *)b).degree;
@@ -113,75 +68,6 @@ int find_activity_timeslot(problem_instance *pi, individual *ind, t_activity act
                 return t;
 
     return -1;
-}
-
-void assign_students(individual *ind, problem_instance *pi)
-{
-    unsigned *course_penalties = (unsigned *)calloc(pi->nm_Courses, sizeof(unsigned *));
-    int *acts_ts = (int *)calloc(pi->nm_Activity, sizeof(int));
-
-    // printf("==== Matriz de colisiones ====\n");
-    set_modules_penalties(pi, ind, course_penalties, acts_ts);
-    // printCourseMatrix(mod_mat, pi);
-    // printf("==== Matriz de colisiones ====\n");
-
-    int s, midx, a;
-    for (s = 0; s < pi->nm_Students; s++)
-    {
-        /*get total clashes per course*/
-        course_prios priorities[pi->Cs[s].nm_courses];
-        for (midx = 0; midx < pi->Cs[s].nm_courses; midx++)
-        {
-            size_t course_idx = pi->Cs[s].courses[midx].id - 1;
-
-            // add free time conflict penalization
-            unsigned freetime_conflict = 0;
-            for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
-            {
-                int ts_act = acts_ts[get_act_idx(pi, pi->Ac[course_idx].activities[a])];
-                if (ts_act != -1 && timeslot_in_student_preference(pi, s, pi->T[ts_act]))
-                    freetime_conflict += FREETIME_PENALIZATION;
-            }
-
-            priorities[midx] = (course_prios){
-                .mid = pi->Cs[s].courses[midx].id,
-                .degree = freetime_conflict + course_penalties[course_idx]};
-        }
-
-        /**************/
-        /*do the greedy lol*/
-        /**************/
-        // assign all courses that have less than FREETIME_PENALIZATION degree
-
-        for (int c = 0; c < pi->Cs[s].nm_courses; c++)
-        {
-            if (priorities[c].degree <= FREETIME_PENALIZATION)
-            {
-                ind->student_courses[s][c] = 1;
-            }
-        }
-    }
-
-    free(course_penalties);
-    free(acts_ts);
-}
-
-void printInd(individual *ind, problem_instance *pi)
-{
-    size_t s, c, r, t;
-
-    for (s = 0; s < pi->nm_Students; ++s)
-    {
-        printf("\nAsignación de cursos para el estudiante %d:\n\t", pi->S[s].id);
-        for (c = 0; c < pi->Cs[s].nm_courses; ++c)
-            printf("%d ", ind->student_courses[s][c]);
-    }
-    printf("\n");
-
-    for (r = 0; r < pi->nm_Rooms; ++r)
-        for (t = 0; t < pi->nm_TimeSlots; ++t)
-            if (strcmp(ind->gene[r][t].id, EmptyActivity.id) != 0)
-                printf("ACTIVIDAD %s EN EL SALON %d EN EL BLOQUE %s\n", ind->gene[r][t].id, pi->R[r].id, pi->T[t].ts);
 }
 
 /* Function to initialize an individual randomly */
@@ -218,8 +104,6 @@ void initialize_ind(individual *ind, problem_instance *pi)
     // printInd(ind, pi);
 
     // printf("======================= =============================== ==========================\n");
-
-    assign_students(ind, pi);
 
     // printf("========================================================\n");
     // printInd(ind, pi);

@@ -171,27 +171,25 @@ timeslot_counter *get_most_conflicted_free_timeslot(problem_instance *pi, indivi
     {
         for (c = 0; c < pi->Cs[s].nm_courses; c++)
         {
-            if (ind->student_courses[s][c])
+
+            int course_idx = pi->Cs[s].courses[c].id - 1;
+            for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
             {
-                int course_idx = pi->Cs[s].courses[c].id - 1;
-                for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
+                int found_act = 0;
+                for (r = 0; r < pi->nm_Rooms; r++)
                 {
-                    int found_act = 0;
-                    for (r = 0; r < pi->nm_Rooms; r++)
+                    for (t = 0; t < pi->nm_TimeSlots; t++)
                     {
-                        for (t = 0; t < pi->nm_TimeSlots; t++)
+                        if (strcmp(ind->gene[r][t].id, pi->Ac[course_idx].activities[a].id) == 0 && timeslot_in_student_preference(pi, s, pi->T[t]))
                         {
-                            if (strcmp(ind->gene[r][t].id, pi->Ac[course_idx].activities[a].id) == 0 && timeslot_in_student_preference(pi, s, pi->T[t]))
-                            {
-                                found_act = 1;
-                                ts_counter[t].counter++;
-                                ts_counter[t].timeslot_idx = t;
-                                break;
-                            }
-                        }
-                        if (found_act)
+                            found_act = 1;
+                            ts_counter[t].counter++;
+                            ts_counter[t].timeslot_idx = t;
                             break;
+                        }
                     }
+                    if (found_act)
+                        break;
                 }
             }
         }

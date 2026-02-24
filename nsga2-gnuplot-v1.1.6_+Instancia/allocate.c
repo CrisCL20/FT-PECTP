@@ -22,15 +22,11 @@ void allocate_memory_pop(population *pop, int size, problem_instance *pi)
 /* Function to allocate memory to an individual */
 void allocate_memory_ind(individual *ind, problem_instance *pi)
 {
-    int i, j;
+    int i;
 
     ind->gene = (t_activity **)malloc(pi->nm_Rooms * sizeof(t_activity *));
     for (i = 0; i < pi->nm_Rooms; i++)
         ind->gene[i] = (t_activity *)calloc(pi->nm_TimeSlots, sizeof(t_activity));
-
-    ind->student_courses = (unsigned **)malloc(pi->nm_Students * sizeof(unsigned *));
-    for (j = 0; j < pi->nm_Students; j++)
-        ind->student_courses[j] = (unsigned *)calloc(pi->Cs[j].nm_courses, sizeof(unsigned));
 
     ind->obj = (double *)malloc(nobj * sizeof(double));
 
@@ -53,10 +49,6 @@ void deallocate_memory_pop(population *pop, int size, problem_instance *pi)
 void deallocate_memory_ind(individual *ind, problem_instance *pi)
 {
     int i;
-
-    for (i = 0; i < pi->nm_Students; i++)
-        free(ind->student_courses[i]);
-    free(ind->student_courses);
 
     for (i = 0; i < pi->nm_Rooms; i++)
         free(ind->gene[i]);

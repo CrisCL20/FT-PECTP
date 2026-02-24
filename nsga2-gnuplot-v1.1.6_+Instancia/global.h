@@ -79,7 +79,6 @@ typedef struct
     int rank;
     double constr_violation;
     t_activity **gene;
-    unsigned **student_courses; /*Cursos en los que queda inscrito cada estudiante*/
     double *obj;
     double crowd_dist;
 } individual;
@@ -145,9 +144,6 @@ extern int angle2;
 
 int readInputFile(char *filePath, problem_instance *pi);
 void printProblemInstance(problem_instance *pi);
-
-void assign_students(individual *ind, problem_instance *pi);
-void set_modules_matrix(individual *ind, unsigned **mat, problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
