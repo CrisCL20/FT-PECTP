@@ -9,7 +9,7 @@ def main(args):
         for line in file:
             if re.match(r'^data\s+', line.strip()):
                 newline = f"data {instancefile}"
-                sys.stdout.write(newline+"\n")
+                sys.stdout.write(newline+" ;\n")
                 continue
             
             sys.stdout.write(line)

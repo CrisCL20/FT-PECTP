@@ -32,11 +32,13 @@ case $MODE in
         ;;
     multi)
         make_multi
-        for file in *; do
-            if [[ $file == *.dat ]]
-            then
-                python ../set_instance_filename.py runnermulti.run $file > runnermulti_$file.run
-                nohup ./ampl runnermulti_$file.run > OUT_AMPL_$file
+        for file in *.dat; do
+            if [[ -e $file ]]; then
+                TMP="runnermulti_${file%.dat}.run"
+                echo "python ../set_instance_filename.py runnermulti.run $file > $TMP"
+                python ../set_instance_filename.py runnermulti.run $file > $TMP
+                echo "nohup ./ampl $TMP > OUT_AMPL_$file &"
+                (nohup ./ampl $TMP > OUT_AMPL_$file 2>&1; rm $TMP) & 
             fi
         done
         ;;
