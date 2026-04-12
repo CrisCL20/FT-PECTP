@@ -32,7 +32,9 @@ case $MODE in
         ;;
     multi)
         make_multi
-        for file in *.dat; do
+        instances=( *.dat )
+        for file in "${instances[@]}"; do
+            [[ "$file" == OUT_AMPL_* ]] && continue
             if [[ -e $file ]]; then
                 TMP="runnermulti_${file%.dat}.run"
                 echo "python ../set_instance_filename.py runnermulti.run $file > $TMP"
