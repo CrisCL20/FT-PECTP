@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 import numpy as np
+from typing import Literal, Callable
 import logging
 from pathlib import Path
 
@@ -404,15 +405,221 @@ def parse_sori(nm_students, nm_courses, nm_rooms, nm_timeslots, rho, sigma_class
 
         logger.info("Instancia creada con éxito!")
 
+def parse_probabilistic(output_path):
+    import itertools
+    n_rooms = 5
+    n_blocks = 10
+    n_days = 2
 
+    dict_cases = {}
 
-def main(alg, args_dict):
-    if alg == "sori":
-        logger.info("Empezando a crear instancia con algoritmo SORI...")
-        parse_sori(**args_dict)
-    elif alg == "itc":
-        logger.info("Empezando a crear instancia con algoritmo para archivos de la ITC...")
-        parse_itc(**args_dict)
+    ### --- 50% capacity
+    n_courses = 12
+    n_students = 84
+    C = [c for c in np.arange(1,n_courses+1)]
+    S = [s for s in np.arange(1,n_students+1)]
+    T = [f"{day}_{b}_{b+1}" for day, b in itertools.product(range(1,n_days+1), range(1,n_blocks,2))]
+
+    ### --- case 1: each course and timeslot have the same prob. of being chosen
+    p_courses = 1/n_courses
+    p_tslot = 1/len(T)
+    Cs50c1 = {}
+    Ts50c1 = {}
+    for s in S:
+        n_courses_student = np.random.randint(5,8)
+        n_ts_student = np.random.randint(2, 5)
+        Cs50c1[s] = np.random.choice(C, n_courses_student, replace=False, p=[p_courses]*n_courses)
+        Ts50c1[s] = np.random.choice(T, n_ts_student, replace=False, p=[p_tslot]*len(T))
+
+    dict_cases[0] = (C, S, Cs50c1, Ts50c1)
+
+    ### --- case 2: courses follow a multinomial distribution over the total ammount of students
+    rng = np.random.default_rng()
+    p = rng.multinomial(n_students, [1/12]*12)
+    softmax = lambda x: np.exp(x) / np.sum(np.exp(x))
+    p_courses = softmax(p)
+
+    Cs50c2 = {}
+    Ts50c2 = {}
+    for s in S:
+        n_courses_student = np.random.randint(5,8)
+        n_ts_student = np.random.randint(2, 5)
+        Cs50c2[s] = np.random.choice(C, n_courses_student, replace=False, p=p_courses)
+        Ts50c2[s] = np.random.choice(T, n_ts_student, replace=False, p=[p_tslot]*len(T))
+
+    dict_cases[1] = (C, S, Cs50c2, Ts50c2)
+    
+    ### --- 80% capacity
+    n_courses = 20
+    n_students = 140
+    C = [c for c in np.arange(1,n_courses+1)]
+    S = [s for s in np.arange(1,n_students+1)]
+
+    ### --- case 1
+    p_courses = 1/n_courses
+
+    Cs80c1 = {}
+    Ts80c1 = {}
+    for s in S:
+        n_courses_student = np.random.randint(5,8)
+        n_ts_student = np.random.randint(2,5)
+        Cs80c1[s] = np.random.choice(C, n_courses_student, replace=False, p=[p_courses]*n_courses)
+        Ts80c1[s] = np.random.choice(T, n_ts_student, replace=False, p=[p_tslot]*len(T))
+
+    dict_cases[2] = (C, S, Cs80c1, Ts80c1)
+
+    ### --- case 2: courses follow a multinomial distribution over the total ammount of students
+    rng = np.random.default_rng()
+    p = rng.multinomial(n_students, [1/n_courses]*n_courses)
+    softmax = lambda x: np.exp(x) / np.sum(np.exp(x))
+    p_courses = softmax(p)
+
+    Cs80c2 = {}
+    Ts80c2 = {}
+    for s in S:
+        n_courses_student = np.random.randint(5,8)
+        n_ts_student = np.random.randint(2, 5)
+        Cs80c2[s] = np.random.choice(C, n_courses_student, replace=False, p=p_courses)
+        Ts80c2[s] = np.random.choice(T, n_ts_student, replace=False, p=[p_tslot]*len(T))
+
+    dict_cases[3] = (C, S, Cs80c2, Ts80c2)
+
+    ### --- Write 4 instances
+    for i in range(4):
+        out_file = Path(f"{output_path}_prob{i+1}.dat")
+        with open(out_file, "w") as dat_file:
+            logger.info(f"\tWritting to {out_file}")
+            write_sigmas(dat_file)
+
+            courses, students, Cs, Ts = dict_cases[i]
+
+            rooms = np.arange(1, n_rooms+1)
+
+            activities = np.arange(1, len(courses) * 2)
+            Ac = {c : [2*c - 1, 2*c] for c in courses}
+            Ra = { a : np.arange(1,n_rooms+1) for a in activities}
+
+            rho = sigma_class = len(students)
+
+            kmin = {s : int(len(Cs[s]) * 0.5) for s in students}
+            kmax = {s : len(Cs[s]) for s in students}
+
+            logger.info("\tWritting set of students...")
+            dat_file.write("set S:=\n")
+            for e in students:
+                dat_file.write(f"{int(e)} ")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of courses...")
+            dat_file.write("set C:=\n")
+            for c in courses:
+                dat_file.write(f"{int(c)} ")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of activities...")
+            dat_file.write("set A:=\n")
+            for act in activities:
+                dat_file.write(f"{act} ")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of Timeslots...")
+            dat_file.write("set T:=\n")
+            for i, ts in enumerate(T):
+                dat_file.write(f"{ts} ")
+                if (i+1) % (5) == 0:
+                    dat_file.write("\n")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of rooms...")
+            dat_file.write("set R:=\n")
+            for r in rooms:
+                dat_file.write(f"{int(r)} ")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of course activities...")
+            for c, acts in Ac.items():
+                dat_file.write(f"set Ac[{c}]:=\n")
+                for a in acts:
+                    dat_file.write(f"{a} ")
+                dat_file.write(";\n")
+            dat_file.write("\n")
+            logger.info("DONE")
+            
+            logger.info("\tWritting set of student course preferenes...")
+            for e, courses in Cs.items():
+                dat_file.write(f"set Cs[{e}]:=\n")
+                for c in courses:
+                    dat_file.write(f"{c} ")
+                dat_file.write(";\n")
+            dat_file.write("\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of room availbalities...")
+            for a, rooms in Ra.items():
+                dat_file.write(f"set Ra[{a}]:=\n")
+                for r in rooms:
+                    dat_file.write(f"{r} ")
+                dat_file.write(";\n")
+            dat_file.write("\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting set of student timeslot preferences...")
+            for s, tslots in Ts.items():
+                dat_file.write(f"set Ts[{s}]:=\n")
+                for ts in tslots:
+                    dat_file.write(f"{ts} ")
+                dat_file.write(";\n")
+            dat_file.write("\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting room capacity...")
+            dat_file.write("param rho:=\n")
+            
+            for r in np.arange(1,n_rooms+1):
+                dat_file.write(f"{r} {rho}\n")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting course capacity...")
+            dat_file.write("param sigma_class:=\n")
+            for c in np.arange(1,len(courses)+1):
+                dat_file.write(f"{int(c)} {sigma_class}\n")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting kmin...")
+            dat_file.write("param kmin:=\n")
+            for s, k in kmin.items():
+                dat_file.write(f"{s} {k}\n")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("\tWritting kmax...")
+            dat_file.write("param kmax:=\n")
+            for s, k in kmax.items():
+                dat_file.write(f"{s} {k}\n")
+            dat_file.write(";\n\n")
+            logger.info("DONE")
+
+            logger.info("Instancia creada con éxito!")
+
+ALGS_LIT = Literal['sori', 'itc', 'prob']
+def main(alg: ALGS_LIT, args_dict):
+
+    algs: dict[ALGS_LIT, Callable] = {
+        "sori": ("Empezando a crear instancia con algoritmo SORI...", parse_sori),
+        "itc": ("Empezando a crear instancia con algoritmo para archivos de la ITC...", parse_itc),
+        "prob": ("Creando instancias probabilisticas...", parse_probabilistic)
+    }
+
+    msg, func = algs[alg]
+    logger.info(msg)
+    func(**args_dict)
 
 if __name__ == "__main__":
     
@@ -427,6 +634,7 @@ if __name__ == "__main__":
 
     parser_sori = subparser.add_parser("sori")
     parser_itc = subparser.add_parser("itc")
+    parser_prob = subparser.add_parser("prob")
 
     # SORI algorithm arguments
     parser_sori.add_argument("nm_students", type=int)
@@ -444,6 +652,9 @@ if __name__ == "__main__":
     parser_itc.add_argument("nm_timeslots", type=int)
     parser_itc.add_argument("room_cap", type=int)
     parser_itc.add_argument("class_lim", type=int)
+
+    # Probabilistic instance arguments
+    parser_prob.add_argument("output_path", type=str)
 
     args = parser.parse_args()
 
