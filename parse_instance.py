@@ -490,12 +490,13 @@ def parse_probabilistic(output_path):
         with open(out_file, "w") as dat_file:
             logger.info(f"\tWritting to {out_file}")
             write_sigmas(dat_file)
+            dat_file.write("\n")
 
             courses, students, Cs, Ts = dict_cases[i]
 
             rooms = np.arange(1, n_rooms+1)
 
-            activities = np.arange(1, len(courses) * 2)
+            activities = np.arange(1, len(courses) * 2+1)
             Ac = {c : [2*c - 1, 2*c] for c in courses}
             Ra = { a : np.arange(1,n_rooms+1) for a in activities}
 
@@ -551,9 +552,9 @@ def parse_probabilistic(output_path):
             logger.info("DONE")
             
             logger.info("\tWritting set of student course preferenes...")
-            for e, courses in Cs.items():
+            for e, s_courses in Cs.items():
                 dat_file.write(f"set Cs[{e}]:=\n")
-                for c in courses:
+                for c in s_courses:
                     dat_file.write(f"{c} ")
                 dat_file.write(";\n")
             dat_file.write("\n")
@@ -587,7 +588,7 @@ def parse_probabilistic(output_path):
 
             logger.info("\tWritting course capacity...")
             dat_file.write("param sigma_class:=\n")
-            for c in np.arange(1,len(courses)+1):
+            for c in courses:
                 dat_file.write(f"{int(c)} {sigma_class}\n")
             dat_file.write(";\n\n")
             logger.info("DONE")
