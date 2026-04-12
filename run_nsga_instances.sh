@@ -38,7 +38,7 @@ case $MODE in
                 echo "python ../set_instance_filename.py runnermulti.run $file > $TMP"
                 python ../set_instance_filename.py runnermulti.run $file > $TMP
                 echo "nohup ./ampl $TMP > OUT_AMPL_$file &"
-                (nohup ./ampl $TMP > OUT_AMPL_$file 2>&1; rm $TMP) & 
+                (nohup ./ampl $TMP > ../OUT_AMPL_$file 2>&1; rm $TMP) & 
             fi
         done
         ;;
