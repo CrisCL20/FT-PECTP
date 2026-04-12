@@ -37,7 +37,7 @@ case $MODE in
                 TMP="runnermulti_${file%.dat}.run"
                 echo "python ../set_instance_filename.py runnermulti.run $file > $TMP"
                 python ../set_instance_filename.py runnermulti.run $file > $TMP
-                echo "nohup ./ampl $TMP > OUT_AMPL_${file%.dat} &"
+                echo "(nohup ./ampl $TMP > ../OUT_AMPL_${file%.dat} 2>&1; rm $TMP) &"
                 (nohup ./ampl $TMP > ../OUT_AMPL_${file%.dat} 2>&1; rm $TMP) & 
             fi
         done
