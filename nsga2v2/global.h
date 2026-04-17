@@ -166,6 +166,7 @@ size_t get_course_activity(problem_instance *pi, t_activity act);
 int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid);
 int timeslot_in_student_preference(problem_instance *pi, int s_idx, t_timeslot timeslot);
 void get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind, timeslot_counter *ts_counter);
+void act_in_ind(problem_instance *pi, individual *ind, t_activity act, t_cellTuple *cell);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);

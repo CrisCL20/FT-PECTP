@@ -1,6 +1,6 @@
 # This file contains information about inputs as read by the program
 
- Population size = 500
+ Population size = 100
  Number of generations = 1000
  Number of objective functions = 2
  Number of binary variables = 0

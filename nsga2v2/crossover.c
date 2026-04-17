@@ -8,44 +8,23 @@
 #include "global.h"
 #include "rand.h"
 
-void act_in_ind(problem_instance *pi, individual *ind, t_activity act, t_cellTuple *cell)
+void fill_missing_activities(problem_instance *pi, individual *parent1, individual *parent2, individual *child)
 {
-    int r, t;
-
-    int found_act = 0;
-
-    for (r = 0; r < pi->nm_Rooms; r++)
-    {
-        for (t = 0; t < pi->nm_TimeSlots; t++)
-        {
-            if (strcmp(ind->gene[r][t].id, act.id) == 0)
-            {
-                found_act = 1;
-                cell->r = r;
-                cell->t = t;
-                break;
-            }
-        }
-        if (found_act)
-            break;
-    }
-
-    if (!found_act)
-        cell = NULL;
-}
-
-void repair_child(problem_instance *pi, individual *parent, individual *child)
-{
-    int a;
+    int a, r;
     for (a = 0; a < pi->nm_Activity; a++)
     {
-        t_cellTuple *cell = (t_cellTuple *)malloc(sizeof(t_cellTuple));
+        t_cellTuple *cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
         act_in_ind(pi, child, pi->A[a], cell);
+        // if the activity is not in the child...
         if (cell == NULL)
         {
+            // see where it was in parents and try to assign it in the same cell
             int assigned = 0;
-            t_cellTuple *cell_p1 = (t_cellTuple *)malloc(sizeof(t_cellTuple));
-            act_in_ind(pi, parent, pi->A[a], cell_p1);
+            t_cellTuple *cell_p1 = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
+            act_in_ind(pi, parent1, pi->A[a], cell_p1);
+
+            t_cellTuple *cell_p2 = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
+            act_in_ind(pi, parent2, pi->A[a], cell_p2);
 
             if (cell_p1 != NULL)
             {
@@ -54,6 +33,43 @@ void repair_child(problem_instance *pi, individual *parent, individual *child)
                     child->gene[cell_p1->r][cell_p1->t] = pi->A[a];
                     assigned = 1;
                     break;
+                }
+
+                else
+                {
+                    for (r = 0; r < pi->Ra[a].nm_rooms; r++)
+                    {
+                        unsigned ridx = pi->Ra[a].rooms[r].id - 1;
+                        if (strcmp(child->gene[ridx][cell_p1->t].id, EmptyActivity.id) == 0)
+                        {
+                            child->gene[ridx][cell_p1->t] = pi->A[a];
+                            assigned = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            else if (cell_p2 != NULL)
+            {
+                if (strcmp(child->gene[cell_p2->r][cell_p2->t].id, EmptyActivity.id) == 0)
+                {
+                    child->gene[cell_p2->r][cell_p2->t] = pi->A[a];
+                    assigned = 1;
+                    break;
+                }
+                else
+                {
+                    for (r = 0; r < pi->Ra[a].nm_rooms; r++)
+                    {
+                        unsigned ridx = pi->Ra[a].rooms[r].id - 1;
+                        if (strcmp(child->gene[ridx][cell_p2->t].id, EmptyActivity.id) == 0)
+                        {
+                            child->gene[ridx][cell_p2->t] = pi->A[a];
+                            assigned = 1;
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -71,10 +87,52 @@ void repair_child(problem_instance *pi, individual *parent, individual *child)
             }
 
             free(cell_p1);
+            free(cell_p2);
         }
 
         free(cell);
     }
+}
+
+void fix_course_collisions(problem_instance *pi, individual *child)
+{
+    int c, a;
+    for (c = 0; c < pi->nm_Courses; c++)
+    {
+        int *tslot_used = (int *)calloc(pi->nm_TimeSlots, sizeof(int));
+        for (a = 0; a < pi->Ac[c].nm_activities; a++)
+        {
+            t_cellTuple *act_cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
+            act_in_ind(pi, child, pi->Ac[c].activities[a], act_cell);
+            if (tslot_used[act_cell->t] == 1)
+            {
+                int new_tslot = (act_cell->t + 1) % pi->nm_TimeSlots, moved = 0, ts_elapsed = 0;
+                while (!moved && ts_elapsed < pi->nm_TimeSlots)
+                {
+                    if (strcmp(child->gene[act_cell->r][new_tslot].id, EmptyActivity.id) == 0 && tslot_used[new_tslot] == 0)
+                    {
+                        child->gene[act_cell->r][new_tslot] = child->gene[act_cell->r][act_cell->t];
+                        child->gene[act_cell->r][act_cell->t] = EmptyActivity;
+                        moved = 1;
+                        break;
+                    }
+                    new_tslot = (new_tslot + 1) % pi->nm_TimeSlots;
+                    ts_elapsed++;
+                }
+            }
+            else
+                tslot_used[act_cell->t] = 1;
+
+            free(act_cell);
+        }
+        free(tslot_used);
+    }
+}
+
+void repair_child(problem_instance *pi, individual *parent1, individual *parent2, individual *child)
+{
+    fill_missing_activities(pi, parent1, parent2, child);
+    fix_course_collisions(pi, child);
 }
 
 void verify_ind(problem_instance *pi, individual *ind)
@@ -163,7 +221,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
         }
 
         /*place missing activities in child 1*/
-        repair_child(pi, parent1, child1);
+        repair_child(pi, parent1, parent2, child1);
 
         /*
         Child 2
@@ -193,7 +251,7 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
         }
 
         /*place missing activities in child 2*/
-        repair_child(pi, parent2, child2);
+        repair_child(pi, parent2, parent1, child2);
 
         free(tslot_idx_p1);
         free(tslot_idx_p2);

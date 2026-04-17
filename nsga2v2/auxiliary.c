@@ -195,3 +195,29 @@ void get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind, ti
 
     qsort(ts_counter, pi->nm_TimeSlots, sizeof(timeslot_counter), cmp);
 }
+
+void act_in_ind(problem_instance *pi, individual *ind, t_activity act, t_cellTuple *cell)
+{
+    int r, t;
+
+    int found_act = 0;
+
+    for (r = 0; r < pi->nm_Rooms; r++)
+    {
+        for (t = 0; t < pi->nm_TimeSlots; t++)
+        {
+            if (strcmp(ind->gene[r][t].id, act.id) == 0)
+            {
+                found_act = 1;
+                cell->r = r;
+                cell->t = t;
+                break;
+            }
+        }
+        if (found_act)
+            break;
+    }
+
+    if (!found_act)
+        cell = NULL;
+}
