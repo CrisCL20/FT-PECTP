@@ -232,6 +232,7 @@ void test_problem(individual *ind, problem_instance *pi)
 
     for (int s = 0; s < pi->nm_Students; s++)
     {
+        memcpy(ind->student_courses[s], student_courses[s], pi->Cs[s].nm_courses * sizeof(int));
         free(student_courses[s]);
         free(student_busy[s]);
     }

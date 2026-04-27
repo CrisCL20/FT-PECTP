@@ -91,6 +91,7 @@ typedef struct
     int rank;
     double constr_violation;
     t_activity **gene;
+    int **student_courses;
     double *obj;
     double crowd_dist;
 } individual;
@@ -172,6 +173,7 @@ void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
 void deallocate_memory_pop(population *pop, int size, problem_instance *pi);
 void deallocate_memory_ind(individual *ind, problem_instance *pi);
+void deallocate_memory_instance(problem_instance *pi);
 
 double maximum(double a, double b);
 double minimum(double a, double b);
@@ -212,7 +214,7 @@ void test_problem(individual *ind, problem_instance *pi);
 void assign_rank_and_crowding_distance(population *new_pop);
 
 void report_pop(population *pop, FILE *fpt);
-void report_feasible(population *pop, FILE *fpt, double elapsed);
+void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE *fpt, double elapsed);
 void report_ind(individual *ind, FILE *fpt);
 
 void quicksort_front_obj(population *pop, int objcount, int obj_array[], int obj_array_size);

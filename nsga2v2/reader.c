@@ -60,11 +60,11 @@ void readStudents(FILE *fh, problem_instance *pi)
     pi->nm_Students = countWords(line);
     if (debug)
         printf("|S|: %d\n", pi->nm_Students);
-    pi->S = (t_student *)malloc(pi->nm_Students * sizeof(t_student));
-    pi->Cs = (course_preference *)malloc(pi->nm_Students * sizeof(course_preference));
-    pi->Ts = (timeslot_preference *)malloc(pi->nm_Students * sizeof(timeslot_preference));
-    pi->kmaxs = (unsigned int *)malloc(pi->nm_Students * sizeof(unsigned int));
-    pi->kmins = (unsigned int *)malloc(pi->nm_Students * sizeof(unsigned int));
+    pi->S = (t_student *)calloc(pi->nm_Students, sizeof(t_student));
+    pi->Cs = (course_preference *)calloc(pi->nm_Students, sizeof(course_preference));
+    pi->Ts = (timeslot_preference *)calloc(pi->nm_Students, sizeof(timeslot_preference));
+    pi->kmaxs = (unsigned int *)calloc(pi->nm_Students, sizeof(unsigned int));
+    pi->kmins = (unsigned int *)calloc(pi->nm_Students, sizeof(unsigned int));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -104,8 +104,8 @@ void readActivities(FILE *fh, problem_instance *pi)
     pi->nm_Activity = countWords(line);
     if (debug)
         printf("Size of activities: %d\n", pi->nm_Activity);
-    pi->A = (t_activity *)malloc(pi->nm_Activity * sizeof(t_activity));
-    pi->Ra = (adequate_rooms *)malloc(pi->nm_Activity * sizeof(adequate_rooms));
+    pi->A = (t_activity *)calloc(pi->nm_Activity, sizeof(t_activity));
+    pi->Ra = (adequate_rooms *)calloc(pi->nm_Activity, sizeof(adequate_rooms));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -142,9 +142,9 @@ void readCourses(FILE *fh, problem_instance *pi)
     pi->nm_Courses = countWords(line);
     if (debug)
         printf("|C|: %d\n", pi->nm_Courses);
-    pi->C = (t_course *)malloc(pi->nm_Courses * sizeof(t_course));
-    pi->Ac = (course_activities *)malloc(pi->nm_Courses * sizeof(course_activities));
-    pi->sigma_class = (unsigned int *)malloc(pi->nm_Courses * sizeof(unsigned int));
+    pi->C = (t_course *)calloc(pi->nm_Courses, sizeof(t_course));
+    pi->Ac = (course_activities *)calloc(pi->nm_Courses, sizeof(course_activities));
+    pi->sigma_class = (unsigned int *)calloc(pi->nm_Courses, sizeof(unsigned int));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -179,8 +179,8 @@ void readRooms(FILE *fh, problem_instance *pi)
     pi->nm_Rooms = countWords(line);
     if (debug)
         printf("|R|: %d\n", pi->nm_Rooms);
-    pi->R = (t_room *)malloc(pi->nm_Rooms * sizeof(t_room));
-    pi->rho = (unsigned int *)malloc(pi->nm_Rooms * sizeof(unsigned int));
+    pi->R = (t_room *)calloc(pi->nm_Rooms, sizeof(t_room));
+    pi->rho = (unsigned int *)calloc(pi->nm_Rooms, sizeof(unsigned int));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -201,7 +201,7 @@ void readRooms(FILE *fh, problem_instance *pi)
 
 void readTimeSlots(FILE *fh, problem_instance *pi)
 {
-    int debug = 0, id = 0, d = 0, i = 0;
+    int debug = 0, id = 0, i = 0;
     char *token;
     char line[4096];
     fgets(line, sizeof(line), fh);
@@ -209,26 +209,21 @@ void readTimeSlots(FILE *fh, problem_instance *pi)
     if (debug)
         printf("Line: %s\n", line);
 
-    pi->nm_TimeSlots = 5 * countWords(line);
+    pi->nm_TimeSlots = countWords(line);
     if (debug)
         printf("|T|: %d\n", pi->nm_TimeSlots);
-    pi->T = (t_timeslot *)malloc(pi->nm_TimeSlots * sizeof(t_timeslot));
+    pi->T = (t_timeslot *)calloc(pi->nm_TimeSlots, sizeof(t_timeslot));
 
-    for (d = 0; d < 5; d++)
+    token = strtok(line, " ");
+    while (token != NULL)
     {
-
-        token = strtok(line, " ");
-        while (token != NULL)
-        {
-            token[strcspn(token, "\n")] = 0;
-            strcpy(pi->T[id].ts, token);
-            token = strtok(NULL, " ");
-            id++;
-        }
-        fgets(line, sizeof(line), fh);
-        if (debug)
-            printf("Line: %s\n", line);
+        strcpy(pi->T[id].ts, token);
+        token = strtok(NULL, " ");
+        id++;
     }
+    fgets(line, sizeof(line), fh);
+    if (debug)
+        printf("Line: %s\n", line);
 
     if (debug)
     {
@@ -255,7 +250,7 @@ void readCourseActivities(FILE *fh, problem_instance *pi, unsigned cid)
     pi->Ac[cid].nm_activities = countWords(line);
     if (debug)
         printf("|Ac[%d]| = %ld\n", pi->C[cid].id, pi->Ac[cid].nm_activities);
-    pi->Ac[cid].activities = (t_activity *)malloc(pi->Ac[cid].nm_activities * sizeof(t_activity));
+    pi->Ac[cid].activities = (t_activity *)calloc(pi->Ac[cid].nm_activities, sizeof(t_activity));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -289,7 +284,7 @@ void readCoursePreference(FILE *fh, problem_instance *pi, unsigned sid)
         printf("Line: %s\n", line);
 
     pi->Cs[sid].nm_courses = countWords(line);
-    pi->Cs[sid].courses = (t_course *)malloc(pi->Cs[sid].nm_courses * sizeof(t_course));
+    pi->Cs[sid].courses = (t_course *)calloc(pi->Cs[sid].nm_courses, sizeof(t_course));
 
     if (debug)
         printf("El estudiante %d tiene preferencia por %lu cursos.\n",
@@ -330,7 +325,7 @@ void readAdequateRooms(FILE *fh, problem_instance *pi, unsigned aid)
         printf("Line: %s", line);
 
     pi->Ra[aid].nm_rooms = countWords(line);
-    pi->Ra[aid].rooms = (t_room *)malloc(pi->Ra[aid].nm_rooms * sizeof(t_room));
+    pi->Ra[aid].rooms = (t_room *)calloc(pi->Ra[aid].nm_rooms, sizeof(t_room));
 
     token = strtok(line, " ");
     while (token != NULL)
@@ -376,7 +371,7 @@ void readTimeSlotPreference(FILE *fh, problem_instance *pi, unsigned sid)
 
     if (debug)
         printf("|Ts[%d]| = %ld\n", pi->S[sid].id, pi->Ts[sid].nm_timeslots);
-    pi->Ts[sid].timeslots = (t_timeslot *)malloc(pi->Ts[sid].nm_timeslots * sizeof(t_timeslot));
+    pi->Ts[sid].timeslots = (t_timeslot *)calloc(pi->Ts[sid].nm_timeslots, sizeof(t_timeslot));
 
     token = strtok(line, " ");
     while (token != NULL && pi->Ts[sid].nm_timeslots > 0)
@@ -534,7 +529,7 @@ void readKmax(FILE *fh, problem_instance *pi)
 
 int readInputFile(char *filePath, problem_instance *pi)
 {
-    int debug = 1, i = 0;
+    int debug = 0, i = 0;
     FILE *fh = fopen(filePath, "r");
 
     /*check if file exists*/

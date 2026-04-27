@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     FILE *fpt4;
     FILE *fpt5;
 
-    problem_instance *pi = malloc(sizeof(problem_instance));
+    problem_instance *pi = (problem_instance *)calloc(1, sizeof(problem_instance));
     population *parent_pop;
     population *child_pop;
     population *mixed_pop;
@@ -75,9 +75,9 @@ int main(int argc, char **argv)
     fprintf(fpt5, "# This file contains information about inputs as read by the program\n");
 
     char *instance_route = argv[2];
-    printf("Reading instance file %s...\n", instance_route);
+    // printf("Reading instance file %s...\n", instance_route);
     readInputFile(instance_route, pi);
-    printf("DONE\n");
+    // printf("DONE\n");
 
     // printProblemInstance(pi);
 
@@ -196,13 +196,13 @@ int main(int argc, char **argv)
         // fprintf(fpt4, "# gen = %d\n", i);
         // report_pop(parent_pop, fpt4);
         // fflush(fpt4);
-        printf("\n gen = %d", i);
+        // printf("\n gen = %d", i);
     }
     clock_t toc = clock();
     double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;
     printf("\n Generations finished, now reporting solutions");
     report_pop(parent_pop, fpt2);
-    report_feasible(parent_pop, fpt3, elapsed);
+    report_feasible(pi, parent_pop, popsize, fpt3, elapsed);
     if (nreal != 0)
     {
         fprintf(fpt5, "\n Number of crossover of real variable = %d", nrealcross);
@@ -233,6 +233,8 @@ int main(int argc, char **argv)
     deallocate_memory_pop(parent_pop, popsize, pi);
     deallocate_memory_pop(child_pop, popsize, pi);
     deallocate_memory_pop(mixed_pop, 2 * popsize, pi);
+    deallocate_memory_instance(pi);
+    free(pi);
     free(parent_pop);
     free(child_pop);
     free(mixed_pop);

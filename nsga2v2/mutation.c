@@ -72,7 +72,7 @@ void mutation_ind(individual *ind, problem_instance *pi)
         // copy top n_tslots_to_consider worst timeslots
         worst_tslots[i] = ts_counter[i];
 
-    for (i = pi->nm_TimeSlots - 1; i >= pi->nm_TimeSlots - n_tslots_to_consider - 1; i--)
+    for (i = pi->nm_TimeSlots - 1; i >= pi->nm_TimeSlots - n_tslots_to_consider; i--)
         // copy top n_tslots_to_consider best timeslots (since ts_counter is sorted, we have to select from the last one)
         best_tslots[i % n_tslots_to_consider] = ts_counter[i];
 
