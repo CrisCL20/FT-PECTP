@@ -84,10 +84,10 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
 /*FO1: preferencias horarias*/
 void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **gene, double *obj, problem_instance *pi)
 {
-    unsigned counts = 0;
-
+    long double mean_insatisfaction = .0;
     for (int s = 0; s < pi->nm_Students; s++)
     {
+        unsigned counts = 0;
         for (int c_idx = 0; c_idx < pi->Cs[s].nm_courses; c_idx++)
         {
             if (student_schedule[s][c_idx])
@@ -106,16 +106,21 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **
                 }
             }
         }
+        // calculate unhappyness percentage
+        long double alpha_s = counts / pi->Ts[s].nm_timeslots;
+        mean_insatisfaction += alpha_s;
     }
-    obj[0] = counts;
+
+    mean_insatisfaction = mean_insatisfaction / pi->nm_Students;
+
+    obj[0] = 1 / (1 - mean_insatisfaction);
 }
 
 /*FO2: cantidad de modulos preferidos no asignados*/
 void countCourseRequestsMet(int **students_schedule, double *obj, problem_instance *pi)
 {
     int i, j;
-    unsigned long counts = 0;
-
+    long double mean_satisfaction = .0;
     for (i = 0; i < pi->nm_Students; i++)
     {
         unsigned met = 0;
@@ -124,13 +129,15 @@ void countCourseRequestsMet(int **students_schedule, double *obj, problem_instan
 
         // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
 
-        counts += (pi->Cs[i].nm_courses - met);
+        long double beta_s = met / pi->Cs[i].nm_courses;
+        mean_satisfaction += beta_s;
     }
 
+    mean_satisfaction = mean_satisfaction / pi->nm_Students;
     // printf("\nObjetivo 2: %ld\n", counts);
     // exit(0);
 
-    obj[1] = counts;
+    obj[1] = 1 / mean_satisfaction;
 }
 
 void check_room_cap(individual *ind, problem_instance *pi, int **student_courses)

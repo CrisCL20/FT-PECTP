@@ -43,8 +43,8 @@ minimize FO2 : sum {i in objetivos} betha[i] * (MV[i] - FO[i])/(MV[i] - PV[i]) ;
 
 subject to
 #O1: Minimizar cantidad de horarios no preferidos en que los estudiantes tienen clases
-O1 : FO[1] = sum {s in S, t in Ts[s], a in A} tau[s,a,t] ;
-O2 : FO[2] = sum {s in S} (card(Cs[s]) - sum{c in C} yC[s,c]); #Minimizar la cantidad de modulos que no inscriben los alumnos.
+O1 : FO[1] = 1 / (1 - ((sum {s in S, t in Ts[s], a in A} tau[s,a,t]) / card(S))) ;
+O2 : FO[2] = card(S) / (sum {s in S} ((sum {c in Cs[s]} yC[s,c]) / card(Cs[s]))); #Minimizar la cantidad de modulos que no inscriben los alumnos.
 
 R1_1 {r in R, a in A} : M*yR[a,r] >= sum{t in T} x[a,r,t]; #Si la clase c se asigna a algun timeslot de la sala r, entonces se activa la variable yR[c,r]
 
