@@ -98,3 +98,19 @@ void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE
 
     return;
 }
+
+void report_objectives(size_t gen, population* pop, size_t popsize, FILE* fpt){
+    int i, j;
+    for (i = 0; i < popsize; i++)
+    {
+        if (pop->ind[i].constr_violation == 0.0 && pop->ind[i].rank == 1)
+        {
+            fprintf(fpt, "%ld;", gen);
+            for (j = 0; j < nobj; j++)
+            {
+                fprintf(fpt, "%e;", pop->ind[i].obj[j]);
+            }
+            fprintf(fpt, "\n");
+        }
+    }
+}

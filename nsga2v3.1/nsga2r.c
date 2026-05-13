@@ -46,6 +46,7 @@ int main(int argc, char **argv)
     FILE *fpt3;
     FILE *fpt4;
     FILE *fpt5;
+    FILE *fpt6;
 
     problem_instance *pi = (problem_instance *)calloc(1, sizeof(problem_instance));
     population *parent_pop;
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
     fpt3 = fopen("best_pop.out", "w");
     fpt4 = fopen("all_pop.out", "w");
     fpt5 = fopen("params.out", "w");
+    fpt6 = fopen("generation_report.csv", "w");
     fprintf(fpt1, "# This file contains the data of initial population\n");
     fprintf(fpt2, "# This file contains the data of final population\n");
     fprintf(fpt3, "# This file contains the data of final feasible population (if found)\n");
@@ -181,6 +183,7 @@ int main(int argc, char **argv)
     fflush(fpt3);
     fflush(fpt4);
     fflush(fpt5);
+    fflush(fpt6);
     sleep(1);
     for (i = 2; i <= ngen; i++)
     {
@@ -196,7 +199,8 @@ int main(int argc, char **argv)
         // fprintf(fpt4, "# gen = %d\n", i);
         // report_pop(parent_pop, fpt4);
         // fflush(fpt4);
-        // printf("\n gen = %d", i);
+        printf("\n gen = %d", i);
+        report_objectives(i,parent_pop,popsize,fpt6);
     }
     clock_t toc = clock();
     double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;
@@ -219,11 +223,13 @@ int main(int argc, char **argv)
     fflush(fpt3);
     fflush(fpt4);
     fflush(fpt5);
+    fflush(fpt6);
     fclose(fpt1);
     fclose(fpt2);
     fclose(fpt3);
     fclose(fpt4);
     fclose(fpt5);
+    fclose(fpt6);
     if (nbin != 0)
     {
         free(min_binvar);
