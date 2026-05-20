@@ -8,147 +8,39 @@
 #include "global.h"
 #include "rand.h"
 
-void fill_missing_activities(problem_instance *pi, individual *parent1, individual *parent2, individual *child)
+typedef struct 
 {
-    int a, r;
-    for (a = 0; a < pi->nm_Activity; a++)
-    {
-        t_cellTuple *cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
-        act_in_ind(pi, child, pi->A[a], cell);
-        // if the activity is not in the child...
-        if (cell == NULL)
-        {
-            // see where it was in parents and try to assign it in the same cell
-            int assigned = 0;
-            t_cellTuple *cell_p1 = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
-            act_in_ind(pi, parent1, pi->A[a], cell_p1);
+    size_t cid;
+    size_t sat;
+} course_demand;
 
-            t_cellTuple *cell_p2 = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
-            act_in_ind(pi, parent2, pi->A[a], cell_p2);
+int is_timeslot_free(problem_instance* pi, individual* ind, size_t t, size_t course_idx, size_t act_idx) {
 
-            if (cell_p1 != NULL)
-            {
-                if (strcmp(child->gene[cell_p1->r][cell_p1->t].id, EmptyActivity.id) == 0)
-                {
-                    child->gene[cell_p1->r][cell_p1->t] = pi->A[a];
-                    assigned = 1;
-                    break;
-                }
-
-                else
-                {
-                    for (r = 0; r < pi->Ra[a].nm_rooms; r++)
-                    {
-                        unsigned ridx = pi->Ra[a].rooms[r].id - 1;
-                        if (strcmp(child->gene[ridx][cell_p1->t].id, EmptyActivity.id) == 0)
-                        {
-                            child->gene[ridx][cell_p1->t] = pi->A[a];
-                            assigned = 1;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            else if (cell_p2 != NULL)
-            {
-                if (strcmp(child->gene[cell_p2->r][cell_p2->t].id, EmptyActivity.id) == 0)
-                {
-                    child->gene[cell_p2->r][cell_p2->t] = pi->A[a];
-                    assigned = 1;
-                    break;
-                }
-                else
-                {
-                    for (r = 0; r < pi->Ra[a].nm_rooms; r++)
-                    {
-                        unsigned ridx = pi->Ra[a].rooms[r].id - 1;
-                        if (strcmp(child->gene[ridx][cell_p2->t].id, EmptyActivity.id) == 0)
-                        {
-                            child->gene[ridx][cell_p2->t] = pi->A[a];
-                            assigned = 1;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            while (!assigned)
-            {
-                int r = rnd(0, pi->Ra[a].nm_rooms - 1);
-                r = pi->Ra[a].rooms[r].id - 1;
-                int t = rnd(0, pi->nm_TimeSlots);
-
-                if (strcmp(child->gene[r][t].id, EmptyActivity.id) == 0)
-                {
-                    child->gene[r][t] = pi->A[a];
-                    assigned = 1;
-                }
-            }
-
-            free(cell_p1);
-            free(cell_p2);
-        }
-
-        free(cell);
+    for (int a = 0; a < pi->Ac[course_idx].nm_activities; a++) {
+        if (a == act_idx) continue;
+        for (int r = 0; r < pi->nm_Rooms; r++) 
+            if (strcmp(ind->gene[r][t].id,pi->Ac[course_idx].activities[a].id) == 0)
+                return 0;
+        
     }
-}
 
-void fix_course_collisions(problem_instance *pi, individual *child)
-{
-    int c, a;
-    for (c = 0; c < pi->nm_Courses; c++)
-    {
-        int *tslot_used = (int *)calloc(pi->nm_TimeSlots, sizeof(int));
-        for (a = 0; a < pi->Ac[c].nm_activities; a++)
-        {
-            t_cellTuple *act_cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
-            act_in_ind(pi, child, pi->Ac[c].activities[a], act_cell);
-            if (tslot_used[act_cell->t] == 1)
-            {
-                int new_tslot = (act_cell->t + 1) % pi->nm_TimeSlots, moved = 0, ts_elapsed = 0;
-                while (!moved && ts_elapsed < pi->nm_TimeSlots)
-                {
-                    if (strcmp(child->gene[act_cell->r][new_tslot].id, EmptyActivity.id) == 0 && tslot_used[new_tslot] == 0)
-                    {
-                        child->gene[act_cell->r][new_tslot] = child->gene[act_cell->r][act_cell->t];
-                        child->gene[act_cell->r][act_cell->t] = EmptyActivity;
-                        moved = 1;
-                        break;
-                    }
-                    new_tslot = (new_tslot + 1) % pi->nm_TimeSlots;
-                    ts_elapsed++;
-                }
-            }
-            else
-                tslot_used[act_cell->t] = 1;
-
-            free(act_cell);
-        }
-        free(tslot_used);
-    }
-}
-
-void repair_child(problem_instance *pi, individual *parent1, individual *parent2, individual *child)
-{
-    fill_missing_activities(pi, parent1, parent2, child);
-    fix_course_collisions(pi, child);
+    return 1;
 }
 
 void verify_ind(problem_instance *pi, individual *ind)
 {
     int a;
 
+    t_cellTuple cell;
+
     for (a = 0; a < pi->nm_Activity; a++)
     {
-        t_cellTuple *cell = (t_cellTuple *)malloc(sizeof(t_cellTuple));
-        act_in_ind(pi, ind, pi->A[a], cell);
-        if (cell == NULL)
+        
+        if (act_in_ind(pi, ind, pi->A[a], &cell) == 0)
         {
             printf("Could not find activity %s...", pi->A[a].id);
             exit(EXIT_FAILURE);
         }
-        free(cell);
     }
 }
 
@@ -160,53 +52,106 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
         for (int t = 0; t < pi->nm_TimeSlots; t++)
             child->gene[r][t] = EmptyActivity;
 
+    t_cellTuple act_cell;
+    
     for (c = 0; c < n_courses_p1; c++){
         for (int a = 0; a < pi->Ac[courses_p1[c]].nm_activities; a++){
-            t_cellTuple* act_cell = (t_cellTuple *) calloc(1,sizeof(t_cellTuple));
-            act_in_ind(pi,parent1,pi->Ac[courses_p1[c]].activities[a],act_cell);
-            if (act_cell != NULL)
-                child->gene[act_cell->r][act_cell->t] = pi->Ac[courses_p1[c]].activities[a];
-            free(act_cell);
+            if (act_in_ind(pi,parent1,pi->Ac[courses_p1[c]].activities[a],&act_cell)) {
+                child->gene[act_cell.r][act_cell.t] = pi->Ac[courses_p1[c]].activities[a];
+            }
         }
     }
 
     // fill courses of p2 to ch1
     for (c = 0; c < n_courses_p2; c++) {
         for (int a = 0; a < pi->Ac[courses_p2[c]].nm_activities; a++) {
-            t_cellTuple* act_cell = (t_cellTuple *) calloc(1,sizeof(t_cellTuple));
-            act_in_ind(pi,parent2,pi->Ac[courses_p2[c]].activities[a],act_cell);
-            if (act_cell != NULL){
-                if (strcmp(child->gene[act_cell->r][act_cell->t].id, EmptyActivity.id) == 0) {
-                    child->gene[act_cell->r][act_cell->t] = pi->Ac[courses_p2[c]].activities[a];
-                }
+            act_in_ind(pi,parent2,pi->Ac[courses_p2[c]].activities[a],&act_cell);
+            
+            if (strcmp(child->gene[act_cell.r][act_cell.t].id, EmptyActivity.id) == 0) {
+                child->gene[act_cell.r][act_cell.t] = pi->Ac[courses_p2[c]].activities[a];
+                continue;
+            }
 
-                else {
-                    size_t act_idx = get_act_idx(pi,pi->Ac[courses_p2[c]].activities[a]);
-                    int assigned = 0;
-                    for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++){
-                        if (strcmp(child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell->t].id, EmptyActivity.id) == 0){
-                            child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell->t] = pi->Ac[courses_p2[c]].activities[a];
-                            assigned = 1;
-                            break;
-                        }
-                    }
-
-                    if (!assigned) {
-                        for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++) {
-                            for (int t = 0; t < pi->nm_TimeSlots; t++) {
-                                if (strcmp(child->gene[pi->Ra[act_idx].rooms[r].id - 1][t].id, EmptyActivity.id) == 0){
-                                    child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] = pi->Ac[courses_p2[c]].activities[a];
-                                    break;
-                                }
-                            }
-                        }
-                    }
+            
+            size_t act_idx = get_act_idx(pi,pi->Ac[courses_p2[c]].activities[a]);
+            int assigned = 0;
+            /* assign to different room, same timeslot*/
+            for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++){
+                if (
+                    strcmp(child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t].id, EmptyActivity.id) == 0
+                    && is_timeslot_free(pi,child,act_cell.t,courses_p2[c],a)
+                ){
+                    child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] = pi->Ac[courses_p2[c]].activities[a];
+                    assigned = 1;
+                    break;
                 }
             }
-            free(act_cell);
+
+            if (assigned) continue;
+
+            /* assign to same rooom, different timeslot */
+            for (int t = 0; t < pi->nm_TimeSlots; t++) {
+                if (
+                    strcmp(child->gene[act_cell.r][t].id, EmptyActivity.id) == 0
+                    && is_timeslot_free(pi,child,t,courses_p2[c],a)
+                ) {
+                    child->gene[act_cell.r][t] = pi->Ac[courses_p2[c]].activities[a];
+                    assigned = 1;
+                    break;
+                }
+            }
+
+            if (assigned) continue;
+            
+            for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++) {
+                for (int t = 0; t < pi->nm_TimeSlots; t++) {
+                    if (
+                        strcmp(child->gene[pi->Ra[act_idx].rooms[r].id - 1][t].id, EmptyActivity.id) == 0
+                        && is_timeslot_free(pi,child,t,courses_p2[c],a)
+                    ){
+                        child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] = pi->Ac[courses_p2[c]].activities[a];
+                        assigned = 1;
+                        break;
+                    }
+                }
+                if (assigned) break;
+            }
         }
     }
 
+}
+
+void set_satisfied_demand(problem_instance* pi, individual* ind, course_demand *course_enrollments) {
+    for (int s = 0; s < pi->nm_Students; s++) {
+        for (int c = 0; c < pi->Cs[s].nm_courses; c++) {
+            course_enrollments[pi->Cs[s].courses[c].id - 1].sat += ind->student_courses[s][c];
+        }
+    }
+}
+
+int cmpdesc(const void *a, const void *b) {
+    return ( ((course_demand *)b)->sat - ((course_demand *)a)->sat );
+}
+
+void setup_courses_for_child(problem_instance* pi, course_demand* satisfied_demand_dom, size_t* courses_pdom, size_t* courses_psub, size_t npdom) {
+    
+    /* sort dominant parent satisfaction in descending order */
+
+    qsort(satisfied_demand_dom,pi->nm_Courses, sizeof(course_demand), cmpdesc);
+
+    int *used_courses_dom = (int *) calloc(pi->nm_Courses,sizeof(int));
+    for (int c = 0; c < npdom; c++) {
+        courses_pdom[c] = satisfied_demand_dom[c].cid;
+        used_courses_dom[satisfied_demand_dom[c].cid] = 1;
+    }
+
+    int _idx = 0;
+    for (int c = 0; c < pi->nm_Courses; c++) {
+        if (used_courses_dom[c]) continue;
+        courses_psub[_idx++] = c;
+    }
+
+    free(used_courses_dom);
 }
 
 /* Function to cross two individuals */
@@ -221,24 +166,39 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
         size_t courses_p1[n_courses_p1];
         size_t courses_p2[n_courses_p2];
 
-        int * all_courses = (int *) calloc(pi->nm_Courses, sizeof(int));
-        for (int i = 0; i < pi->nm_Courses; i++)
-            all_courses[i] = pi->C[i].id - 1;
+        /* sort courses based on accomplished demands */
 
-        shuffle(all_courses, pi->nm_Courses);
+        course_demand* satisfied_demand_p1 = (course_demand *) calloc(pi->nm_Courses, sizeof(course_demand));
+        course_demand* satisfied_demand_p2 = (course_demand *) calloc(pi->nm_Courses, sizeof(course_demand));
 
-        size_t c;
-        for (c = 0; c < n_courses_p1; c++)
-            courses_p1[c] = all_courses[c];
-        for (c = 0; c < n_courses_p2; c++)
-            courses_p2[c] = all_courses[c + n_courses_p1];
+        for (int c = 0; c < pi->nm_Courses; c++) {
+            satisfied_demand_p1[c] = (course_demand) {
+                .cid = c,
+                .sat = 0,
+            };
+            satisfied_demand_p2[c] = (course_demand) {
+                .cid = c,
+                .sat = 0,
+            };
+        }
 
-        inherit_parents(pi,parent1,parent2,child1,n_courses_p1,n_courses_p2,courses_p1,courses_p2);
+        set_satisfied_demand(pi, parent1, satisfied_demand_p1);
+        set_satisfied_demand(pi, parent2, satisfied_demand_p2);
+
+        /* procedure for child 1 */
+        setup_courses_for_child(pi, satisfied_demand_p1, courses_p1, courses_p2, n_courses_p1);
+        inherit_parents(pi, parent1, parent2, child1, n_courses_p1, n_courses_p2, courses_p1, courses_p2);
+        
+        /* procedure for child 2 */
+        setup_courses_for_child(pi, satisfied_demand_p2, courses_p2, courses_p1, n_courses_p2);
         inherit_parents(pi,parent2,parent1,child2,n_courses_p2,n_courses_p1,courses_p2,courses_p1);
-        verify_ind(pi,child1);
-        verify_ind(pi,child2);
 
-        free(all_courses);
+        verify_ind(pi, child1);
+        verify_ind(pi, child2);
+
+
+        free(satisfied_demand_p1);
+        free(satisfied_demand_p2);
     }
 
     else

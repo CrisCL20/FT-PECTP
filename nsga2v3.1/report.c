@@ -80,14 +80,12 @@ void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE
     {
         for (j = 0; j < pi->Ac[i].nm_activities; j++)
         {
-            t_cellTuple *act_cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
+            t_cellTuple cell;
             size_t act_idx = get_act_idx(pi, pi->Ac[i].activities[j]);
-            act_in_ind(pi, best_ind, pi->A[act_idx], act_cell);
+            act_in_ind(pi, best_ind, pi->A[act_idx], &cell);
 
-            if (act_cell != NULL)
-                fprintf(coursesFile, "%d;%s;%d;%s\n", pi->C[i].id, pi->Ac[i].activities[j].id, pi->R[act_cell->r].id, pi->T[act_cell->t].ts);
+            fprintf(coursesFile, "%d;%s;%d;%s\n", pi->C[i].id, pi->Ac[i].activities[j].id, pi->R[cell.r].id, pi->T[cell.t].ts);
 
-            free(act_cell);
         }
     }
 

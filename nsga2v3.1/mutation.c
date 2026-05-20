@@ -17,9 +17,6 @@
         y = _x;           \
     } while (0)
 
-#define NORM2D(x, y) \
-    (x * x) + (y * y)
-
 typedef struct
 {
     t_activity picked_act;
@@ -67,21 +64,18 @@ size_t roulette_timeslot(timeslot_counter *ts_counter, int size)
 
 void encode(individual *src, t_color *dst, problem_instance *pi)
 {
+    t_cellTuple cell;
     for (int a = 0; a < pi->nm_Activity; a++)
     {
-        t_cellTuple *act_cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
-        act_in_ind(pi, src, pi->A[a], act_cell);
-        if (act_cell != NULL)
+        if (act_in_ind(pi, src, pi->A[a], &cell))
         {
-            dst[a] = (t_color){.r = act_cell->r, .t = act_cell->t};
+            dst[a] = (t_color){.r = cell.r, .t = cell.t};
         }
         else
         {
             fprintf(stderr, "Error: not all acivities are in gene. Exiting with failure.\n");
             exit(EXIT_FAILURE);
         }
-
-        free(act_cell);
     }
 }
 
@@ -123,13 +117,35 @@ int is_swap_feasible(int a1, int a2, t_color *encoded_gene, problem_instance *pi
     return is_feasible_a && is_feasible_b;
 }
 
+size_t ls_fitness(problem_instance* pi, t_color* encoded_gene, int *student_busy_in_ts) {
+    
+    size_t count_conflict = 0;
+    for (int s = 0; s < pi->nm_Students; s++){
+        memset(student_busy_in_ts, 0, pi->nm_TimeSlots * sizeof(int));
+        
+        for (int c = 0; c < pi->Cs[s].nm_courses; c++) {
+            size_t course_idx = pi->Cs[s].courses[c].id - 1;
+            for (int a = 0; a < pi->Ac[course_idx].nm_activities; a++) {
+                size_t act_idx = get_act_idx(pi, pi->Ac[course_idx].activities[a]);
+                if (student_busy_in_ts[encoded_gene[act_idx].t] > 0)
+                    count_conflict++;
+                student_busy_in_ts[encoded_gene[act_idx].t]++;
+            }
+        }
+    }
+
+    return count_conflict;
+}
+
 void hc_swap(individual *ind, problem_instance *pi)
 {
-    evaluate_ind(ind, pi);
-    long double current_fit = NORM2D(ind->obj[0], ind->obj[1]);
-    int improved = 1, max_restarts = 5;
+    int improved = 1, max_restarts = 10;
 
+    /* transform to GCP rep */
     t_color *encoded_gene = (t_color *)calloc(pi->nm_Activity, sizeof(t_color));
+    encode(ind, encoded_gene, pi);
+    int * student_busy_in_ts = (int*) calloc(pi->nm_TimeSlots, sizeof(int));
+    size_t current_fit = ls_fitness(pi, encoded_gene, student_busy_in_ts);
 
     // first improvement approach
     while (improved && max_restarts > 0)
@@ -139,18 +155,13 @@ void hc_swap(individual *ind, problem_instance *pi)
         {
             for (int a_ = a + 1; a_ < pi->nm_Activity; a_++)
             {
-                encode(ind, encoded_gene, pi);
 
+                // if swap is not feasible, skip
                 if (is_swap_feasible(a, a_, encoded_gene, pi) == 0)
-                {
-                    decode(encoded_gene, ind, pi);
                     continue;
-                }
 
                 SWAP(encoded_gene[a], encoded_gene[a_]);
-                decode(encoded_gene, ind, pi);
-                evaluate_ind(ind, pi);
-                long double fit = NORM2D(ind->obj[0], ind->obj[1]);
+                size_t fit = ls_fitness(pi, encoded_gene, student_busy_in_ts);
 
                 if (fit < current_fit)
                 {
@@ -159,19 +170,18 @@ void hc_swap(individual *ind, problem_instance *pi)
                     max_restarts--;
                     break;
                 }
-                else
-                {
-                    encode(ind, encoded_gene, pi);
-                    SWAP(encoded_gene[a], encoded_gene[a_]);
-                    decode(encoded_gene, ind, pi);
-                }
+                /* rollback swap */
+                else SWAP(encoded_gene[a], encoded_gene[a_]);
+                
             }
             if (improved)
                 break;
         }
     }
-    evaluate_ind(ind, pi);
+    /* go back to matrix rep */
+    decode(encoded_gene,ind,pi);
     free(encoded_gene);
+    free(student_busy_in_ts);
 }
 
 /* Function to perform mutation of an individual */
@@ -216,44 +226,40 @@ void mutation_ind(individual *ind, problem_instance *pi)
     {
         // move a random activity from t1 to t2
         int act = rnd(0, pi->nm_Activity - 1);
-        t_cellTuple *act_cell = (t_cellTuple *)calloc(1, sizeof(t_cellTuple));
-        act_in_ind(pi, ind, pi->A[act], act_cell);
+        t_cellTuple act_cell;
+        act_in_ind(pi, ind, pi->A[act], &act_cell);
 
         size_t id_course = get_course_activity(pi, pi->A[act]) - 1;
 
         int *flag_tslots = (int *)calloc(pi->nm_TimeSlots, sizeof(int));
-        flag_tslots[act_cell->t] = 1;
+        flag_tslots[act_cell.t] = 1;
         int a, t, r;
         for (a = 0; a < pi->Ac[id_course].nm_activities; a++)
         {
             for (t = 0; t < pi->nm_TimeSlots; t++)
                 for (r = 0; r < pi->nm_Rooms; r++)
-                    if (strcmp(ind->gene[r][t].id, pi->Ac[id_course].activities[a].id) == 0 && t != act_cell->t)
+                    if (strcmp(ind->gene[r][t].id, pi->Ac[id_course].activities[a].id) == 0 && t != act_cell.t)
                         flag_tslots[t] = 1;
         }
 
-        if (act_cell != NULL)
+        int moved = 0, count = 0;
+        while (!moved)
         {
-            int moved = 0, count = 0;
-            while (!moved)
+            if (strcmp(ind->gene[act_cell.r][t2].id, EmptyActivity.id) == 0 && flag_tslots[t2] == 0)
             {
-                if (strcmp(ind->gene[act_cell->r][t2].id, EmptyActivity.id) == 0 && flag_tslots[t2] == 0)
-                {
-                    ind->gene[act_cell->r][t2] = ind->gene[act_cell->r][act_cell->t];
-                    ind->gene[act_cell->r][act_cell->t] = EmptyActivity;
-                    moved = 1;
-                    break;
-                }
-                else if (count < n_tslots_to_consider)
-                    t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
-                else
-                    t2 = (t2 + 1) % pi->nm_TimeSlots;
-
-                count++;
+                ind->gene[act_cell.r][t2] = ind->gene[act_cell.r][act_cell.t];
+                ind->gene[act_cell.r][act_cell.t] = EmptyActivity;
+                moved = 1;
+                break;
             }
+            else if (count < n_tslots_to_consider)
+                t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
+            else
+                t2 = (t2 + 1) % pi->nm_TimeSlots;
+
+            count++;
         }
 
-        free(act_cell);
         free(flag_tslots);
     }
 
