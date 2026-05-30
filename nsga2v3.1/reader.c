@@ -545,6 +545,14 @@ void set_colors(problem_instance *pi)
             pi->colors[(r * pi->nm_TimeSlots) + t] = (t_color){.r = r, .t = t};
 }
 
+void set_student_courses(problem_instance *pi) {
+    pi->Sc = (size_t *) calloc(pi->nm_Courses, sizeof(size_t));
+
+    for (int s = 0; s < pi->nm_Students; s++)
+    for (int c = 0; c < pi->Cs[s].nm_courses; c++)
+        pi->Sc[pi->Cs[s].courses[c].id - 1]++;
+}
+
 int readInputFile(char *filePath, problem_instance *pi)
 {
     int debug = 0, i = 0;
@@ -689,6 +697,7 @@ int readInputFile(char *filePath, problem_instance *pi)
         printf("END\n");
 
     set_colors(pi);
+    set_student_courses(pi);
 
     /*************/
     /*************/

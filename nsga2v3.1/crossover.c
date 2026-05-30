@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <float.h>
 
 #include "global.h"
 #include "rand.h"
@@ -11,7 +12,7 @@
 typedef struct 
 {
     size_t cid;
-    size_t sat;
+    long double sat;
 } course_demand;
 
 int is_timeslot_free(problem_instance* pi, individual* ind, size_t t, size_t course_idx, size_t act_idx) {
@@ -127,10 +128,23 @@ void set_satisfied_demand(problem_instance* pi, individual* ind, course_demand *
             course_enrollments[pi->Cs[s].courses[c].id - 1].sat += ind->student_courses[s][c];
         }
     }
+
+    //normalize each course by its corresponding demand
+    for (int c = 0; c < pi->nm_Courses; c++) {
+        course_enrollments[c].sat = course_enrollments[c].sat / (pi->Sc[c] - LDBL_MIN);
+    }
 }
 
 int cmpdesc(const void *a, const void *b) {
-    return ( ((course_demand *)b)->sat - ((course_demand *)a)->sat );
+    const course_demand* _a = a, *_b = b;
+
+    if (_b->sat > _a->sat)
+        return 1;
+
+    else if (_b->sat < _a->sat)
+        return -1;
+    
+    return 0;
 }
 
 void setup_courses_for_child(problem_instance* pi, course_demand* satisfied_demand_dom, size_t* courses_pdom, size_t* courses_psub, size_t npdom) {
@@ -160,7 +174,8 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
     if (randomperc() < pcross_bin)
     {
-        size_t n_courses_p1 = (size_t) ceil(pi->nm_Courses * 0.5);
+
+        size_t n_courses_p1 = rnd(1, pi->nm_Courses - 2);
         size_t n_courses_p2 = pi->nm_Courses - n_courses_p1;
 
         size_t courses_p1[n_courses_p1];

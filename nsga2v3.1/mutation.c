@@ -210,9 +210,9 @@ void mutation_ind(individual *ind, problem_instance *pi)
     int t1 = roulette_timeslot(worst_tslots, n_tslots_to_consider);
     int t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
 
-    double r = randomperc();
+    double coin = randomperc();
 
-    if (r < 0.25)
+    if (coin < 0.25)
     {
         // swap t1 with t2
         for (int r = 0; r < pi->nm_Rooms; r++)
@@ -222,17 +222,28 @@ void mutation_ind(individual *ind, problem_instance *pi)
             ind->gene[r][t2] = tmp;
         }
     }
-    else if (r < 0.5)
+    else if (coin < 0.5)
     {
         // move a random activity from t1 to t2
-        int act = rnd(0, pi->nm_Activity - 1);
+        
         t_cellTuple act_cell;
-        act_in_ind(pi, ind, pi->A[act], &act_cell);
+        int worst_ts_acts[pi->nm_Rooms];
+        int idx = 0;
 
-        size_t id_course = get_course_activity(pi, pi->A[act]) - 1;
+        for (int r = 0; r < pi->nm_Rooms; r++)
+            if (strcmp(ind->gene[r][t1].id, EmptyActivity.id) != 0)
+                worst_ts_acts[idx++] = get_act_idx(pi,ind->gene[r][t1]);
+        
+        if (idx == 0) return;
+        
+        int id_act = worst_ts_acts[rnd(0, idx - 1)];
+        act_in_ind(pi, ind, pi->A[id_act], &act_cell);
 
+        size_t id_course = get_course_activity(pi, pi->A[id_act]) - 1;
+
+        /* mark timeslots from the other activities belonging to the same course as the chosen one */
         int *flag_tslots = (int *)calloc(pi->nm_TimeSlots, sizeof(int));
-        flag_tslots[act_cell.t] = 1;
+        flag_tslots[t1] = 1;
         int a, t, r;
         for (a = 0; a < pi->Ac[id_course].nm_activities; a++)
         {
@@ -242,25 +253,62 @@ void mutation_ind(individual *ind, problem_instance *pi)
                         flag_tslots[t] = 1;
         }
 
+        // try to move id_act to some available and feasible space in t2
         int moved = 0, count = 0;
-        while (!moved)
+        int *ts_tabu = (int*) calloc(pi->nm_TimeSlots, sizeof(int));
+
+        // if t2 is already infeasible, perform RWS until is not
+        if (flag_tslots[t2]) ts_tabu[t2] = 1;
+        while (flag_tslots[t2] && count < pi->nm_TimeSlots){
+            t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
+            count++;
+            if (count >= n_tslots_to_consider)
+                t2 = (t2+1) % pi->nm_TimeSlots;
+        }
+
+        count = 0;
+        int attempts = 0;
+        
+        while (!moved && attempts < pi->nm_TimeSlots)
         {
-            if (strcmp(ind->gene[act_cell.r][t2].id, EmptyActivity.id) == 0 && flag_tslots[t2] == 0)
+            attempts++;
+            // first try in the same room...
+            if (strcmp(ind->gene[act_cell.r][t2].id, EmptyActivity.id) == 0)
             {
                 ind->gene[act_cell.r][t2] = ind->gene[act_cell.r][act_cell.t];
                 ind->gene[act_cell.r][act_cell.t] = EmptyActivity;
                 moved = 1;
                 break;
             }
-            else if (count < n_tslots_to_consider)
-                t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
-            else
-                t2 = (t2 + 1) % pi->nm_TimeSlots;
 
-            count++;
+            // if it cant be done, try another room...
+            for (int r = 0; r < pi->Ra[id_act].nm_rooms; r++) {
+                if (strcmp(ind->gene[pi->Ra[id_act].rooms[r].id - 1][t2].id, EmptyActivity.id) == 0){
+                    ind->gene[pi->Ra[id_act].rooms[r].id - 1][t2] = ind->gene[act_cell.r][act_cell.t];
+                    ind->gene[act_cell.r][act_cell.t] = EmptyActivity;
+                    moved = 1;
+                    break;
+                }
+            }
+
+            if (moved) break;
+
+            // if all that fails, update t2 and add the previuos value to tabu list
+            ts_tabu[t2] = 1;
+            int loop_ward = 0;
+            while ((flag_tslots[t2] || ts_tabu[t2]) && loop_ward < pi->nm_TimeSlots) {
+                t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
+                if (count >= n_tslots_to_consider)
+                    t2 = (t2+1) % pi->nm_TimeSlots; 
+                count++;
+                loop_ward++;
+            }
+
+
         }
 
         free(flag_tslots);
+        free(ts_tabu);
     }
 
     else

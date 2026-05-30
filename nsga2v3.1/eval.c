@@ -113,7 +113,7 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **
 
     mean_insatisfaction = mean_insatisfaction / pi->nm_Students;
 
-    obj[0] = 1 / (1 - mean_insatisfaction);
+    obj[0] = mean_insatisfaction - 1;
 }
 
 /*FO2: cantidad de modulos preferidos no asignados*/
@@ -137,7 +137,7 @@ void countCourseRequestsMet(int **students_schedule, double *obj, problem_instan
     // printf("\nObjetivo 2: %ld\n", counts);
     // exit(0);
 
-    obj[1] = 1 / mean_satisfaction;
+    obj[1] = -mean_satisfaction;
 }
 
 void check_room_cap(individual *ind, problem_instance *pi, int **student_courses)

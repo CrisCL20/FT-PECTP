@@ -124,6 +124,7 @@ typedef struct
     course_preference *Cs;
     timeslot_preference *Ts;
     t_color *colors;
+    size_t *Sc;
 
     unsigned nm_Students, nm_Courses, nm_Activity, nm_TimeSlots, nm_Rooms;
 } problem_instance;
