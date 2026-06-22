@@ -21,6 +21,7 @@ void evaluate_pop(population *pop, problem_instance *pi)
 
 void assign_students(individual *ind, problem_instance *pi, int **student_courses, int **student_busy, int *course_fill, int *act_to_ts)
 {
+    int* act_to_room = (int *) calloc(pi->nm_Activity, sizeof(int));
     for (int a = 0; a < pi->nm_Activity; a++)
     {
         for (int r = 0; r < pi->nm_Rooms; r++)
@@ -31,6 +32,7 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
                 if (strcmp(ind->gene[r][t].id, pi->A[a].id) == 0)
                 {
                     act_to_ts[a] = t;
+                    act_to_room[a] = r;
                     found_act = 1;
                     break;
                 }
@@ -50,33 +52,36 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
             if (course_fill[course_id] >= pi->sigma_class[course_id])
                 continue;
 
-            int can_take_course = 1;
+            int can_enroll = 1;
             for (int a = 0; a < pi->Ac[course_id].nm_activities; a++)
             {
                 int ts = act_to_ts[get_act_idx(pi, pi->Ac[course_id].activities[a])];
+                int r = act_to_room[get_act_idx(pi, pi->Ac[course_id].activities[a])];
 
-                if (student_busy[s][ts] == 1)
+                if (student_busy[s][ts] == 1 || course_fill[course_id] >= pi->rho[r])
                 {
-                    can_take_course = 0;
+                    can_enroll = 0;
                     break;
                 }
             }
 
-            // 4. Si es factible, lo inscribimos
-            if (can_take_course)
-            {
-                student_courses[s][c_idx] = 1; // Inscribir
-                course_fill[course_id]++;      // Aumentar cupo ocupado
+            can_enroll = sum_array(student_courses[s], pi->Cs[s].nm_courses) <= pi->kmaxs[s];
 
-                // Bloquear los bloques horarios para el estudiante
-                for (int a = 0; a < pi->Ac[course_id].nm_activities; a++)
-                {
-                    int ts = act_to_ts[get_act_idx(pi, pi->Ac[course_id].activities[a])];
-                    student_busy[s][ts] = 1;
-                }
+            if (!can_enroll)
+                continue;
+
+            student_courses[s][c_idx] = 1; 
+            course_fill[course_id]++;
+
+            for (int a = 0; a < pi->Ac[course_id].nm_activities; a++)
+            {
+                int ts = act_to_ts[get_act_idx(pi, pi->Ac[course_id].activities[a])];
+                student_busy[s][ts] = 1;
             }
+        
         }
     }
+    free(act_to_room);
 }
 
 /*Acá la evaluación completa. Deben setearse los valores de obj y constr_violation. */
@@ -90,21 +95,22 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **
         unsigned counts = 0;
         for (int c_idx = 0; c_idx < pi->Cs[s].nm_courses; c_idx++)
         {
-            if (student_schedule[s][c_idx])
+            if (!student_schedule[s][c_idx]) continue;
+            
+            
+            int c_id = pi->Cs[s].courses[c_idx].id - 1;
+
+            for (int a = 0; a < pi->Ac[c_id].nm_activities; a++)
             {
-                int c_id = pi->Cs[s].courses[c_idx].id - 1;
+                int a_idx = get_act_idx(pi, pi->Ac[c_id].activities[a]);
+                int ts = act_to_ts[a_idx];
 
-                for (int a = 0; a < pi->Ac[c_id].nm_activities; a++)
+                if (timeslot_in_student_preference(pi, s, pi->T[ts]))
                 {
-                    int a_idx = get_act_idx(pi, pi->Ac[c_id].activities[a]);
-                    int ts = act_to_ts[a_idx];
-
-                    if (timeslot_in_student_preference(pi, s, pi->T[ts]))
-                    {
-                        counts += 1;
-                    }
+                    counts += 1;
                 }
             }
+        
         }
         // calculate unhappyness percentage
         long double alpha_s = counts / pi->Ts[s].nm_timeslots;
@@ -123,9 +129,7 @@ void countCourseRequestsMet(int **students_schedule, double *obj, problem_instan
     long double mean_satisfaction = .0;
     for (i = 0; i < pi->nm_Students; i++)
     {
-        unsigned met = 0;
-        for (j = 0; j < pi->Cs[i].nm_courses; j++)
-            met += students_schedule[i][j];
+        unsigned met = sum_array(students_schedule[i], pi->Cs[i].nm_courses);
 
         // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
 
@@ -140,73 +144,16 @@ void countCourseRequestsMet(int **students_schedule, double *obj, problem_instan
     obj[1] = 1 / mean_satisfaction;
 }
 
-void check_room_cap(individual *ind, problem_instance *pi, int **student_courses)
-{
-    int *course_enrollment = (int *)calloc(pi->nm_Courses, sizeof(int));
-
-    for (int s = 0; s < pi->nm_Students; s++)
-    {
-        for (int c_idx = 0; c_idx < pi->Cs[s].nm_courses; c_idx++)
-        {
-            if (student_courses[s][c_idx])
-            {
-                int real_course_idx = pi->Cs[s].courses[c_idx].id - 1;
-                course_enrollment[real_course_idx]++;
-            }
-        }
-    }
-
-    for (int r = 0; r < pi->nm_Rooms; r++)
-    {
-        int room_cap = pi->rho[r];
-
-        for (int t = 0; t < pi->nm_TimeSlots; t++)
-        {
-            t_activity act = ind->gene[r][t];
-
-            if (strcmp(act.id, EmptyActivity.id) != 0)
-            {
-                int course_id = get_course_activity(pi, act) - 1;
-
-                if (course_enrollment[course_id] > room_cap)
-                    ind->constr_violation -= (course_enrollment[course_id] - room_cap);
-            }
-        }
-    }
-
-    free(course_enrollment);
-}
-
 void check_min_mods(individual *ind, problem_instance *pi, int **student_courses)
 {
     int s, m;
     for (s = 0; s < pi->nm_Students; s++)
     {
         unsigned min_mods = pi->kmins[s];
-        unsigned mods = 0;
-        for (m = 0; m < pi->Cs[s].nm_courses; m++)
-            if (student_courses[s][m])
-                mods++;
+        int total_enrollments = sum_array(student_courses[s], pi->Cs[s].nm_courses);
 
-        if (mods < min_mods)
+        if (total_enrollments < min_mods)
             ind->constr_violation--;
-    }
-}
-
-void check_max_mods(individual *ind, problem_instance *pi, int **student_courses)
-{
-    int s, m;
-    unsigned mods = 0;
-    for (s = 0; s < pi->nm_Students; s++)
-    {
-        unsigned max_mods = pi->kmaxs[s];
-        for (m = 0; m < pi->Cs[s].nm_courses; m++)
-            if (student_courses[s][m])
-                mods++;
-
-        if (mods > max_mods)
-            ind->constr_violation--;
-        mods = 0;
     }
 }
 
@@ -233,9 +180,7 @@ void test_problem(individual *ind, problem_instance *pi)
 
     /*constraint handling*/
     ind->constr_violation = 0;
-    check_room_cap(ind, pi, student_courses);
     check_min_mods(ind, pi, student_courses);
-    check_max_mods(ind, pi, student_courses);
 
     for (int s = 0; s < pi->nm_Students; s++)
     {

@@ -168,6 +168,7 @@ int readInputFile(char *filePath, problem_instance *pi);
 void printProblemInstance(problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
+int sum_array(int* arr, int size);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
 int get_act_idx(problem_instance *pi, t_activity a);
 int get_timeslot_idx(problem_instance *pi, t_timeslot timeslot);

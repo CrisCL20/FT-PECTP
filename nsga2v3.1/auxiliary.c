@@ -89,6 +89,13 @@ char **str_split(char *a_str, const char a_delim)
     return result;
 }
 
+int sum_array(int* arr, int size) {
+    int s = 0;
+    for (int i = 0; i < size; ++i)
+        s+=arr[i];
+    return s;
+}
+
 int cmpactivity(t_activity a1, t_activity a2)
 {
     if (strcmp(a1.id, a2.id) == 0)
