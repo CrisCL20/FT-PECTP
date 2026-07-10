@@ -18,6 +18,8 @@ double pcross_real;
 double pcross_bin;
 double pmut_real;
 double pmut_bin;
+double pmut_ts_swap;
+double pmut_act_swap;
 double eta_c;
 double eta_m;
 int ngen;
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        printf("\n Usage ./nsga2r instance_route random_seed popsize ngen nobj pcross_bin pmut_bin\n./nsga2r 0.123 b-Instancia14_cap2_relacion7UnoUnoUnoTodosDistintos.dat 100 100 2 0.6 0.01\n");
+        printf("\n Usage ./nsga2r random_seed instance_route popsize ngen nobj pcross_bin pmut_bin pmut_ts_swap pmut_act_swap\n./nsga2r 0.123 b-Instancia14_cap2_relacion7UnoUnoUnoTodosDistintos.dat 100 100 2 0.6 0.01 0.3 0.3\n");
         exit(1);
     }
     seed = (double)atof(argv[1]);
@@ -114,6 +116,20 @@ int main(int argc, char **argv)
         exit(1);
     }
     pmut_bin = atof(argv[7]);
+    if (pmut_bin < 0.0 || pmut_bin > 1.0)
+    {
+        printf("\n Probability of mutation entered is : %e", pmut_bin);
+        printf("\n Entered value of probability  of mutation of binary variables is out of bounds, hence exiting \n");
+        exit(1);
+    }
+    pmut_ts_swap = atof(argv[8]);
+    if (pmut_bin < 0.0 || pmut_bin > 1.0)
+    {
+        printf("\n Probability of mutation entered is : %e", pmut_bin);
+        printf("\n Entered value of probability  of mutation of binary variables is out of bounds, hence exiting \n");
+        exit(1);
+    }
+    pmut_act_swap = atof(argv[9]);
     if (pmut_bin < 0.0 || pmut_bin > 1.0)
     {
         printf("\n Probability of mutation entered is : %e", pmut_bin);

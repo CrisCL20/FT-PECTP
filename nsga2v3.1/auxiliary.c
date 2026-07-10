@@ -227,20 +227,13 @@ void verify_ind(problem_instance *pi, individual *ind)
 {
     int a;
     t_cellTuple cell;
-    int missing_activities[100];
-    int missing_count = 0;
-
+    
     for (a = 0; a < pi->nm_Activity; a++)
     {
         if (act_in_ind(pi, ind, pi->A[a], &cell) == 0)
         {
-            missing_activities[missing_count++] = a;
-            printf("Missing %s\n", pi->A[a].id);
+            fprintf(stderr,"Missing %s\n", pi->A[a].id);
+            exit(EXIT_FAILURE);
         }
-    }
-    
-    if (missing_count > 0) {
-        fprintf(stderr,"Total missing activities: %d\n", missing_count);
-        exit(EXIT_FAILURE);
     }
 }

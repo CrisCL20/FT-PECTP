@@ -224,7 +224,7 @@ void mutation_ind(individual *ind, problem_instance *pi)
 
     double coin = randomperc();
 
-    if (coin < 0.25)
+    if (coin <= pmut_ts_swap)
     {
         // swap t1 with t2
         for (int r = 0; r < pi->nm_Rooms; r++)
@@ -235,7 +235,7 @@ void mutation_ind(individual *ind, problem_instance *pi)
         }
         
     }
-    else if (coin < 0.5)
+    else if (coin <= pmut_act_swap)
     {
         // move a random activity from t1 to t2
         

@@ -3,3 +3,6 @@ venv
 __pycache__
 .ssh
 .vscodensga2v3.1/generation_report.csv
+nsga2v3.1/generation_report.csv
+nsga2v3.1/*.o
+nsga2v3.1/*.out
