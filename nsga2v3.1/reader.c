@@ -260,6 +260,11 @@ void readCourseActivities(FILE *fh, problem_instance *pi, unsigned cid)
         id++;
     }
 
+    /* precompute the global pi->A index of each activity so hot loops avoid get_act_idx */
+    pi->Ac[cid].activity_idx = (size_t *)calloc(pi->Ac[cid].nm_activities, sizeof(size_t));
+    for (unsigned i = 0; i < pi->Ac[cid].nm_activities; ++i)
+        pi->Ac[cid].activity_idx[i] = get_act_idx(pi, pi->Ac[cid].activities[i]);
+
     if (debug)
     {
         printf("Curso %d requiere las siguientes actividades:\n\t", pi->C[cid].id);

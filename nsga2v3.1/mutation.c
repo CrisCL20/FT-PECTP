@@ -67,12 +67,14 @@ void encode(individual *src, t_color *dst, problem_instance *pi)
     t_cellTuple cell;
     for (int a = 0; a < pi->nm_Activity; a++)
     {
+        
         if (act_in_ind(pi, src, pi->A[a], &cell))
         {
             dst[a] = (t_color){.r = cell.r, .t = cell.t};
         }
         else
         {
+            printf("Missing %s for mutation\n", pi->A[a].id);
             fprintf(stderr, "Error: not all acivities are in gene. Exiting with failure.\n");
             exit(EXIT_FAILURE);
         }
@@ -81,14 +83,24 @@ void encode(individual *src, t_color *dst, problem_instance *pi)
 
 void decode(t_color *src, individual *dst, problem_instance *pi)
 {
+    for (int r = 0; r < pi->nm_Rooms; r++) {
+        for (int t = 0; t < pi->nm_TimeSlots; t++) {
+            dst->gene[r][t] = EMPTY_ACT;
+        }
+    }
+
     for (int a = 0; a < pi->nm_Activity; a++)
     {
-        dst->gene[src[a].r][src[a].t] = pi->A[a];
+        dst->gene[src[a].r][src[a].t] = a;
     }
 }
 
 int is_swap_feasible(int a1, int a2, t_color *encoded_gene, problem_instance *pi)
 {
+    
+    if (encoded_gene[a1].r == encoded_gene[a2].r && encoded_gene[a1].t == encoded_gene[a2].t)
+        return 0;
+    
     size_t room_a = encoded_gene[a1].r;
     size_t room_b = encoded_gene[a2].r;
 
@@ -126,7 +138,7 @@ size_t ls_fitness(problem_instance* pi, t_color* encoded_gene, int *student_busy
         for (int c = 0; c < pi->Cs[s].nm_courses; c++) {
             size_t course_idx = pi->Cs[s].courses[c].id - 1;
             for (int a = 0; a < pi->Ac[course_idx].nm_activities; a++) {
-                size_t act_idx = get_act_idx(pi, pi->Ac[course_idx].activities[a]);
+                size_t act_idx = pi->Ac[course_idx].activity_idx[a];
                 if (student_busy_in_ts[encoded_gene[act_idx].t] > 0)
                     count_conflict++;
                 student_busy_in_ts[encoded_gene[act_idx].t]++;
@@ -187,8 +199,8 @@ void hc_swap(individual *ind, problem_instance *pi)
 /* Function to perform mutation of an individual */
 void mutation_ind(individual *ind, problem_instance *pi)
 {
+    
     // get array with most conflicted timeslots sorted from worst to best
-
     timeslot_counter *ts_counter = (timeslot_counter *)calloc(pi->nm_TimeSlots, sizeof(timeslot_counter));
     get_most_conflicted_free_timeslot(pi, ind, ts_counter);
 
@@ -202,10 +214,10 @@ void mutation_ind(individual *ind, problem_instance *pi)
     for (i = 0; i < n_tslots_to_consider; i++)
         // copy top n_tslots_to_consider worst timeslots
         worst_tslots[i] = ts_counter[i];
-
+    int idx_best = 0;
     for (i = pi->nm_TimeSlots - 1; i >= pi->nm_TimeSlots - n_tslots_to_consider; i--)
         // copy top n_tslots_to_consider best timeslots (since ts_counter is sorted, we have to select from the last one)
-        best_tslots[i % n_tslots_to_consider] = ts_counter[i];
+        best_tslots[idx_best++] = ts_counter[i];
 
     int t1 = roulette_timeslot(worst_tslots, n_tslots_to_consider);
     int t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
@@ -217,10 +229,11 @@ void mutation_ind(individual *ind, problem_instance *pi)
         // swap t1 with t2
         for (int r = 0; r < pi->nm_Rooms; r++)
         {
-            t_activity tmp = ind->gene[r][t1];
+            size_t tmp = ind->gene[r][t1];
             ind->gene[r][t1] = ind->gene[r][t2];
             ind->gene[r][t2] = tmp;
         }
+        
     }
     else if (coin < 0.5)
     {
@@ -231,13 +244,19 @@ void mutation_ind(individual *ind, problem_instance *pi)
         int idx = 0;
 
         for (int r = 0; r < pi->nm_Rooms; r++)
-            if (strcmp(ind->gene[r][t1].id, EmptyActivity.id) != 0)
-                worst_ts_acts[idx++] = get_act_idx(pi,ind->gene[r][t1]);
+            if (ind->gene[r][t1] != EMPTY_ACT)
+                worst_ts_acts[idx++] = ind->gene[r][t1];
         
-        if (idx == 0) return;
+        if (idx == 0) {
+            free(ts_counter);
+            return;
+        }
         
         int id_act = worst_ts_acts[rnd(0, idx - 1)];
-        act_in_ind(pi, ind, pi->A[id_act], &act_cell);
+        if (!act_in_ind(pi, ind, pi->A[id_act], &act_cell)) {
+            free(ts_counter);
+            return;
+        }
 
         size_t id_course = get_course_activity(pi, pi->A[id_act]) - 1;
 
@@ -247,9 +266,10 @@ void mutation_ind(individual *ind, problem_instance *pi)
         int a, t, r;
         for (a = 0; a < pi->Ac[id_course].nm_activities; a++)
         {
+            size_t a_idx = pi->Ac[id_course].activity_idx[a];
             for (t = 0; t < pi->nm_TimeSlots; t++)
                 for (r = 0; r < pi->nm_Rooms; r++)
-                    if (strcmp(ind->gene[r][t].id, pi->Ac[id_course].activities[a].id) == 0 && t != act_cell.t)
+                    if (ind->gene[r][t] == a_idx && t != act_cell.t)
                         flag_tslots[t] = 1;
         }
 
@@ -269,23 +289,28 @@ void mutation_ind(individual *ind, problem_instance *pi)
         count = 0;
         int attempts = 0;
         
-        while (!moved && attempts < pi->nm_TimeSlots)
+        while (!moved && attempts < pi->nm_TimeSlots * 2)
         {
             attempts++;
+            if (t2 == act_cell.t) {
+                t2 = (t2 + 1) % pi->nm_TimeSlots;
+                continue;
+            }
             // first try in the same room...
-            if (strcmp(ind->gene[act_cell.r][t2].id, EmptyActivity.id) == 0)
+            if (t2 != act_cell.t && ind->gene[act_cell.r][t2] == EMPTY_ACT)
             {
                 ind->gene[act_cell.r][t2] = ind->gene[act_cell.r][act_cell.t];
-                ind->gene[act_cell.r][act_cell.t] = EmptyActivity;
+                ind->gene[act_cell.r][act_cell.t] = EMPTY_ACT;
                 moved = 1;
                 break;
             }
 
             // if it cant be done, try another room...
             for (int r = 0; r < pi->Ra[id_act].nm_rooms; r++) {
-                if (strcmp(ind->gene[pi->Ra[id_act].rooms[r].id - 1][t2].id, EmptyActivity.id) == 0){
+                int room_idx = pi->Ra[id_act].rooms[r].id - 1;
+                if (room_idx != act_cell.r && ind->gene[room_idx][t2] == EMPTY_ACT){
                     ind->gene[pi->Ra[id_act].rooms[r].id - 1][t2] = ind->gene[act_cell.r][act_cell.t];
-                    ind->gene[act_cell.r][act_cell.t] = EmptyActivity;
+                    ind->gene[act_cell.r][act_cell.t] = EMPTY_ACT;
                     moved = 1;
                     break;
                 }

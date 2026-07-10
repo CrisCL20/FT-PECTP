@@ -34,6 +34,15 @@ void copy_ind(individual *ind1, individual *ind2)
     {
         ind2->obj[i] = ind1->obj[i];
     }
+    
+    for (int r = 0; r < g_pi->nm_Rooms; r++)
+        for (int t = 0; t < g_pi->nm_TimeSlots; t++)
+            ind2->gene[r][t] = ind1->gene[r][t];
+    
+    for (int s = 0; s < g_pi->nm_Students; s++)
+        for (int c = 0; c < g_pi->Cs[s].nm_courses; c++)
+            ind2->student_courses[s][c] = ind1->student_courses[s][c];
+    
     /*
     if (ncon!=0)
     {

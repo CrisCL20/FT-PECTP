@@ -33,7 +33,8 @@ typedef struct
     char id[10];
 } t_activity;
 
-static const t_activity EmptyActivity = {.id = '\0'};
+/* A gene cell stores an activity index into pi->A, or EMPTY_ACT for an empty cell. */
+#define EMPTY_ACT ((size_t)-1)
 
 typedef struct
 {
@@ -83,6 +84,7 @@ typedef struct
 typedef struct
 {
     t_activity *activities;
+    size_t *activity_idx; /* global index into pi->A for each entry in activities */
     size_t nm_activities;
 } course_activities;
 
@@ -96,7 +98,7 @@ typedef struct
 {
     int rank;
     double constr_violation;
-    t_activity **gene;
+    size_t **gene;
     int **student_courses;
     double *obj;
     double crowd_dist;
@@ -163,6 +165,7 @@ extern int obj2;
 extern int obj3;
 extern int angle1;
 extern int angle2;
+extern problem_instance *g_pi;
 
 int readInputFile(char *filePath, problem_instance *pi);
 void printProblemInstance(problem_instance *pi);
@@ -177,6 +180,7 @@ int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid);
 int timeslot_in_student_preference(problem_instance *pi, int s_idx, t_timeslot timeslot);
 void get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind, timeslot_counter *ts_counter);
 int act_in_ind(problem_instance *pi, individual *ind, t_activity act, t_cellTuple *cell);
+void verify_ind(problem_instance *pi, individual *ind);
 
 void allocate_memory_pop(population *pop, int size, problem_instance *pi);
 void allocate_memory_ind(individual *ind, problem_instance *pi);
@@ -226,6 +230,7 @@ void report_pop(population *pop, FILE *fpt);
 void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE *fpt, double elapsed);
 void report_ind(individual *ind, FILE *fpt);
 void report_objectives(size_t gen, population* pop, size_t popsize, FILE* fpt);
+void verify_pop(population *pop, problem_instance* pi);
 
 void quicksort_front_obj(population *pop, int objcount, int obj_array[], int obj_array_size);
 void q_sort_front_obj(population *pop, int objcount, int obj_array[], int left, int right);

@@ -29,7 +29,7 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
             int found_act = 0;
             for (int t = 0; t < pi->nm_TimeSlots; t++)
             {
-                if (strcmp(ind->gene[r][t].id, pi->A[a].id) == 0)
+                if (ind->gene[r][t] == (size_t)a)
                 {
                     act_to_ts[a] = t;
                     act_to_room[a] = r;
@@ -55,8 +55,9 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
             int can_enroll = 1;
             for (int a = 0; a < pi->Ac[course_id].nm_activities; a++)
             {
-                int ts = act_to_ts[get_act_idx(pi, pi->Ac[course_id].activities[a])];
-                int r = act_to_room[get_act_idx(pi, pi->Ac[course_id].activities[a])];
+                size_t a_idx = pi->Ac[course_id].activity_idx[a];
+                int ts = act_to_ts[a_idx];
+                int r = act_to_room[a_idx];
 
                 if (student_busy[s][ts] == 1 || course_fill[course_id] >= pi->rho[r])
                 {
@@ -75,7 +76,7 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
 
             for (int a = 0; a < pi->Ac[course_id].nm_activities; a++)
             {
-                int ts = act_to_ts[get_act_idx(pi, pi->Ac[course_id].activities[a])];
+                int ts = act_to_ts[pi->Ac[course_id].activity_idx[a]];
                 student_busy[s][ts] = 1;
             }
         
@@ -87,9 +88,9 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
 /*Acá la evaluación completa. Deben setearse los valores de obj y constr_violation. */
 
 /*FO1: preferencias horarias*/
-void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **gene, double *obj, problem_instance *pi)
+void countTimesRequestsMet(int *act_to_ts, int **student_schedule, size_t **gene, double *obj, problem_instance *pi)
 {
-    long double mean_insatisfaction = .0;
+    long double mean_alpha = .0;
     for (int s = 0; s < pi->nm_Students; s++)
     {
         unsigned counts = 0;
@@ -102,7 +103,7 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **
 
             for (int a = 0; a < pi->Ac[c_id].nm_activities; a++)
             {
-                int a_idx = get_act_idx(pi, pi->Ac[c_id].activities[a]);
+                int a_idx = pi->Ac[c_id].activity_idx[a];
                 int ts = act_to_ts[a_idx];
 
                 if (timeslot_in_student_preference(pi, s, pi->T[ts]))
@@ -113,40 +114,40 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, t_activity **
         
         }
         // calculate unhappyness percentage
-        long double alpha_s = counts / pi->Ts[s].nm_timeslots;
-        mean_insatisfaction += alpha_s;
+        long double alpha_s = (long double) counts / pi->Ts[s].nm_timeslots;
+        mean_alpha += alpha_s;
     }
 
-    mean_insatisfaction = mean_insatisfaction / pi->nm_Students;
+    mean_alpha = mean_alpha / pi->nm_Students;
 
-    obj[0] = 1 / (1 - mean_insatisfaction);
+    obj[0] = mean_alpha;
 }
 
 /*FO2: cantidad de modulos preferidos no asignados*/
 void countCourseRequestsMet(int **students_schedule, double *obj, problem_instance *pi)
 {
-    int i, j;
-    long double mean_satisfaction = .0;
+    int i;
+    long double mean_beta = .0;
     for (i = 0; i < pi->nm_Students; i++)
     {
         unsigned met = sum_array(students_schedule[i], pi->Cs[i].nm_courses);
 
         // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
 
-        long double beta_s = met / pi->Cs[i].nm_courses;
-        mean_satisfaction += beta_s;
+        long double beta_s = 1 - (long double) met / pi->Cs[i].nm_courses;
+        mean_beta += beta_s;
     }
 
-    mean_satisfaction = mean_satisfaction / pi->nm_Students;
+    mean_beta = mean_beta / pi->nm_Students;
     // printf("\nObjetivo 2: %ld\n", counts);
     // exit(0);
 
-    obj[1] = 1 / mean_satisfaction;
+    obj[1] = mean_beta;
 }
 
 void check_min_mods(individual *ind, problem_instance *pi, int **student_courses)
 {
-    int s, m;
+    int s;
     for (s = 0; s < pi->nm_Students; s++)
     {
         unsigned min_mods = pi->kmins[s];

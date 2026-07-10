@@ -2,7 +2,7 @@
 CC=gcc
 LD=gcc
 RM=rm -f
-CFLAGS=-Wall -pedantic -g
+CFLAGS=-Wall -pedantic -g -O2
 OBJS:=$(patsubst %.c,%.o,$(wildcard *.c))
 MAIN=nsga2r
 all:$(MAIN)

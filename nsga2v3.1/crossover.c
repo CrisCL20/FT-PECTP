@@ -19,30 +19,13 @@ int is_timeslot_free(problem_instance* pi, individual* ind, size_t t, size_t cou
 
     for (int a = 0; a < pi->Ac[course_idx].nm_activities; a++) {
         if (a == act_idx) continue;
-        for (int r = 0; r < pi->nm_Rooms; r++) 
-            if (strcmp(ind->gene[r][t].id,pi->Ac[course_idx].activities[a].id) == 0)
+        size_t other_idx = pi->Ac[course_idx].activity_idx[a];
+        for (int r = 0; r < pi->nm_Rooms; r++)
+            if (ind->gene[r][t] == other_idx)
                 return 0;
-        
     }
 
     return 1;
-}
-
-void verify_ind(problem_instance *pi, individual *ind)
-{
-    int a;
-
-    t_cellTuple cell;
-
-    for (a = 0; a < pi->nm_Activity; a++)
-    {
-        
-        if (act_in_ind(pi, ind, pi->A[a], &cell) == 0)
-        {
-            printf("Could not find activity %s...", pi->A[a].id);
-            exit(EXIT_FAILURE);
-        }
-    }
 }
 
 void inherit_parents(problem_instance* pi, individual* parent1, individual* parent2, individual* child, size_t n_courses_p1, size_t n_courses_p2, size_t* courses_p1, size_t* courses_p2){
@@ -51,14 +34,18 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
     int c;
     for (int r = 0; r < pi->nm_Rooms; r++)
         for (int t = 0; t < pi->nm_TimeSlots; t++)
-            child->gene[r][t] = EmptyActivity;
+            child->gene[r][t] = EMPTY_ACT;
 
     t_cellTuple act_cell;
-    
+
+    int** busy_r_t = (int **) calloc(pi->nm_Rooms, sizeof(int*));
+    for (int r = 0; r < pi->nm_Rooms; r++)
+       busy_r_t[r] = (int *) calloc(pi->nm_TimeSlots, sizeof(int));
     for (c = 0; c < n_courses_p1; c++){
         for (int a = 0; a < pi->Ac[courses_p1[c]].nm_activities; a++){
             if (act_in_ind(pi,parent1,pi->Ac[courses_p1[c]].activities[a],&act_cell)) {
-                child->gene[act_cell.r][act_cell.t] = pi->Ac[courses_p1[c]].activities[a];
+                child->gene[act_cell.r][act_cell.t] = pi->Ac[courses_p1[c]].activity_idx[a];
+                busy_r_t[act_cell.r][act_cell.t] = 1;
             }
         }
     }
@@ -66,24 +53,29 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
     // fill courses of p2 to ch1
     for (c = 0; c < n_courses_p2; c++) {
         for (int a = 0; a < pi->Ac[courses_p2[c]].nm_activities; a++) {
+            size_t act_idx = pi->Ac[courses_p2[c]].activity_idx[a];
             act_in_ind(pi,parent2,pi->Ac[courses_p2[c]].activities[a],&act_cell);
-            
-            if (strcmp(child->gene[act_cell.r][act_cell.t].id, EmptyActivity.id) == 0) {
-                child->gene[act_cell.r][act_cell.t] = pi->Ac[courses_p2[c]].activities[a];
+            if (
+                child->gene[act_cell.r][act_cell.t] == EMPTY_ACT
+                && is_timeslot_free(pi, child, act_cell.t, courses_p2[c], a)
+                && !busy_r_t[act_cell.r][act_cell.t]
+            ) {
+                child->gene[act_cell.r][act_cell.t] = act_idx;
+                busy_r_t[act_cell.r][act_cell.t] = 1;
                 continue;
             }
 
-            
-            size_t act_idx = get_act_idx(pi,pi->Ac[courses_p2[c]].activities[a]);
             int assigned = 0;
             /* assign to different room, same timeslot*/
             for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++){
                 if (
-                    strcmp(child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t].id, EmptyActivity.id) == 0
+                    child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] == EMPTY_ACT
                     && is_timeslot_free(pi,child,act_cell.t,courses_p2[c],a)
+                    && !busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t]
                 ){
-                    child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] = pi->Ac[courses_p2[c]].activities[a];
+                    child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] = act_idx;
                     assigned = 1;
+                    busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] = 1;
                     break;
                 }
             }
@@ -93,33 +85,46 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
             /* assign to same rooom, different timeslot */
             for (int t = 0; t < pi->nm_TimeSlots; t++) {
                 if (
-                    strcmp(child->gene[act_cell.r][t].id, EmptyActivity.id) == 0
+                    child->gene[act_cell.r][t] == EMPTY_ACT
                     && is_timeslot_free(pi,child,t,courses_p2[c],a)
+                    && !busy_r_t[act_cell.r][t]
                 ) {
-                    child->gene[act_cell.r][t] = pi->Ac[courses_p2[c]].activities[a];
+                    child->gene[act_cell.r][t] = act_idx;
                     assigned = 1;
+                    busy_r_t[act_cell.r][t] = 1;
                     break;
                 }
             }
 
             if (assigned) continue;
-            
+
             for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++) {
                 for (int t = 0; t < pi->nm_TimeSlots; t++) {
                     if (
-                        strcmp(child->gene[pi->Ra[act_idx].rooms[r].id - 1][t].id, EmptyActivity.id) == 0
+                        child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] == EMPTY_ACT
                         && is_timeslot_free(pi,child,t,courses_p2[c],a)
+                        && !busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][t]
                     ){
-                        child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] = pi->Ac[courses_p2[c]].activities[a];
+                        child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] = act_idx;
                         assigned = 1;
+                        busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][t] = 1;
                         break;
                     }
                 }
                 if (assigned) break;
             }
+            
+            if (!assigned)
+                printf("Could not assign activity %s.\n", pi->Ac[courses_p2[c]].activities[a].id);
+            
+            
         }
     }
-
+    
+    for (int r = 0; r < pi->nm_Rooms; r++)
+        free(busy_r_t[r]);
+    free(busy_r_t);
+    
 }
 
 void set_satisfied_demand(problem_instance* pi, individual* ind, course_demand *course_enrollments) {
@@ -161,8 +166,8 @@ void setup_courses_for_child(problem_instance* pi, course_demand* satisfied_dema
 
     int _idx = 0;
     for (int c = 0; c < pi->nm_Courses; c++) {
-        if (used_courses_dom[c]) continue;
-        courses_psub[_idx++] = c;
+        if (!used_courses_dom[c])
+            courses_psub[_idx++] = c;
     }
 
     free(used_courses_dom);
@@ -170,16 +175,10 @@ void setup_courses_for_child(problem_instance* pi, course_demand* satisfied_dema
 
 /* Function to cross two individuals */
 void crossover(individual *parent1, individual *parent2, individual *child1, individual *child2, problem_instance *pi)
-{
-
+{   
     if (randomperc() < pcross_bin)
     {
-
-        size_t n_courses_p1 = rnd(1, pi->nm_Courses - 2);
-        size_t n_courses_p2 = pi->nm_Courses - n_courses_p1;
-
-        size_t courses_p1[n_courses_p1];
-        size_t courses_p2[n_courses_p2];
+        size_t p = rnd(1, pi->nm_Courses - 2);
 
         /* sort courses based on accomplished demands */
 
@@ -201,16 +200,18 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
         set_satisfied_demand(pi, parent2, satisfied_demand_p2);
 
         /* procedure for child 1 */
-        setup_courses_for_child(pi, satisfied_demand_p1, courses_p1, courses_p2, n_courses_p1);
-        inherit_parents(pi, parent1, parent2, child1, n_courses_p1, n_courses_p2, courses_p1, courses_p2);
+        size_t courses_p1_ch1[p];
+        size_t courses_p2_ch1[pi->nm_Courses - p];
+        
+        setup_courses_for_child(pi, satisfied_demand_p1, courses_p1_ch1, courses_p2_ch1, p);
+        inherit_parents(pi, parent1, parent2, child1, p, pi->nm_Courses - p, courses_p1_ch1, courses_p2_ch1);
         
         /* procedure for child 2 */
-        setup_courses_for_child(pi, satisfied_demand_p2, courses_p2, courses_p1, n_courses_p2);
-        inherit_parents(pi,parent2,parent1,child2,n_courses_p2,n_courses_p1,courses_p2,courses_p1);
-
-        verify_ind(pi, child1);
-        verify_ind(pi, child2);
-
+        size_t courses_p1_ch2[pi->nm_Courses - p];
+        size_t courses_p2_ch2[p];
+        
+        setup_courses_for_child(pi, satisfied_demand_p2, courses_p2_ch2, courses_p1_ch2, p);
+        inherit_parents(pi,parent2, parent1, child2, p, pi->nm_Courses - p, courses_p2_ch2, courses_p1_ch2);
 
         free(satisfied_demand_p1);
         free(satisfied_demand_p2);
@@ -218,7 +219,14 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
 
     else
     {
-        child1 = parent1;
-        child2 = parent2;
+        for (int r = 0; r < pi->nm_Rooms; r++) 
+        {
+            for (int t = 0; t < pi->nm_TimeSlots; t++)
+            {
+                child1->gene[r][t] = parent1->gene[r][t];
+                child2->gene[r][t] = parent2->gene[r][t];
+            }
+        }
     }
+    
 }

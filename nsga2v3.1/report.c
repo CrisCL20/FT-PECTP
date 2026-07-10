@@ -81,7 +81,7 @@ void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE
         for (j = 0; j < pi->Ac[i].nm_activities; j++)
         {
             t_cellTuple cell;
-            size_t act_idx = get_act_idx(pi, pi->Ac[i].activities[j]);
+            size_t act_idx = pi->Ac[i].activity_idx[j];
             act_in_ind(pi, best_ind, pi->A[act_idx], &cell);
 
             fprintf(coursesFile, "%d;%s;%d;%s\n", pi->C[i].id, pi->Ac[i].activities[j].id, pi->R[cell.r].id, pi->T[cell.t].ts);
@@ -110,5 +110,11 @@ void report_objectives(size_t gen, population* pop, size_t popsize, FILE* fpt){
             }
             fprintf(fpt, "\n");
         }
+    }
+}
+
+void verify_pop(population *pop, problem_instance* pi) {
+    for (int i = 0; i < popsize; i++) {
+        verify_ind(pi, &pop->ind[i]);
     }
 }

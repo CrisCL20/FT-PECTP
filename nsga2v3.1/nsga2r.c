@@ -37,6 +37,7 @@ int obj2;
 int obj3;
 int angle1;
 int angle2;
+problem_instance *g_pi = NULL;
 
 int main(int argc, char **argv)
 {
@@ -80,7 +81,7 @@ int main(int argc, char **argv)
     // printf("Reading instance file %s...\n", instance_route);
     readInputFile(instance_route, pi);
     // printf("DONE\n");
-
+    g_pi = pi;
     // printProblemInstance(pi);
 
     popsize = atoi(argv[3]);

@@ -180,12 +180,13 @@ void get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind, ti
             int course_idx = pi->Cs[s].courses[c].id - 1;
             for (a = 0; a < pi->Ac[course_idx].nm_activities; a++)
             {
+                size_t act_idx = pi->Ac[course_idx].activity_idx[a];
                 int found_act = 0;
                 for (r = 0; r < pi->nm_Rooms; r++)
                 {
                     for (t = 0; t < pi->nm_TimeSlots; t++)
                     {
-                        if (strcmp(ind->gene[r][t].id, pi->Ac[course_idx].activities[a].id) == 0 && timeslot_in_student_preference(pi, s, pi->T[t]))
+                        if (ind->gene[r][t] == act_idx && timeslot_in_student_preference(pi, s, pi->T[t]))
                         {
                             found_act = 1;
                             ts_counter[t].counter++;
@@ -206,11 +207,12 @@ void get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind, ti
 int act_in_ind(problem_instance *pi, individual *ind, t_activity act, t_cellTuple *cell)
 {
     int r, t;
+    size_t act_idx = get_act_idx(pi, act);
     for (r = 0; r < pi->nm_Rooms; r++)
     {
         for (t = 0; t < pi->nm_TimeSlots; t++)
         {
-            if (strcmp(ind->gene[r][t].id, act.id) == 0)
+            if (ind->gene[r][t] == act_idx)
             {
                 cell->r = r;
                 cell->t = t;
@@ -219,4 +221,26 @@ int act_in_ind(problem_instance *pi, individual *ind, t_activity act, t_cellTupl
         }
     }
     return 0;
+}
+
+void verify_ind(problem_instance *pi, individual *ind)
+{
+    int a;
+    t_cellTuple cell;
+    int missing_activities[100];
+    int missing_count = 0;
+
+    for (a = 0; a < pi->nm_Activity; a++)
+    {
+        if (act_in_ind(pi, ind, pi->A[a], &cell) == 0)
+        {
+            missing_activities[missing_count++] = a;
+            printf("Missing %s\n", pi->A[a].id);
+        }
+    }
+    
+    if (missing_count > 0) {
+        fprintf(stderr,"Total missing activities: %d\n", missing_count);
+        exit(EXIT_FAILURE);
+    }
 }

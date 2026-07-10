@@ -24,9 +24,13 @@ void allocate_memory_ind(individual *ind, problem_instance *pi)
 {
     int i;
 
-    ind->gene = (t_activity **)malloc(pi->nm_Rooms * sizeof(t_activity *));
+    ind->gene = (size_t **)malloc(pi->nm_Rooms * sizeof(size_t *));
     for (i = 0; i < pi->nm_Rooms; i++)
-        ind->gene[i] = (t_activity *)calloc(pi->nm_TimeSlots, sizeof(t_activity));
+    {
+        ind->gene[i] = (size_t *)malloc(pi->nm_TimeSlots * sizeof(size_t));
+        for (int j = 0; j < pi->nm_TimeSlots; j++)
+            ind->gene[i][j] = EMPTY_ACT;
+    }
 
     ind->student_courses = (int **)calloc(pi->nm_Students, sizeof(int *));
     for (i = 0; i < pi->nm_Students; i++)
@@ -84,6 +88,7 @@ void deallocate_memory_instance(problem_instance *pi)
     for (i = 0; i < pi->nm_Courses; i++)
     {
         free(pi->Ac[i].activities);
+        free(pi->Ac[i].activity_idx);
     }
 
     free(pi->A);
