@@ -1,7 +1,7 @@
 #!/bin/bash
 
-dirInstances="instances"
-dirNSGA="../nsga2-gnuplot-v1.1.6_+Instancia"
+dirInstances="instances_parsed"
+dirNSGA="../nsga2v3.1"
 dirhv="../hv-1.3-src"
 
 # Máximo de evaluaciones totales
@@ -10,8 +10,6 @@ evaluaciones=1000000
 # Inicialización de variables
 pm=0
 pc=0
-gen=0
-p=0
 instance=""
 execution_params=()
 
@@ -52,24 +50,6 @@ while [ $# -gt 0 ]; do
                 exit 1
             fi
             ;;
-        -gen)
-            if [ $# -gt 1 ]; then
-                gen="$2"
-                shift 2
-            else
-                echo "Error: -gen requiere un valor"
-                exit 1
-            fi
-            ;;
-        -p)
-            if [ $# -gt 1 ]; then
-                p="$2"
-                shift 2
-            else
-                echo "Error: -p requiere un valor"
-                exit 1
-            fi
-            ;;
         *)
             # Si el argumento es numérico o una cadena vacía, lo añadimos a la lista de parámetros de ejecución
             if [[ "$flag" =~ ^[0-9]+(\.[0-9]+)?$ ]] || [ "$flag" = "" ]; then
@@ -84,10 +64,14 @@ while [ $# -gt 0 ]; do
 done
 
 # Calcular mi, número de objetivos y parámetros
+p=500
+gen=10000
 mi=$(awk "BEGIN {printf \"%d\",(${evaluaciones}/${p})}")
 echo "valor de mi: ${mi}"
 no=2 # número de objetivos
-params="${p} ${gen} ${no} ${pc} ${pm}"
+pm_ts_swap=0.7
+pm_act_swap=0.3
+params="${p} ${gen} ${no} ${pc} ${pm} ${pm_ts_swap} ${pm_act_swap}"
 echo "Parámetros: ${params}"
 
 screen=salida

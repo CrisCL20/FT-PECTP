@@ -23,595 +23,1407 @@ Level
 Starting ILS for level 1, i.e. a limit of N=2000, and cutoff time=1000000000.0.
 Current CPU time = 0, this run goes until 100000000.0 
 ========================================================
-New Incumbent: 0, 100000000 [0, 0]. With state gen=1, p=256, pc=1, pm=0.85
+New Incumbent: 0, 100000000 [0, 0]. With state pc=0.95, pm=0.1
  Same incumbent, new precision:
-New Incumbent: 0.1, -311.0 [1, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> Take improving step to random gen=1000 p=152 pc=0.8 pm=0.7 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+New Incumbent: 0.1, -705.0 [1, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> Take improving step to random pc=0.6 pm=0.05 (-705.0 [based on 1 runs with cutoff 1000000000.0])
 
-          -> Take improving step to random gen=8000 p=152 pc=0.5 pm=0.2 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+          -> Take improving step to random pc=0.95 pm=0.5 (-705.0 [based on 1 runs with cutoff 1000000000.0])
 
-          -> Take improving step to random gen=1 p=152 pc=0.8 pm=0.05 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+          -> Take improving step to random pc=0.8 pm=0.3 (-705.0 [based on 1 runs with cutoff 1000000000.0])
 
-          -> Take improving step to random gen=1000 p=512 pc=0.6 pm=0.9 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+          -> Take improving step to random pc=0.95 pm=0.05 (-705.0 [based on 1 runs with cutoff 1000000000.0])
 
-          -> Take improving step to random gen=1000 p=256 pc=0.8 pm=0.97 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+          -> Take improving step to random pc=0.6 pm=0.1 (-705.0 [based on 1 runs with cutoff 1000000000.0])
 
-          -> Take improving step to random gen=8000 p=152 pc=0.8 pm=0.85 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+          -> Take improving step to random pc=0.25 pm=0.05 (-705.0 [based on 1 runs with cutoff 1000000000.0])
 
-          -> Take improving step to random gen=1 p=256 pc=0.8 pm=0.9 (-311.0 [based on 1 runs with cutoff 1000000000.0])
-
-          -> Take improving step to random gen=1000 p=152 pc=0.25 pm=0.85 (-311.0 [based on 1 runs with cutoff 1000000000.0])
-
-          -> Take improving step to random gen=500 p=152 pc=0.8 pm=0.5 (-311.0 [based on 1 runs with cutoff 1000000000.0])
-
-          -> Take improving step to random gen=500 p=152 pc=0.5 pm=0.5 (-311.0 [based on 1 runs with cutoff 1000000000.0])
-
-   BLS in iteration 1, start with gen=500 p=152 pc=0.5 pm=0.5 (-311.0 [based on 1 runs with cutoff 1000000000.0])
-    Changing ["pc: 0.5->0.8"], evaluating ...
 State wants more detail (1+1) than incumbent (1), doing incumbent first:
-gen=500 p=152 pc=0.5 pm=0.5 (-311.0 [based on 1 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 1 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-705.0 [based on 1 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-705.0 [based on 1 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 1.2, -311.0 [2, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> Take improving step to neighbour gen=500 p=152 pc=0.8 pm=0.5 (-311.0 [based on 2 runs with cutoff 1000000000.0]) with flip 1
+New Incumbent: 0.7999999999999999, -641.0 [2, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> Take improving step to random pc=0.95 pm=0.05 (-641.0 [based on 2 runs with cutoff 1000000000.0])
+
+          -> Take improving step to random pc=0.6 pm=0.3 (-641.0 [based on 2 runs with cutoff 1000000000.0])
+
+          -> Take improving step to random pc=0.8 pm=0.1 (-641.0 [based on 2 runs with cutoff 1000000000.0])
+
+          -> Take improving step to random pc=0.6 pm=0.5 (-641.0 [based on 2 runs with cutoff 1000000000.0])
+
+   BLS in iteration 1, start with pc=0.6 pm=0.5 (-641.0 [based on 2 runs with cutoff 1000000000.0])
+    Changing ["pc: 0.6->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.5 (-641.0 [based on 2 runs with cutoff 1000000000.0]) with flip 1
 
           
-============= Performing 2 bonus runs of state: gen=500 p=152 pc=0.8 pm=0.5 (-311.0 [based on 2 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.5 (-641.0 [based on 2 runs with cutoff 1000000000.0]) ============ 
 
 State wants more detail (2+1) than incumbent (2), doing incumbent first:
-gen=500 p=152 pc=0.8 pm=0.5 (-311.0 [based on 2 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 2 runs with cutoff 1000000000.0])
+pc=0.5 pm=0.5 (-641.0 [based on 2 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-641.0 [based on 2 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 1.5000000000000002, -311.0 [3, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-State wants more detail (3+1) than incumbent (3), doing incumbent first:
-gen=500 p=152 pc=0.8 pm=0.5 (-311.0 [based on 3 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 3 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 1.7000000000000004, -311.0 [4, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 2 bonus runs: gen=500 p=152 pc=0.8 pm=0.5 (-311.0 [based on 4 runs with cutoff 1000000000.0])
+New Incumbent: 1.9000000000000006, -659.0 [3, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.5 pm=0.5 (-659.0 [based on 3 runs with cutoff 1000000000.0])
 
-    Changing ["gen: 500->8000"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=152 pc=0.8 pm=0.5 (-311.0 [based on 4 runs with cutoff 1000000000.0]) with flip 2
+    Changing ["pm: 0.5->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.3 (-659.0 [based on 3 runs with cutoff 1000000000.0]) with flip 2
 
           
-============= Performing 1 bonus runs of state: gen=8000 p=152 pc=0.8 pm=0.5 (-311.0 [based on 4 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.3 (-659.0 [based on 3 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (3+1) than incumbent (3), doing incumbent first:
+pc=0.5 pm=0.3 (-659.0 [based on 3 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-659.0 [based on 3 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 2.400000000000001, -724.25 [4, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.5 pm=0.3 (-724.25 [based on 4 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.05 (-724.25 [based on 4 runs with cutoff 1000000000.0]) with flip 3
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.05 (-724.25 [based on 4 runs with cutoff 1000000000.0]) ============ 
 
 State wants more detail (4+1) than incumbent (4), doing incumbent first:
-gen=8000 p=152 pc=0.8 pm=0.5 (-311.0 [based on 4 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 4 runs with cutoff 1000000000.0])
+pc=0.5 pm=0.05 (-724.25 [based on 4 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-724.25 [based on 4 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 2.3000000000000007, -311.0 [5, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=152 pc=0.8 pm=0.5 (-311.0 [based on 5 runs with cutoff 1000000000.0])
+New Incumbent: 3.0000000000000013, -697.6 [5, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.5 pm=0.05 (-697.6 [based on 5 runs with cutoff 1000000000.0])
 
-    Changing ["pc: 0.8->0.25"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=152 pc=0.25 pm=0.5 (-311.0 [based on 5 runs with cutoff 1000000000.0]) with flip 3
+    Changing ["pm: 0.05->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.1 (-697.6 [based on 5 runs with cutoff 1000000000.0]) with flip 4
 
           
-============= Performing 1 bonus runs of state: gen=8000 p=152 pc=0.25 pm=0.5 (-311.0 [based on 5 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.1 (-697.6 [based on 5 runs with cutoff 1000000000.0]) ============ 
 
 State wants more detail (5+1) than incumbent (5), doing incumbent first:
-gen=8000 p=152 pc=0.25 pm=0.5 (-311.0 [based on 5 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 5 runs with cutoff 1000000000.0])
+pc=0.5 pm=0.1 (-697.6 [based on 5 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-697.6 [based on 5 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 3.0000000000000013, -311.0 [6, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=152 pc=0.25 pm=0.5 (-311.0 [based on 6 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 8000->1"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=152 pc=0.25 pm=0.5 (-311.0 [based on 6 runs with cutoff 1000000000.0]) with flip 4
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=152 pc=0.25 pm=0.5 (-311.0 [based on 6 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (6+1) than incumbent (6), doing incumbent first:
-gen=1 p=152 pc=0.25 pm=0.5 (-311.0 [based on 6 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 6 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 3.800000000000002, -311.0 [7, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=152 pc=0.25 pm=0.5 (-311.0 [based on 7 runs with cutoff 1000000000.0])
-
-    Changing ["p: 152->256"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=256 pc=0.25 pm=0.5 (-311.0 [based on 7 runs with cutoff 1000000000.0]) with flip 5
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=256 pc=0.25 pm=0.5 (-311.0 [based on 7 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (7+1) than incumbent (7), doing incumbent first:
-gen=1 p=256 pc=0.25 pm=0.5 (-311.0 [based on 7 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 7 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 4.699999999999999, -311.0 [8, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=256 pc=0.25 pm=0.5 (-311.0 [based on 8 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.5->0.7"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=256 pc=0.25 pm=0.7 (-311.0 [based on 8 runs with cutoff 1000000000.0]) with flip 6
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=256 pc=0.25 pm=0.7 (-311.0 [based on 8 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (8+1) than incumbent (8), doing incumbent first:
-gen=1 p=256 pc=0.25 pm=0.7 (-311.0 [based on 8 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 8 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 5.699999999999996, -311.0 [9, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=256 pc=0.25 pm=0.7 (-311.0 [based on 9 runs with cutoff 1000000000.0])
-
-    Changing ["pc: 0.25->0.8"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=256 pc=0.8 pm=0.7 (-311.0 [based on 9 runs with cutoff 1000000000.0]) with flip 7
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=256 pc=0.8 pm=0.7 (-311.0 [based on 9 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (9+1) than incumbent (9), doing incumbent first:
-gen=1 p=256 pc=0.8 pm=0.7 (-311.0 [based on 9 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 9 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 6.799999999999992, -311.0 [10, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=256 pc=0.8 pm=0.7 (-311.0 [based on 10 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.7->0.9"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=256 pc=0.8 pm=0.9 (-311.0 [based on 10 runs with cutoff 1000000000.0]) with flip 8
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=256 pc=0.8 pm=0.9 (-311.0 [based on 10 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (10+1) than incumbent (10), doing incumbent first:
-gen=1 p=256 pc=0.8 pm=0.9 (-311.0 [based on 10 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 10 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 7.899999999999988, -311.0 [11, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=256 pc=0.8 pm=0.9 (-311.0 [based on 11 runs with cutoff 1000000000.0])
-
-    Changing ["p: 256->512"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=512 pc=0.8 pm=0.9 (-311.0 [based on 11 runs with cutoff 1000000000.0]) with flip 9
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=512 pc=0.8 pm=0.9 (-311.0 [based on 11 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (11+1) than incumbent (11), doing incumbent first:
-gen=1 p=512 pc=0.8 pm=0.9 (-311.0 [based on 11 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 11 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 9.199999999999983, -311.0 [12, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=512 pc=0.8 pm=0.9 (-311.0 [based on 12 runs with cutoff 1000000000.0])
-
-    Changing ["p: 512->152"], evaluating ...
-101/100000, 10.09999999999998/100000000.0
-          -> Take improving step to neighbour gen=1 p=152 pc=0.8 pm=0.9 (-311.0 [based on 12 runs with cutoff 1000000000.0]) with flip 10
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=152 pc=0.8 pm=0.9 (-311.0 [based on 12 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (12+1) than incumbent (12), doing incumbent first:
-gen=1 p=152 pc=0.8 pm=0.9 (-311.0 [based on 12 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 12 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 10.599999999999978, -311.0 [13, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=152 pc=0.8 pm=0.9 (-311.0 [based on 13 runs with cutoff 1000000000.0])
-
-    Changing ["pc: 0.8->0.25"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=152 pc=0.25 pm=0.9 (-311.0 [based on 13 runs with cutoff 1000000000.0]) with flip 11
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=152 pc=0.25 pm=0.9 (-311.0 [based on 13 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (13+1) than incumbent (13), doing incumbent first:
-gen=1 p=152 pc=0.25 pm=0.9 (-311.0 [based on 13 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 13 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 12.099999999999973, -311.0 [14, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=152 pc=0.25 pm=0.9 (-311.0 [based on 14 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 1->2000"], evaluating ...
-          -> Take improving step to neighbour gen=2000 p=152 pc=0.25 pm=0.9 (-311.0 [based on 14 runs with cutoff 1000000000.0]) with flip 12
-
-          
-============= Performing 1 bonus runs of state: gen=2000 p=152 pc=0.25 pm=0.9 (-311.0 [based on 14 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (14+1) than incumbent (14), doing incumbent first:
-gen=2000 p=152 pc=0.25 pm=0.9 (-311.0 [based on 14 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 14 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 13.699999999999967, -311.0 [15, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=2000 p=152 pc=0.25 pm=0.9 (-311.0 [based on 15 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.9->0.85"], evaluating ...
-          -> Take improving step to neighbour gen=2000 p=152 pc=0.25 pm=0.85 (-311.0 [based on 15 runs with cutoff 1000000000.0]) with flip 13
-
-          
-============= Performing 1 bonus runs of state: gen=2000 p=152 pc=0.25 pm=0.85 (-311.0 [based on 15 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (15+1) than incumbent (15), doing incumbent first:
-gen=2000 p=152 pc=0.25 pm=0.85 (-311.0 [based on 15 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 15 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 15.399999999999961, -311.0 [16, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=2000 p=152 pc=0.25 pm=0.85 (-311.0 [based on 16 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.85->0.2"], evaluating ...
-          -> Take improving step to neighbour gen=2000 p=152 pc=0.25 pm=0.2 (-311.0 [based on 16 runs with cutoff 1000000000.0]) with flip 14
-
-          
-============= Performing 1 bonus runs of state: gen=2000 p=152 pc=0.25 pm=0.2 (-311.0 [based on 16 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (16+1) than incumbent (16), doing incumbent first:
-gen=2000 p=152 pc=0.25 pm=0.2 (-311.0 [based on 16 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 16 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 17.199999999999974, -311.0 [17, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=2000 p=152 pc=0.25 pm=0.2 (-311.0 [based on 17 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 2000->1"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=152 pc=0.25 pm=0.2 (-311.0 [based on 17 runs with cutoff 1000000000.0]) with flip 15
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=152 pc=0.25 pm=0.2 (-311.0 [based on 17 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (17+1) than incumbent (17), doing incumbent first:
-gen=1 p=152 pc=0.25 pm=0.2 (-311.0 [based on 17 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 17 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 19.1, -311.0 [18, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=152 pc=0.25 pm=0.2 (-311.0 [based on 18 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.2->0.85"], evaluating ...
-201/100000, 20.100000000000016/100000000.0
-          -> Take improving step to neighbour gen=1 p=152 pc=0.25 pm=0.85 (-311.0 [based on 18 runs with cutoff 1000000000.0]) with flip 16
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=152 pc=0.25 pm=0.85 (-311.0 [based on 18 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (18+1) than incumbent (18), doing incumbent first:
-gen=1 p=152 pc=0.25 pm=0.85 (-311.0 [based on 18 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 18 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 21.10000000000003, -311.0 [19, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=152 pc=0.25 pm=0.85 (-311.0 [based on 19 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 1->500"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=152 pc=0.25 pm=0.85 (-311.0 [based on 19 runs with cutoff 1000000000.0]) with flip 17
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=152 pc=0.25 pm=0.85 (-311.0 [based on 19 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (19+1) than incumbent (19), doing incumbent first:
-gen=500 p=152 pc=0.25 pm=0.85 (-311.0 [based on 19 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 19 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 23.20000000000006, -311.0 [20, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=152 pc=0.25 pm=0.85 (-311.0 [based on 20 runs with cutoff 1000000000.0])
-
-    Changing ["p: 152->512"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=512 pc=0.25 pm=0.85 (-311.0 [based on 20 runs with cutoff 1000000000.0]) with flip 18
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=512 pc=0.25 pm=0.85 (-311.0 [based on 20 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (20+1) than incumbent (20), doing incumbent first:
-gen=500 p=512 pc=0.25 pm=0.85 (-311.0 [based on 20 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 20 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 25.40000000000009, -311.0 [21, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=512 pc=0.25 pm=0.85 (-311.0 [based on 21 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 500->8000"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=512 pc=0.25 pm=0.85 (-311.0 [based on 21 runs with cutoff 1000000000.0]) with flip 19
-
-          
-============= Performing 1 bonus runs of state: gen=8000 p=512 pc=0.25 pm=0.85 (-311.0 [based on 21 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (21+1) than incumbent (21), doing incumbent first:
-gen=8000 p=512 pc=0.25 pm=0.85 (-311.0 [based on 21 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 21 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 27.700000000000124, -311.0 [22, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=512 pc=0.25 pm=0.85 (-311.0 [based on 22 runs with cutoff 1000000000.0])
-
-    Changing ["pc: 0.25->1"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=512 pc=1 pm=0.85 (-311.0 [based on 22 runs with cutoff 1000000000.0]) with flip 20
-
-          
-============= Performing 1 bonus runs of state: gen=8000 p=512 pc=1 pm=0.85 (-311.0 [based on 22 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (22+1) than incumbent (22), doing incumbent first:
-gen=8000 p=512 pc=1 pm=0.85 (-311.0 [based on 22 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 22 runs with cutoff 1000000000.0])
-301/100000, 30.100000000000158/100000000.0
- Same incumbent, new precision:
-New Incumbent: 30.100000000000158, -311.0 [23, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=512 pc=1 pm=0.85 (-311.0 [based on 23 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.85->0.9"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=512 pc=1 pm=0.9 (-311.0 [based on 23 runs with cutoff 1000000000.0]) with flip 21
-
-          
-============= Performing 1 bonus runs of state: gen=8000 p=512 pc=1 pm=0.9 (-311.0 [based on 23 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (23+1) than incumbent (23), doing incumbent first:
-gen=8000 p=512 pc=1 pm=0.9 (-311.0 [based on 23 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 23 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 32.60000000000019, -311.0 [24, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=512 pc=1 pm=0.9 (-311.0 [based on 24 runs with cutoff 1000000000.0])
-
-    Changing ["pc: 1->0.5"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=512 pc=0.5 pm=0.9 (-311.0 [based on 24 runs with cutoff 1000000000.0]) with flip 22
-
-          
-============= Performing 1 bonus runs of state: gen=8000 p=512 pc=0.5 pm=0.9 (-311.0 [based on 24 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (24+1) than incumbent (24), doing incumbent first:
-gen=8000 p=512 pc=0.5 pm=0.9 (-311.0 [based on 24 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 24 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 35.20000000000023, -311.0 [25, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=512 pc=0.5 pm=0.9 (-311.0 [based on 25 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.9->0.2"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=512 pc=0.5 pm=0.2 (-311.0 [based on 25 runs with cutoff 1000000000.0]) with flip 23
-
-          
-============= Performing 1 bonus runs of state: gen=8000 p=512 pc=0.5 pm=0.2 (-311.0 [based on 25 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (25+1) than incumbent (25), doing incumbent first:
-gen=8000 p=512 pc=0.5 pm=0.2 (-311.0 [based on 25 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 25 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 37.90000000000027, -311.0 [26, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=512 pc=0.5 pm=0.2 (-311.0 [based on 26 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 8000->500"], evaluating ...
-401/100000, 40.1000000000003/100000000.0
-          -> Take improving step to neighbour gen=500 p=512 pc=0.5 pm=0.2 (-311.0 [based on 26 runs with cutoff 1000000000.0]) with flip 24
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=512 pc=0.5 pm=0.2 (-311.0 [based on 26 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (26+1) than incumbent (26), doing incumbent first:
-gen=500 p=512 pc=0.5 pm=0.2 (-311.0 [based on 26 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 26 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 40.70000000000031, -311.0 [27, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=512 pc=0.5 pm=0.2 (-311.0 [based on 27 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.2->0.05"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=512 pc=0.5 pm=0.05 (-311.0 [based on 27 runs with cutoff 1000000000.0]) with flip 25
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=512 pc=0.5 pm=0.05 (-311.0 [based on 27 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (27+1) than incumbent (27), doing incumbent first:
-gen=500 p=512 pc=0.5 pm=0.05 (-311.0 [based on 27 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 27 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 43.60000000000035, -311.0 [28, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=512 pc=0.5 pm=0.05 (-311.0 [based on 28 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.05->0.97"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=512 pc=0.5 pm=0.97 (-311.0 [based on 28 runs with cutoff 1000000000.0]) with flip 26
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=512 pc=0.5 pm=0.97 (-311.0 [based on 28 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (28+1) than incumbent (28), doing incumbent first:
-gen=500 p=512 pc=0.5 pm=0.97 (-311.0 [based on 28 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 28 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 46.60000000000039, -311.0 [29, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=512 pc=0.5 pm=0.97 (-311.0 [based on 29 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.97->0.7"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=512 pc=0.5 pm=0.7 (-311.0 [based on 29 runs with cutoff 1000000000.0]) with flip 27
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=512 pc=0.5 pm=0.7 (-311.0 [based on 29 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (29+1) than incumbent (29), doing incumbent first:
-gen=500 p=512 pc=0.5 pm=0.7 (-311.0 [based on 29 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 29 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 49.700000000000436, -311.0 [30, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=512 pc=0.5 pm=0.7 (-311.0 [based on 30 runs with cutoff 1000000000.0])
-
-    Changing ["pc: 0.5->1"], evaluating ...
-501/100000, 50.10000000000044/100000000.0
-          -> Take improving step to neighbour gen=500 p=512 pc=1 pm=0.7 (-311.0 [based on 30 runs with cutoff 1000000000.0]) with flip 28
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=512 pc=1 pm=0.7 (-311.0 [based on 30 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (30+1) than incumbent (30), doing incumbent first:
-gen=500 p=512 pc=1 pm=0.7 (-311.0 [based on 30 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 30 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 52.90000000000048, -311.0 [31, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=512 pc=1 pm=0.7 (-311.0 [based on 31 runs with cutoff 1000000000.0])
-
-    Changing ["p: 512->256"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=256 pc=1 pm=0.7 (-311.0 [based on 31 runs with cutoff 1000000000.0]) with flip 29
-
-          
-============= Performing 1 bonus runs of state: gen=500 p=256 pc=1 pm=0.7 (-311.0 [based on 31 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (31+1) than incumbent (31), doing incumbent first:
-gen=500 p=256 pc=1 pm=0.7 (-311.0 [based on 31 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 31 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 56.20000000000053, -311.0 [32, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=256 pc=1 pm=0.7 (-311.0 [based on 32 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 500->2000"], evaluating ...
-          -> Take improving step to neighbour gen=2000 p=256 pc=1 pm=0.7 (-311.0 [based on 32 runs with cutoff 1000000000.0]) with flip 30
-
-          
-============= Performing 1 bonus runs of state: gen=2000 p=256 pc=1 pm=0.7 (-311.0 [based on 32 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (32+1) than incumbent (32), doing incumbent first:
-gen=2000 p=256 pc=1 pm=0.7 (-311.0 [based on 32 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 32 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 59.60000000000058, -311.0 [33, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=2000 p=256 pc=1 pm=0.7 (-311.0 [based on 33 runs with cutoff 1000000000.0])
-
-    Changing ["pc: 1->0.5"], evaluating ...
-601/100000, 60.100000000000584/100000000.0
-          -> Take improving step to neighbour gen=2000 p=256 pc=0.5 pm=0.7 (-311.0 [based on 33 runs with cutoff 1000000000.0]) with flip 31
-
-          
-============= Performing 1 bonus runs of state: gen=2000 p=256 pc=0.5 pm=0.7 (-311.0 [based on 33 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (33+1) than incumbent (33), doing incumbent first:
-gen=2000 p=256 pc=0.5 pm=0.7 (-311.0 [based on 33 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 33 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 63.10000000000063, -311.0 [34, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=2000 p=256 pc=0.5 pm=0.7 (-311.0 [based on 34 runs with cutoff 1000000000.0])
-
-    Changing ["pm: 0.7->0.9"], evaluating ...
-          -> Take improving step to neighbour gen=2000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 34 runs with cutoff 1000000000.0]) with flip 32
-
-          
-============= Performing 1 bonus runs of state: gen=2000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 34 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (34+1) than incumbent (34), doing incumbent first:
-gen=2000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 34 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 34 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 66.70000000000049, -311.0 [35, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=2000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 35 runs with cutoff 1000000000.0])
-
-    Changing ["gen: 2000->1"], evaluating ...
-702/100000, 70.20000000000029/100000000.0
-          -> Take improving step to neighbour gen=1 p=256 pc=0.5 pm=0.9 (-311.0 [based on 35 runs with cutoff 1000000000.0]) with flip 33
-
-          
-============= Performing 1 bonus runs of state: gen=1 p=256 pc=0.5 pm=0.9 (-311.0 [based on 35 runs with cutoff 1000000000.0]) ============ 
-
-State wants more detail (35+1) than incumbent (35), doing incumbent first:
-gen=1 p=256 pc=0.5 pm=0.9 (-311.0 [based on 35 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 35 runs with cutoff 1000000000.0])
- Same incumbent, new precision:
-New Incumbent: 70.40000000000028, -311.0 [36, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=256 pc=0.5 pm=0.9 (-311.0 [based on 36 runs with cutoff 1000000000.0])
+New Incumbent: 3.700000000000002, -700.8333333333334 [6, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.5 pm=0.1 (-700.8333333333334 [based on 6 runs with cutoff 1000000000.0])
 
     Changing ["pc: 0.5->0.25"], evaluating ...
-          -> Take improving step to neighbour gen=1 p=256 pc=0.25 pm=0.9 (-311.0 [based on 36 runs with cutoff 1000000000.0]) with flip 34
+          -> Take improving step to neighbour pc=0.25 pm=0.1 (-700.8333333333334 [based on 6 runs with cutoff 1000000000.0]) with flip 5
 
           
-============= Performing 1 bonus runs of state: gen=1 p=256 pc=0.25 pm=0.9 (-311.0 [based on 36 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.1 (-700.8333333333334 [based on 6 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (36+1) than incumbent (36), doing incumbent first:
-gen=1 p=256 pc=0.25 pm=0.9 (-311.0 [based on 36 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 36 runs with cutoff 1000000000.0])
+State wants more detail (6+1) than incumbent (6), doing incumbent first:
+pc=0.25 pm=0.1 (-700.8333333333334 [based on 6 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-700.8333333333334 [based on 6 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 74.20000000000006, -311.0 [37, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1 p=256 pc=0.25 pm=0.9 (-311.0 [based on 37 runs with cutoff 1000000000.0])
+New Incumbent: 4.5, -693.5714285714286 [7, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.1 (-693.5714285714286 [based on 7 runs with cutoff 1000000000.0])
 
-    Changing ["gen: 1->1000"], evaluating ...
-          -> Take improving step to neighbour gen=1000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 37 runs with cutoff 1000000000.0]) with flip 35
+    Changing ["pc: 0.25->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.1 (-693.5714285714286 [based on 7 runs with cutoff 1000000000.0]) with flip 6
 
           
-============= Performing 1 bonus runs of state: gen=1000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 37 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.1 (-693.5714285714286 [based on 7 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (37+1) than incumbent (37), doing incumbent first:
-gen=1000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 37 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 37 runs with cutoff 1000000000.0])
+State wants more detail (7+1) than incumbent (7), doing incumbent first:
+pc=0.6 pm=0.1 (-693.5714285714286 [based on 7 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-693.5714285714286 [based on 7 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 78.09999999999984, -311.0 [38, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 38 runs with cutoff 1000000000.0])
+New Incumbent: 5.299999999999997, -721.875 [8, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.1 (-721.875 [based on 8 runs with cutoff 1000000000.0])
 
-    Changing ["pm: 0.9->0.85"], evaluating ...
-803/100000, 80.29999999999971/100000000.0
-          -> Take improving step to neighbour gen=1000 p=256 pc=0.25 pm=0.85 (-311.0 [based on 38 runs with cutoff 1000000000.0]) with flip 36
+    Changing ["pm: 0.1->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.05 (-721.875 [based on 8 runs with cutoff 1000000000.0]) with flip 7
 
           
-============= Performing 1 bonus runs of state: gen=1000 p=256 pc=0.25 pm=0.85 (-311.0 [based on 38 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.05 (-721.875 [based on 8 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (38+1) than incumbent (38), doing incumbent first:
-gen=1000 p=256 pc=0.25 pm=0.85 (-311.0 [based on 38 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 38 runs with cutoff 1000000000.0])
+State wants more detail (8+1) than incumbent (8), doing incumbent first:
+pc=0.6 pm=0.05 (-721.875 [based on 8 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-721.875 [based on 8 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 82.09999999999961, -311.0 [39, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1000 p=256 pc=0.25 pm=0.85 (-311.0 [based on 39 runs with cutoff 1000000000.0])
+New Incumbent: 6.199999999999994, -713.8888888888889 [9, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.05 (-713.8888888888889 [based on 9 runs with cutoff 1000000000.0])
 
-    Changing ["pm: 0.85->0.5"], evaluating ...
-          -> Take improving step to neighbour gen=1000 p=256 pc=0.25 pm=0.5 (-311.0 [based on 39 runs with cutoff 1000000000.0]) with flip 37
+    Changing ["pm: 0.05->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.3 (-713.8888888888889 [based on 9 runs with cutoff 1000000000.0]) with flip 8
 
           
-============= Performing 1 bonus runs of state: gen=1000 p=256 pc=0.25 pm=0.5 (-311.0 [based on 39 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.3 (-713.8888888888889 [based on 9 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (39+1) than incumbent (39), doing incumbent first:
-gen=1000 p=256 pc=0.25 pm=0.5 (-311.0 [based on 39 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 39 runs with cutoff 1000000000.0])
+State wants more detail (9+1) than incumbent (9), doing incumbent first:
+pc=0.6 pm=0.3 (-713.8888888888889 [based on 9 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-713.8888888888889 [based on 9 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 86.19999999999938, -311.0 [40, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=1000 p=256 pc=0.25 pm=0.5 (-311.0 [based on 40 runs with cutoff 1000000000.0])
+New Incumbent: 7.099999999999991, -700.2 [10, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.3 (-700.2 [based on 10 runs with cutoff 1000000000.0])
 
-    Changing ["gen: 1000->500"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=256 pc=0.25 pm=0.5 (-311.0 [based on 40 runs with cutoff 1000000000.0]) with flip 38
+    Changing ["pc: 0.6->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.3 (-700.2 [based on 10 runs with cutoff 1000000000.0]) with flip 9
 
           
-============= Performing 1 bonus runs of state: gen=500 p=256 pc=0.25 pm=0.5 (-311.0 [based on 40 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.3 (-700.2 [based on 10 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (40+1) than incumbent (40), doing incumbent first:
-gen=500 p=256 pc=0.25 pm=0.5 (-311.0 [based on 40 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 40 runs with cutoff 1000000000.0])
-904/100000, 90.39999999999914/100000000.0
+State wants more detail (10+1) than incumbent (10), doing incumbent first:
+pc=0.8 pm=0.3 (-700.2 [based on 10 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-700.2 [based on 10 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 90.39999999999914, -311.0 [41, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=256 pc=0.25 pm=0.5 (-311.0 [based on 41 runs with cutoff 1000000000.0])
+New Incumbent: 8.199999999999987, -699.7272727272727 [11, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.3 (-699.7272727272727 [based on 11 runs with cutoff 1000000000.0])
 
-    Changing ["pm: 0.5->0.9"], evaluating ...
-          -> Take improving step to neighbour gen=500 p=256 pc=0.25 pm=0.9 (-311.0 [based on 41 runs with cutoff 1000000000.0]) with flip 39
+    Changing ["pc: 0.8->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.3 (-699.7272727272727 [based on 11 runs with cutoff 1000000000.0]) with flip 10
 
           
-============= Performing 1 bonus runs of state: gen=500 p=256 pc=0.25 pm=0.9 (-311.0 [based on 41 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.3 (-699.7272727272727 [based on 11 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (41+1) than incumbent (41), doing incumbent first:
-gen=500 p=256 pc=0.25 pm=0.9 (-311.0 [based on 41 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 41 runs with cutoff 1000000000.0])
+State wants more detail (11+1) than incumbent (11), doing incumbent first:
+pc=0.95 pm=0.3 (-699.7272727272727 [based on 11 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-699.7272727272727 [based on 11 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 94.6999999999989, -311.0 [42, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=500 p=256 pc=0.25 pm=0.9 (-311.0 [based on 42 runs with cutoff 1000000000.0])
+New Incumbent: 9.499999999999982, -700.1666666666666 [12, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.3 (-700.1666666666666 [based on 12 runs with cutoff 1000000000.0])
 
-    Changing ["gen: 500->8000"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 42 runs with cutoff 1000000000.0]) with flip 40
+    Changing ["pc: 0.95->0.25"], evaluating ...
+101/100000, 10.09999999999998/100000000.0
+          -> Take improving step to neighbour pc=0.25 pm=0.3 (-700.1666666666666 [based on 12 runs with cutoff 1000000000.0]) with flip 11
 
           
-============= Performing 1 bonus runs of state: gen=8000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 42 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.3 (-700.1666666666666 [based on 12 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (42+1) than incumbent (42), doing incumbent first:
-gen=8000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 42 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 42 runs with cutoff 1000000000.0])
+State wants more detail (12+1) than incumbent (12), doing incumbent first:
+pc=0.25 pm=0.3 (-700.1666666666666 [based on 12 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-700.1666666666666 [based on 12 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 99.09999999999864, -311.0 [43, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=256 pc=0.25 pm=0.9 (-311.0 [based on 43 runs with cutoff 1000000000.0])
+New Incumbent: 10.899999999999977, -701.4615384615385 [13, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.3 (-701.4615384615385 [based on 13 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.05 (-701.4615384615385 [based on 13 runs with cutoff 1000000000.0]) with flip 12
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.05 (-701.4615384615385 [based on 13 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (13+1) than incumbent (13), doing incumbent first:
+pc=0.25 pm=0.05 (-701.4615384615385 [based on 13 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-701.4615384615385 [based on 13 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 12.199999999999973, -693.5714285714286 [14, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.05 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.05 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0]) with flip 13
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.05 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (14+1) than incumbent (14), doing incumbent first:
+pc=0.95 pm=0.05 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 13.599999999999968, -693.6666666666666 [15, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.05 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.5 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0]) with flip 14
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.5 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (15+1) than incumbent (15), doing incumbent first:
+pc=0.95 pm=0.5 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 15.199999999999962, -686.375 [16, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.5 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.5 (-686.375 [based on 16 runs with cutoff 1000000000.0]) with flip 15
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.5 (-686.375 [based on 16 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (16+1) than incumbent (16), doing incumbent first:
+pc=0.25 pm=0.5 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 16.99999999999997, -688.1764705882352 [17, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.5 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0])
 
     Changing ["pc: 0.25->0.8"], evaluating ...
-1005/100000, 100.49999999999856/100000000.0
-          -> Take improving step to neighbour gen=8000 p=256 pc=0.8 pm=0.9 (-311.0 [based on 43 runs with cutoff 1000000000.0]) with flip 41
+          -> Take improving step to neighbour pc=0.8 pm=0.5 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0]) with flip 16
 
           
-============= Performing 1 bonus runs of state: gen=8000 p=256 pc=0.8 pm=0.9 (-311.0 [based on 43 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.5 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0]) ============ 
 
-State wants more detail (43+1) than incumbent (43), doing incumbent first:
-gen=8000 p=256 pc=0.8 pm=0.9 (-311.0 [based on 43 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 43 runs with cutoff 1000000000.0])
+State wants more detail (17+1) than incumbent (17), doing incumbent first:
+pc=0.8 pm=0.5 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 103.59999999999839, -311.0 [44, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=256 pc=0.8 pm=0.9 (-311.0 [based on 44 runs with cutoff 1000000000.0])
+New Incumbent: 18.9, -686.0555555555555 [18, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.5 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.1"], evaluating ...
+201/100000, 20.100000000000016/100000000.0
+          -> Take improving step to neighbour pc=0.8 pm=0.1 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0]) with flip 17
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.1 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (18+1) than incumbent (18), doing incumbent first:
+pc=0.8 pm=0.1 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 20.700000000000024, -687.0526315789474 [19, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.1 (-687.0526315789474 [based on 19 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.05 (-687.0526315789474 [based on 19 runs with cutoff 1000000000.0]) with flip 18
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.05 (-687.0526315789474 [based on 19 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (19+1) than incumbent (19), doing incumbent first:
+pc=0.8 pm=0.05 (-687.0526315789474 [based on 19 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-687.0526315789474 [based on 19 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 22.800000000000054, -682.25 [20, 1000000000.0]. With state pc=0.95, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.05 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+
+          
+============= Performing 0 bonus runs of state: pc=0.8 pm=0.05 (-682.25 [based on 20 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 0 bonus runs for LM: pc=0.8 pm=0.05 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+
+   LM for iteration 1: pc=0.8 pm=0.05 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+
+========== DETAILED RESULTS (iteration 1): ==========
+================================================
+
+==================================================================
+Best parameter configuration found so far (end of iteration 1): pc=0.95, pm=0.1
+==================================================================
+Training quality of this incumbent parameter configuration: -682.25, based on 20 runs with cutoff 1000000000.0
+==================================================================
+
+Comparing LM against incumbent:
+pc=0.8 pm=0.05 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.1 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+LM better, change incumbent
+New Incumbent: 22.900000000000055, -682.25 [20, 1000000000.0]. With state pc=0.8, pm=0.05
+229/100000, 22.900000000000055/100000000.0
+iteration 2, flip 20, evaluation count 229
+    perturb to ---> pc=0.8 pm=0.1 (-687.0526315789474 [based on 19 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.8 pm=0.3 (-699.7272727272727 [based on 11 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.25 pm=0.3 (-701.4615384615385 [based on 13 runs with cutoff 1000000000.0])
+   BLS in iteration 2, start with pc=0.25 pm=0.3 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0])
+    Changing ["pc: 0.25->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.3 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0]) with flip 20
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.3 (-693.5714285714286 [based on 14 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.5 pm=0.3 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.05 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0]) with flip 21
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.05 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.5 pm=0.05 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.05 (-686.375 [based on 16 runs with cutoff 1000000000.0]) with flip 22
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.05 (-686.375 [based on 16 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.95 pm=0.05 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.1 (-682.25 [based on 20 runs with cutoff 1000000000.0]) with flip 23
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.1 (-682.25 [based on 20 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (20+1) than incumbent (20), doing incumbent first:
+pc=0.95 pm=0.1 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-682.25 [based on 20 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 25.600000000000094, -693.5714285714286 [21, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.95 pm=0.1 (-693.5714285714286 [based on 21 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.1 (-693.5714285714286 [based on 21 runs with cutoff 1000000000.0]) with flip 24
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.1 (-693.5714285714286 [based on 21 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (21+1) than incumbent (21), doing incumbent first:
+pc=0.5 pm=0.1 (-693.5714285714286 [based on 21 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-693.5714285714286 [based on 21 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 27.300000000000118, -694.6363636363636 [22, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.5 pm=0.1 (-694.6363636363636 [based on 22 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.1 (-694.6363636363636 [based on 22 runs with cutoff 1000000000.0]) with flip 25
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.1 (-694.6363636363636 [based on 22 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (22+1) than incumbent (22), doing incumbent first:
+pc=0.8 pm=0.1 (-694.6363636363636 [based on 22 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-694.6363636363636 [based on 22 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 27.800000000000125, -695.0869565217391 [23, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.1 (-695.0869565217391 [based on 23 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.1 (-695.0869565217391 [based on 23 runs with cutoff 1000000000.0]) with flip 26
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.1 (-695.0869565217391 [based on 23 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (23+1) than incumbent (23), doing incumbent first:
+pc=0.6 pm=0.1 (-695.0869565217391 [based on 23 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-695.0869565217391 [based on 23 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 29.50000000000015, -690.75 [24, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.1 (-690.75 [based on 24 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.3"], evaluating ...
+301/100000, 30.100000000000158/100000000.0
+          -> Take improving step to neighbour pc=0.6 pm=0.3 (-690.75 [based on 24 runs with cutoff 1000000000.0]) with flip 27
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.3 (-690.75 [based on 24 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (24+1) than incumbent (24), doing incumbent first:
+pc=0.6 pm=0.3 (-690.75 [based on 24 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-690.75 [based on 24 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 31.100000000000172, -689.12 [25, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.3 (-689.12 [based on 25 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.3 (-689.12 [based on 25 runs with cutoff 1000000000.0]) with flip 28
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.3 (-689.12 [based on 25 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (25+1) than incumbent (25), doing incumbent first:
+pc=0.8 pm=0.3 (-689.12 [based on 25 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-689.12 [based on 25 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 32.700000000000195, -698.0 [26, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.3 (-698.0 [based on 26 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+State wants more detail (26+1) than incumbent (26), doing incumbent first:
+pc=0.8 pm=0.3 (-698.0 [based on 26 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-698.0 [based on 26 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 32.9000000000002, -697.8888888888889 [27, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> Take improving step to neighbour pc=0.8 pm=0.05 (-697.8888888888889 [based on 27 runs with cutoff 1000000000.0]) with flip 29
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.05 (-697.8888888888889 [based on 27 runs with cutoff 1000000000.0]) ============ 
+
+ Same incumbent, new precision:
+New Incumbent: 33.1000000000002, -693.5714285714286 [28, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.05 (-693.5714285714286 [based on 28 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.5 (-693.5714285714286 [based on 28 runs with cutoff 1000000000.0]) with flip 30
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.5 (-693.5714285714286 [based on 28 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (28+1) than incumbent (28), doing incumbent first:
+pc=0.8 pm=0.5 (-693.5714285714286 [based on 28 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-693.5714285714286 [based on 28 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 34.200000000000216, -693.9655172413793 [29, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.5 (-693.9655172413793 [based on 29 runs with cutoff 1000000000.0])
 
     Changing ["pc: 0.8->0.5"], evaluating ...
-          -> Take improving step to neighbour gen=8000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 44 runs with cutoff 1000000000.0]) with flip 42
+          -> Take improving step to neighbour pc=0.5 pm=0.5 (-693.9655172413793 [based on 29 runs with cutoff 1000000000.0]) with flip 31
 
           
-============= Performing 1 bonus runs of state: gen=8000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 44 runs with cutoff 1000000000.0]) ============ 
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.5 (-693.9655172413793 [based on 29 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (29+1) than incumbent (29), doing incumbent first:
+pc=0.5 pm=0.5 (-693.9655172413793 [based on 29 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-693.9655172413793 [based on 29 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 37.000000000000256, -694.0 [30, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.5 pm=0.5 (-694.0 [based on 30 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.5 (-694.0 [based on 30 runs with cutoff 1000000000.0]) with flip 32
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.5 (-694.0 [based on 30 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (30+1) than incumbent (30), doing incumbent first:
+pc=0.6 pm=0.5 (-694.0 [based on 30 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-694.0 [based on 30 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 40.0000000000003, -694.741935483871 [31, 1000000000.0]. With state pc=0.8, pm=0.05
+401/100000, 40.1000000000003/100000000.0
+          -> After 1 bonus runs: pc=0.6 pm=0.5 (-694.741935483871 [based on 31 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.5 (-694.741935483871 [based on 31 runs with cutoff 1000000000.0]) with flip 33
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.5 (-694.741935483871 [based on 31 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (31+1) than incumbent (31), doing incumbent first:
+pc=0.95 pm=0.5 (-694.741935483871 [based on 31 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-694.741935483871 [based on 31 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 41.70000000000032, -691.5 [32, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.95 pm=0.5 (-691.5 [based on 32 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.5 (-691.5 [based on 32 runs with cutoff 1000000000.0]) with flip 34
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.5 (-691.5 [based on 32 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (32+1) than incumbent (32), doing incumbent first:
+pc=0.25 pm=0.5 (-691.5 [based on 32 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-691.5 [based on 32 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 43.40000000000035, -698.4242424242424 [33, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.5 (-698.4242424242424 [based on 33 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.1 (-698.4242424242424 [based on 33 runs with cutoff 1000000000.0]) with flip 35
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.1 (-698.4242424242424 [based on 33 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (33+1) than incumbent (33), doing incumbent first:
+pc=0.25 pm=0.1 (-698.4242424242424 [based on 33 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-698.4242424242424 [based on 33 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 46.20000000000039, -694.8529411764706 [34, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.1 (-694.8529411764706 [based on 34 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.05 (-694.8529411764706 [based on 34 runs with cutoff 1000000000.0]) with flip 36
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.05 (-694.8529411764706 [based on 34 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (34+1) than incumbent (34), doing incumbent first:
+pc=0.25 pm=0.05 (-694.8529411764706 [based on 34 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-694.8529411764706 [based on 34 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 48.40000000000042, -693.5714285714286 [35, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.05 (-693.5714285714286 [based on 35 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.6"], evaluating ...
+501/100000, 50.10000000000044/100000000.0
+          -> Take improving step to neighbour pc=0.6 pm=0.05 (-693.5714285714286 [based on 35 runs with cutoff 1000000000.0]) with flip 37
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.05 (-693.5714285714286 [based on 35 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (35+1) than incumbent (35), doing incumbent first:
+pc=0.6 pm=0.05 (-693.5714285714286 [based on 35 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-693.5714285714286 [based on 35 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 51.20000000000046, -693.8888888888889 [36, 1000000000.0]. With state pc=0.8, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+
+          
+============= Performing 0 bonus runs of state: pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 0 bonus runs for LM: pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+
+   LM for iteration 2: pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+
+========== DETAILED RESULTS (iteration 2): ==========
+================================================
+
+==================================================================
+Best parameter configuration found so far (end of iteration 2): pc=0.8, pm=0.05
+==================================================================
+Training quality of this incumbent parameter configuration: -693.8888888888889, based on 36 runs with cutoff 1000000000.0
+==================================================================
+
+Comparing LM against incumbent:
+pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+pc=0.8 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+LM better, change incumbent
+New Incumbent: 51.30000000000046, -693.8888888888889 [36, 1000000000.0]. With state pc=0.6, pm=0.05
+   Accepting new better local optimum: pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+513/100000, 51.30000000000046/100000000.0
+iteration 3, flip 39, evaluation count 513
+    perturb to ---> pc=0.8 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.5 pm=0.05 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.5 pm=0.3 (-693.6666666666666 [based on 15 runs with cutoff 1000000000.0])
+   BLS in iteration 3, start with pc=0.5 pm=0.3 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+    Changing ["pc: 0.5->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.3 (-686.375 [based on 16 runs with cutoff 1000000000.0]) with flip 39
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.3 (-686.375 [based on 16 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.95 pm=0.3 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.3 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0]) with flip 40
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.3 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.25 pm=0.3 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.3 (-689.12 [based on 25 runs with cutoff 1000000000.0]) with flip 41
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.3 (-689.12 [based on 25 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.6 pm=0.3 (-698.0 [based on 26 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.3 (-697.8888888888889 [based on 27 runs with cutoff 1000000000.0]) with flip 42
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.3 (-697.8888888888889 [based on 27 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.8 pm=0.3 (-693.5714285714286 [based on 28 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0]) with flip 43
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (36+1) than incumbent (36), doing incumbent first:
+pc=0.8 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-693.8888888888889 [based on 36 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 52.90000000000048, -690.7297297297297 [37, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.05 (-690.7297297297297 [based on 37 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.6"], evaluating ...
+State wants more detail (37+1) than incumbent (37), doing incumbent first:
+pc=0.8 pm=0.05 (-690.7297297297297 [based on 37 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-690.7297297297297 [based on 37 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 53.100000000000485, -689.6578947368421 [38, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> Take improving step to neighbour pc=0.6 pm=0.05 (-689.6578947368421 [based on 38 runs with cutoff 1000000000.0]) with flip 44
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.05 (-689.6578947368421 [based on 38 runs with cutoff 1000000000.0]) ============ 
+
+ Same incumbent, new precision:
+New Incumbent: 53.30000000000049, -695.5641025641025 [39, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.05 (-695.5641025641025 [based on 39 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.5 (-695.5641025641025 [based on 39 runs with cutoff 1000000000.0]) with flip 45
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.5 (-695.5641025641025 [based on 39 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (39+1) than incumbent (39), doing incumbent first:
+pc=0.6 pm=0.5 (-695.5641025641025 [based on 39 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-695.5641025641025 [based on 39 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 54.2000000000005, -696.1 [40, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.5 (-696.1 [based on 40 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.5 (-696.1 [based on 40 runs with cutoff 1000000000.0]) with flip 46
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.5 (-696.1 [based on 40 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (40+1) than incumbent (40), doing incumbent first:
+pc=0.8 pm=0.5 (-696.1 [based on 40 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-696.1 [based on 40 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 55.50000000000052, -693.5365853658536 [41, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.5 (-693.5365853658536 [based on 41 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.1 (-693.5365853658536 [based on 41 runs with cutoff 1000000000.0]) with flip 47
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.1 (-693.5365853658536 [based on 41 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (41+1) than incumbent (41), doing incumbent first:
+pc=0.8 pm=0.1 (-693.5365853658536 [based on 41 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-693.5365853658536 [based on 41 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 57.50000000000055, -693.5714285714286 [42, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.1 (-693.5714285714286 [based on 42 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.1 (-693.5714285714286 [based on 42 runs with cutoff 1000000000.0]) with flip 48
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.1 (-693.5714285714286 [based on 42 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (42+1) than incumbent (42), doing incumbent first:
+pc=0.95 pm=0.1 (-693.5714285714286 [based on 42 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-693.5714285714286 [based on 42 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 59.80000000000058, -698.8372093023256 [43, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.95 pm=0.1 (-698.8372093023256 [based on 43 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.25"], evaluating ...
+601/100000, 60.100000000000584/100000000.0
+          -> Take improving step to neighbour pc=0.25 pm=0.1 (-698.8372093023256 [based on 43 runs with cutoff 1000000000.0]) with flip 49
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.1 (-698.8372093023256 [based on 43 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (43+1) than incumbent (43), doing incumbent first:
+pc=0.25 pm=0.1 (-698.8372093023256 [based on 43 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-698.8372093023256 [based on 43 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 60.900000000000595, -696.0681818181819 [44, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.1 (-696.0681818181819 [based on 44 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.1 (-696.0681818181819 [based on 44 runs with cutoff 1000000000.0]) with flip 50
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.1 (-696.0681818181819 [based on 44 runs with cutoff 1000000000.0]) ============ 
 
 State wants more detail (44+1) than incumbent (44), doing incumbent first:
-gen=8000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 44 runs with cutoff 1000000000.0])
-gen=1 p=256 pc=1 pm=0.85 (-311.0 [based on 44 runs with cutoff 1000000000.0])
+pc=0.5 pm=0.1 (-696.0681818181819 [based on 44 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-696.0681818181819 [based on 44 runs with cutoff 1000000000.0])
  Same incumbent, new precision:
-New Incumbent: 108.19999999999813, -311.0 [45, 1000000000.0]. With state gen=1, p=256, pc=1, pm=0.85
-          -> After 1 bonus runs: gen=8000 p=256 pc=0.5 pm=0.9 (-311.0 [based on 45 runs with cutoff 1000000000.0])
+New Incumbent: 63.30000000000063, -693.7333333333333 [45, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.5 pm=0.1 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0])
 
-    Changing ["pm: 0.9->0.85"], evaluating ...
+    Changing ["pc: 0.5->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.1 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0]) with flip 51
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.1 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (45+1) than incumbent (45), doing incumbent first:
+pc=0.6 pm=0.1 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 65.60000000000055, -692.7826086956521 [46, 1000000000.0]. With state pc=0.6, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+
+          
+============= Performing 0 bonus runs of state: pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 0 bonus runs for LM: pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+
+   LM for iteration 3: pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+
+========== DETAILED RESULTS (iteration 3): ==========
+================================================
+
+==================================================================
+Best parameter configuration found so far (end of iteration 3): pc=0.6, pm=0.05
+==================================================================
+Training quality of this incumbent parameter configuration: -692.7826086956521, based on 46 runs with cutoff 1000000000.0
+==================================================================
+
+Comparing LM against incumbent:
+pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.05 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+LM better, change incumbent
+New Incumbent: 65.70000000000054, -692.7826086956521 [46, 1000000000.0]. With state pc=0.6, pm=0.1
+   Accepting new better local optimum: pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+657/100000, 65.70000000000054/100000000.0
+iteration 4, flip 53, evaluation count 657
+    perturb to ---> pc=0.6 pm=0.05 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.95 pm=0.05 (-686.0555555555555 [based on 18 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.5 pm=0.05 (-686.375 [based on 16 runs with cutoff 1000000000.0])
+   BLS in iteration 4, start with pc=0.5 pm=0.05 (-688.1764705882352 [based on 17 runs with cutoff 1000000000.0])
+    Changing ["pm: 0.05->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.1 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0]) with flip 53
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.1 (-693.7333333333333 [based on 45 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.5 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0]) with flip 54
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (46+1) than incumbent (46), doing incumbent first:
+pc=0.95 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-692.7826086956521 [based on 46 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 66.4000000000005, -693.0425531914893 [47, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.1 (-693.0425531914893 [based on 47 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.3 (-693.0425531914893 [based on 47 runs with cutoff 1000000000.0]) with flip 55
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.3 (-693.0425531914893 [based on 47 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (47+1) than incumbent (47), doing incumbent first:
+pc=0.95 pm=0.3 (-693.0425531914893 [based on 47 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.0425531914893 [based on 47 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 69.60000000000032, -693.0833333333334 [48, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.3 (-693.0833333333334 [based on 48 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+702/100000, 70.20000000000029/100000000.0
+          -> Take improving step to neighbour pc=0.95 pm=0.05 (-693.0833333333334 [based on 48 runs with cutoff 1000000000.0]) with flip 56
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.05 (-693.0833333333334 [based on 48 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (48+1) than incumbent (48), doing incumbent first:
+pc=0.95 pm=0.05 (-693.0833333333334 [based on 48 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.0833333333334 [based on 48 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 72.80000000000014, -693.5714285714286 [49, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.05 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.05 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0]) with flip 57
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.05 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (49+1) than incumbent (49), doing incumbent first:
+pc=0.6 pm=0.05 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 73.30000000000011, -692.7 [50, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.05 (-692.7 [based on 50 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.05 (-692.7 [based on 50 runs with cutoff 1000000000.0]) with flip 58
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.05 (-692.7 [based on 50 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (50+1) than incumbent (50), doing incumbent first:
+pc=0.8 pm=0.05 (-692.7 [based on 50 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-692.7 [based on 50 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 74.70000000000003, -693.1764705882352 [51, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.05 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.5 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0]) with flip 59
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.5 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (51+1) than incumbent (51), doing incumbent first:
+pc=0.8 pm=0.5 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 75.89999999999996, -690.9423076923077 [52, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.5 (-690.9423076923077 [based on 52 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.5 (-690.9423076923077 [based on 52 runs with cutoff 1000000000.0]) with flip 60
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.5 (-690.9423076923077 [based on 52 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (52+1) than incumbent (52), doing incumbent first:
+pc=0.5 pm=0.5 (-690.9423076923077 [based on 52 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-690.9423076923077 [based on 52 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 78.29999999999983, -689.0566037735849 [53, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.5 pm=0.5 (-689.0566037735849 [based on 53 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.3"], evaluating ...
+803/100000, 80.29999999999971/100000000.0
+          -> Take improving step to neighbour pc=0.5 pm=0.3 (-689.0566037735849 [based on 53 runs with cutoff 1000000000.0]) with flip 61
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.3 (-689.0566037735849 [based on 53 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (53+1) than incumbent (53), doing incumbent first:
+pc=0.5 pm=0.3 (-689.0566037735849 [based on 53 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-689.0566037735849 [based on 53 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 82.1999999999996, -689.1666666666666 [54, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.5 pm=0.3 (-689.1666666666666 [based on 54 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.3 (-689.1666666666666 [based on 54 runs with cutoff 1000000000.0]) with flip 62
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.3 (-689.1666666666666 [based on 54 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (54+1) than incumbent (54), doing incumbent first:
+pc=0.25 pm=0.3 (-689.1666666666666 [based on 54 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-689.1666666666666 [based on 54 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 85.8999999999994, -693.3636363636364 [55, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.3 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.5 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0]) with flip 63
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.5 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (55+1) than incumbent (55), doing incumbent first:
+pc=0.25 pm=0.5 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 88.29999999999926, -693.5714285714286 [56, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.5 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.05"], evaluating ...
+904/100000, 90.39999999999914/100000000.0
+          -> Take improving step to neighbour pc=0.25 pm=0.05 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0]) with flip 64
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.05 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (56+1) than incumbent (56), doing incumbent first:
+pc=0.25 pm=0.05 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 90.59999999999913, -693.9824561403509 [57, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.05 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.1 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0]) with flip 65
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.1 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (57+1) than incumbent (57), doing incumbent first:
+pc=0.25 pm=0.1 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 92.09999999999904, -697.8793103448276 [58, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.25 pm=0.1 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.1 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0]) with flip 66
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.1 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (58+1) than incumbent (58), doing incumbent first:
+pc=0.8 pm=0.1 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 93.89999999999894, -697.8305084745763 [59, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.8 pm=0.1 (-697.8305084745763 [based on 59 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.6"], evaluating ...
+State wants more detail (59+1) than incumbent (59), doing incumbent first:
+pc=0.8 pm=0.1 (-697.8305084745763 [based on 59 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-697.8305084745763 [based on 59 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 94.09999999999893, -697.0333333333333 [60, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> Take improving step to neighbour pc=0.6 pm=0.1 (-697.0333333333333 [based on 60 runs with cutoff 1000000000.0]) with flip 67
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.1 (-697.0333333333333 [based on 60 runs with cutoff 1000000000.0]) ============ 
+
+ Same incumbent, new precision:
+New Incumbent: 94.29999999999892, -695.0655737704918 [61, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.1 (-695.0655737704918 [based on 61 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.3 (-695.0655737704918 [based on 61 runs with cutoff 1000000000.0]) with flip 68
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.3 (-695.0655737704918 [based on 61 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (61+1) than incumbent (61), doing incumbent first:
+pc=0.6 pm=0.3 (-695.0655737704918 [based on 61 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-695.0655737704918 [based on 61 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 97.79999999999872, -693.3870967741935 [62, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.3 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.5 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0]) with flip 69
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.5 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (62+1) than incumbent (62), doing incumbent first:
+pc=0.6 pm=0.5 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 100.19999999999858, -693.5714285714286 [63, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.6 pm=0.5 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.95"], evaluating ...
+1005/100000, 100.49999999999856/100000000.0
+          -> Take improving step to neighbour pc=0.95 pm=0.5 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0]) with flip 70
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.5 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (63+1) than incumbent (63), doing incumbent first:
+pc=0.95 pm=0.5 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 103.4999999999984, -693.59375 [64, 1000000000.0]. With state pc=0.6, pm=0.1
+          -> After 1 bonus runs: pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+
+          
+============= Performing 0 bonus runs of state: pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 0 bonus runs for LM: pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+
+   LM for iteration 4: pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+
+========== DETAILED RESULTS (iteration 4): ==========
+================================================
+
+==================================================================
+Best parameter configuration found so far (end of iteration 4): pc=0.6, pm=0.1
+==================================================================
+Training quality of this incumbent parameter configuration: -693.59375, based on 64 runs with cutoff 1000000000.0
+==================================================================
+
+Comparing LM against incumbent:
+pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+pc=0.6 pm=0.1 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+LM better, change incumbent
+New Incumbent: 103.59999999999839, -693.59375 [64, 1000000000.0]. With state pc=0.95, pm=0.5
+   Accepting new better local optimum: pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+1036/100000, 103.59999999999839/100000000.0
+iteration 5, flip 72, evaluation count 1036
+    perturb to ---> pc=0.95 pm=0.05 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.8 pm=0.05 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.95 pm=0.05 (-693.5714285714286 [based on 49 runs with cutoff 1000000000.0])
+   BLS in iteration 5, start with pc=0.95 pm=0.05 (-692.7 [based on 50 runs with cutoff 1000000000.0])
+    Changing ["pm: 0.05->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.3 (-692.7 [based on 50 runs with cutoff 1000000000.0]) with flip 72
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.3 (-692.7 [based on 50 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.95 pm=0.3 (-693.1764705882352 [based on 51 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.3 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0]) with flip 73
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.3 (-693.3636363636364 [based on 55 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.25 pm=0.3 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.3 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0]) with flip 74
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.3 (-693.5714285714286 [based on 56 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.8 pm=0.3 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.05 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0]) with flip 75
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.05 (-693.9824561403509 [based on 57 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.8 pm=0.05 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.05 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0]) with flip 76
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.05 (-697.8793103448276 [based on 58 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.6 pm=0.05 (-697.8305084745763 [based on 59 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.3 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0]) with flip 77
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.3 (-693.3870967741935 [based on 62 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.6 pm=0.3 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.3 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0]) with flip 78
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.3 (-693.5714285714286 [based on 63 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.5 pm=0.3 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.5"], evaluating ...
 1106/100000, 110.59999999999799/100000000.0
+          -> Take improving step to neighbour pc=0.5 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0]) with flip 79
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (64+1) than incumbent (64), doing incumbent first:
+pc=0.5 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-693.59375 [based on 64 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 110.99999999999797, -692.0153846153846 [65, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.5 pm=0.5 (-692.0153846153846 [based on 65 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.05 (-692.0153846153846 [based on 65 runs with cutoff 1000000000.0]) with flip 80
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.05 (-692.0153846153846 [based on 65 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (65+1) than incumbent (65), doing incumbent first:
+pc=0.5 pm=0.05 (-692.0153846153846 [based on 65 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-692.0153846153846 [based on 65 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 115.89999999999769, -692.2121212121212 [66, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.5 pm=0.05 (-692.2121212121212 [based on 66 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.1"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.1 (-692.2121212121212 [based on 66 runs with cutoff 1000000000.0]) with flip 81
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.1 (-692.2121212121212 [based on 66 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (66+1) than incumbent (66), doing incumbent first:
+pc=0.5 pm=0.1 (-692.2121212121212 [based on 66 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-692.2121212121212 [based on 66 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 118.09999999999756, -690.4925373134329 [67, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.5 pm=0.1 (-690.4925373134329 [based on 67 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.1 (-690.4925373134329 [based on 67 runs with cutoff 1000000000.0]) with flip 82
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.1 (-690.4925373134329 [based on 67 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (67+1) than incumbent (67), doing incumbent first:
+pc=0.25 pm=0.1 (-690.4925373134329 [based on 67 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-690.4925373134329 [based on 67 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 119.1999999999975, -693.8676470588235 [68, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.25 pm=0.1 (-693.8676470588235 [based on 68 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.1 (-693.8676470588235 [based on 68 runs with cutoff 1000000000.0]) with flip 83
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.1 (-693.8676470588235 [based on 68 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (68+1) than incumbent (68), doing incumbent first:
+pc=0.6 pm=0.1 (-693.8676470588235 [based on 68 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-693.8676470588235 [based on 68 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 119.79999999999747, -693.231884057971 [69, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.6 pm=0.1 (-693.231884057971 [based on 69 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.8"], evaluating ...
+1207/100000, 120.69999999999742/100000000.0
+          -> Take improving step to neighbour pc=0.8 pm=0.1 (-693.231884057971 [based on 69 runs with cutoff 1000000000.0]) with flip 84
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.1 (-693.231884057971 [based on 69 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (69+1) than incumbent (69), doing incumbent first:
+pc=0.8 pm=0.1 (-693.231884057971 [based on 69 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-693.231884057971 [based on 69 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 120.8999999999974, -693.5714285714286 [70, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.8 pm=0.1 (-693.5714285714286 [based on 70 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.1 (-693.5714285714286 [based on 70 runs with cutoff 1000000000.0]) with flip 85
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.1 (-693.5714285714286 [based on 70 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (70+1) than incumbent (70), doing incumbent first:
+pc=0.95 pm=0.1 (-693.5714285714286 [based on 70 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-693.5714285714286 [based on 70 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 123.39999999999726, -693.9014084507043 [71, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.95 pm=0.1 (-693.9014084507043 [based on 71 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.5"], evaluating ...
+State wants more detail (71+1) than incumbent (71), doing incumbent first:
+pc=0.95 pm=0.1 (-693.9014084507043 [based on 71 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-693.9014084507043 [based on 71 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 123.59999999999725, -697.0416666666666 [72, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> Take improving step to neighbour pc=0.95 pm=0.5 (-697.0416666666666 [based on 72 runs with cutoff 1000000000.0]) with flip 86
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.5 (-697.0416666666666 [based on 72 runs with cutoff 1000000000.0]) ============ 
+
+ Same incumbent, new precision:
+New Incumbent: 123.79999999999724, -697.013698630137 [73, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.95 pm=0.5 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.5 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0]) with flip 87
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.5 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (73+1) than incumbent (73), doing incumbent first:
+pc=0.8 pm=0.5 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 125.99999999999712, -696.3783783783783 [74, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.8 pm=0.5 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.5 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0]) with flip 88
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.5 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (74+1) than incumbent (74), doing incumbent first:
+pc=0.25 pm=0.5 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 127.999999999997, -694.9733333333334 [75, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.25 pm=0.5 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.05 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0]) with flip 89
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.05 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (75+1) than incumbent (75), doing incumbent first:
+pc=0.25 pm=0.05 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 129.9999999999969, -695.1052631578947 [76, 1000000000.0]. With state pc=0.95, pm=0.5
+          -> After 1 bonus runs: pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+
+          
+============= Performing 0 bonus runs of state: pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 0 bonus runs for LM: pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+
+   LM for iteration 5: pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+
+========== DETAILED RESULTS (iteration 5): ==========
+================================================
+
+==================================================================
+Best parameter configuration found so far (end of iteration 5): pc=0.95, pm=0.5
+==================================================================
+Training quality of this incumbent parameter configuration: -695.1052631578947, based on 76 runs with cutoff 1000000000.0
+==================================================================
+
+Comparing LM against incumbent:
+pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+pc=0.95 pm=0.5 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+LM better, change incumbent
+New Incumbent: 130.0999999999969, -695.1052631578947 [76, 1000000000.0]. With state pc=0.25, pm=0.05
+   Accepting new better local optimum: pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+1301/100000, 130.0999999999969/100000000.0
+iteration 6, flip 91, evaluation count 1301
+    perturb to ---> pc=0.6 pm=0.05 (-697.0333333333333 [based on 60 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.6 pm=0.1 (-693.231884057971 [based on 69 runs with cutoff 1000000000.0])
+    perturb to ---> pc=0.95 pm=0.1 (-697.0416666666666 [based on 72 runs with cutoff 1000000000.0])
+   BLS in iteration 6, start with pc=0.95 pm=0.1 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0])
+    Changing ["pc: 0.95->0.25"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.1 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0]) with flip 91
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.1 (-697.013698630137 [based on 73 runs with cutoff 1000000000.0]) ============ 
+
+1308/100000, 130.79999999999686/100000000.0
+          -> After 1 bonus runs: pc=0.25 pm=0.1 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.1 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0]) with flip 92
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.1 (-696.3783783783783 [based on 74 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.5 pm=0.1 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.1 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0]) with flip 93
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.1 (-694.9733333333334 [based on 75 runs with cutoff 1000000000.0]) ============ 
+
+          -> After 1 bonus runs: pc=0.6 pm=0.1 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.8"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.1 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0]) with flip 94
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.1 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (76+1) than incumbent (76), doing incumbent first:
+pc=0.8 pm=0.1 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-695.1052631578947 [based on 76 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 132.99999999999673, -693.5714285714286 [77, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.1 (-693.5714285714286 [based on 77 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.1->0.3"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.3 (-693.5714285714286 [based on 77 runs with cutoff 1000000000.0]) with flip 95
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.3 (-693.5714285714286 [based on 77 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (77+1) than incumbent (77), doing incumbent first:
+pc=0.8 pm=0.3 (-693.5714285714286 [based on 77 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.5714285714286 [based on 77 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 135.1999999999966, -693.0128205128206 [78, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.3 (-693.0128205128206 [based on 78 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.3->0.05"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.05 (-693.0128205128206 [based on 78 runs with cutoff 1000000000.0]) with flip 96
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.05 (-693.0128205128206 [based on 78 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (78+1) than incumbent (78), doing incumbent first:
+pc=0.8 pm=0.05 (-693.0128205128206 [based on 78 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.0128205128206 [based on 78 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 137.39999999999648, -693.0379746835443 [79, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.05 (-693.0379746835443 [based on 79 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.8 pm=0.5 (-693.0379746835443 [based on 79 runs with cutoff 1000000000.0]) with flip 97
+
+          
+============= Performing 1 bonus runs of state: pc=0.8 pm=0.5 (-693.0379746835443 [based on 79 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (79+1) than incumbent (79), doing incumbent first:
+pc=0.8 pm=0.5 (-693.0379746835443 [based on 79 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.0379746835443 [based on 79 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 138.09999999999644, -695.875 [80, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.8 pm=0.5 (-695.875 [based on 80 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.8->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.5 pm=0.5 (-695.875 [based on 80 runs with cutoff 1000000000.0]) with flip 98
+
+          
+============= Performing 1 bonus runs of state: pc=0.5 pm=0.5 (-695.875 [based on 80 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (80+1) than incumbent (80), doing incumbent first:
+pc=0.5 pm=0.5 (-695.875 [based on 80 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-695.875 [based on 80 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 139.79999999999634, -694.4074074074074 [81, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.5 pm=0.5 (-694.4074074074074 [based on 81 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.5->0.95"], evaluating ...
+          -> Take improving step to neighbour pc=0.95 pm=0.5 (-694.4074074074074 [based on 81 runs with cutoff 1000000000.0]) with flip 99
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.5 (-694.4074074074074 [based on 81 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (81+1) than incumbent (81), doing incumbent first:
+pc=0.95 pm=0.5 (-694.4074074074074 [based on 81 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-694.4074074074074 [based on 81 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 140.4999999999963, -693.1463414634146 [82, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.95 pm=0.5 (-693.1463414634146 [based on 82 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.05"], evaluating ...
+1409/100000, 140.89999999999628/100000000.0
+          -> Take improving step to neighbour pc=0.95 pm=0.05 (-693.1463414634146 [based on 82 runs with cutoff 1000000000.0]) with flip 100
+
+          
+============= Performing 1 bonus runs of state: pc=0.95 pm=0.05 (-693.1463414634146 [based on 82 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (82+1) than incumbent (82), doing incumbent first:
+pc=0.95 pm=0.05 (-693.1463414634146 [based on 82 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.1463414634146 [based on 82 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 143.8999999999961, -693.433734939759 [83, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.95 pm=0.05 (-693.433734939759 [based on 83 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.95->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.05 (-693.433734939759 [based on 83 runs with cutoff 1000000000.0]) with flip 101
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.05 (-693.433734939759 [based on 83 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (83+1) than incumbent (83), doing incumbent first:
+pc=0.6 pm=0.05 (-693.433734939759 [based on 83 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.433734939759 [based on 83 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 146.39999999999597, -693.5714285714286 [84, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.05 (-693.5714285714286 [based on 84 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.25"], evaluating ...
+State wants more detail (84+1) than incumbent (84), doing incumbent first:
+pc=0.6 pm=0.05 (-693.5714285714286 [based on 84 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.5714285714286 [based on 84 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 146.59999999999596, -693.5882352941177 [85, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> Take improving step to neighbour pc=0.25 pm=0.05 (-693.5882352941177 [based on 85 runs with cutoff 1000000000.0]) with flip 102
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.05 (-693.5882352941177 [based on 85 runs with cutoff 1000000000.0]) ============ 
+
+ Same incumbent, new precision:
+New Incumbent: 146.79999999999595, -693.8604651162791 [86, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.05 (-693.8604651162791 [based on 86 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.05->0.5"], evaluating ...
+          -> Take improving step to neighbour pc=0.25 pm=0.5 (-693.8604651162791 [based on 86 runs with cutoff 1000000000.0]) with flip 103
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.5 (-693.8604651162791 [based on 86 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (86+1) than incumbent (86), doing incumbent first:
+pc=0.25 pm=0.5 (-693.8604651162791 [based on 86 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.8604651162791 [based on 86 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 147.99999999999588, -693.9885057471264 [87, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.5 (-693.9885057471264 [based on 87 runs with cutoff 1000000000.0])
+
+    Changing ["pm: 0.5->0.3"], evaluating ...
+1510/100000, 150.9999999999957/100000000.0
+          -> Take improving step to neighbour pc=0.25 pm=0.3 (-693.9885057471264 [based on 87 runs with cutoff 1000000000.0]) with flip 104
+
+          
+============= Performing 1 bonus runs of state: pc=0.25 pm=0.3 (-693.9885057471264 [based on 87 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (87+1) than incumbent (87), doing incumbent first:
+pc=0.25 pm=0.3 (-693.9885057471264 [based on 87 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-693.9885057471264 [based on 87 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 151.2999999999957, -692.8181818181819 [88, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.25 pm=0.3 (-692.8181818181819 [based on 88 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.25->0.6"], evaluating ...
+          -> Take improving step to neighbour pc=0.6 pm=0.3 (-692.8181818181819 [based on 88 runs with cutoff 1000000000.0]) with flip 105
+
+          
+============= Performing 1 bonus runs of state: pc=0.6 pm=0.3 (-692.8181818181819 [based on 88 runs with cutoff 1000000000.0]) ============ 
+
+State wants more detail (88+1) than incumbent (88), doing incumbent first:
+pc=0.6 pm=0.3 (-692.8181818181819 [based on 88 runs with cutoff 1000000000.0])
+pc=0.25 pm=0.05 (-692.8181818181819 [based on 88 runs with cutoff 1000000000.0])
+ Same incumbent, new precision:
+New Incumbent: 153.99999999999554, -692.3370786516854 [89, 1000000000.0]. With state pc=0.25, pm=0.05
+          -> After 1 bonus runs: pc=0.6 pm=0.3 (-692.3370786516854 [based on 89 runs with cutoff 1000000000.0])
+
+    Changing ["pc: 0.6->0.95"], evaluating ...
