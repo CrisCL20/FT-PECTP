@@ -206,7 +206,7 @@ void mutation_ind(individual *ind, problem_instance *pi)
 
     // split methods according to random chance
 
-    int n_tslots_to_consider = 10, i;
+    int i;
 
     timeslot_counter worst_tslots[n_tslots_to_consider];
     timeslot_counter best_tslots[n_tslots_to_consider];

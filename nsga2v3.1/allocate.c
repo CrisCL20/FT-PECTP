@@ -32,10 +32,8 @@ void allocate_memory_ind(individual *ind, problem_instance *pi)
             ind->gene[i][j] = EMPTY_ACT;
     }
 
-    ind->student_courses = (int **)calloc(pi->nm_Students, sizeof(int *));
-    for (i = 0; i < pi->nm_Students; i++)
-        ind->student_courses[i] = (int *)calloc(pi->Cs[i].nm_courses, sizeof(int));
-
+    ind->course_sat = (t_course_sat *) calloc(pi->nm_Courses, sizeof(t_course_sat));
+    
     ind->obj = (double *)malloc(nobj * sizeof(double));
 
     return;
@@ -61,10 +59,7 @@ void deallocate_memory_ind(individual *ind, problem_instance *pi)
     for (i = 0; i < pi->nm_Rooms; i++)
         free(ind->gene[i]);
     free(ind->gene);
-
-    for (i = 0; i < pi->nm_Students; i++)
-        free(ind->student_courses[i]);
-    free(ind->student_courses);
+    free(ind->course_sat);
 
     free(ind->obj);
 

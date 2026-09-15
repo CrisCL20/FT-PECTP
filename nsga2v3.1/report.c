@@ -7,6 +7,8 @@
 #include "global.h"
 #include "rand.h"
 
+const int REPORT_SOLUTIONS = 0; 
+
 /* Function to print the information of a population in a file */
 void report_pop(population *pop, FILE *fpt)
 {
@@ -40,8 +42,59 @@ int compar(const void *a, const void *b)
     return 0;
 }
 
+void report_solutions(problem_instance* pi, population* pop, size_t popsize, char* instance_name) {
+    int i;
+    
+    for(i = 0; i < popsize; i++) {
+        if (!(pop->ind[i].constr_violation == 0.0 && pop->ind[i].rank == 1)) continue;
+        
+        float obj_1 = (&(pop->ind[i]))->obj[0];
+        float obj_2 = (&(pop->ind[i]))->obj[1];
+        
+        char student_filename[256];
+        int cx = snprintf(student_filename, sizeof(student_filename), "studentsFile_%s_s%.2f_o1%f_o2%f.csv", instance_name, seed, obj_1, obj_2);
+        if (cx < 0) {
+          fprintf(stderr, "Could not format final pop output file.\n");
+          exit(EXIT_FAILURE);
+        }
+        char courses_filename[256];
+        cx = snprintf(courses_filename, sizeof(courses_filename), "coursesFile_%s_s%.2f_o1%f_o2%f.csv", instance_name, seed, obj_1, obj_2);
+        if (cx < 0) {
+          fprintf(stderr, "Could not format final pop output file.\n");
+          exit(EXIT_FAILURE);
+        }
+        FILE *studentsFile = fopen(student_filename, "w");
+        FILE *coursesFile = fopen(courses_filename, "w");
+        
+        fprintf(studentsFile, "id_student;id_course\n");
+        fprintf(coursesFile, "id_course;id_activity;id_room;id_timeslot\n");
+        int s,c;
+        // for (s = 0; s < pi->nm_Students; s++)
+        //     for (c = 0; c < pi->Cs[s].nm_courses; c++)
+        //         if ((&(pop->ind[i]))->student_courses[s][c])
+        //             fprintf(studentsFile, "%d;%d\n", pi->S[s].id, pi->Cs[s].courses[c].id);
+        
+        int a;
+        for (c = 0; c < pi->nm_Courses; c++)
+        {
+            for (a = 0; a < pi->Ac[c].nm_activities; a++)
+            {
+                t_cellTuple cell;
+                size_t act_idx = pi->Ac[c].activity_idx[a];
+                act_in_ind(pi, &(pop->ind[i]), pi->A[act_idx], &cell);
+                fprintf(coursesFile, "%d;%s;%d;%s\n", pi->C[c].id, pi->Ac[c].activities[a].id, pi->R[cell.r].id, pi->T[cell.t].ts);
+    
+            }
+        }   
+        fflush(studentsFile);
+        fflush(coursesFile);
+        fclose(studentsFile);
+        fclose(coursesFile);
+    }
+}
+
 /* Function to print the information of feasible and non-dominated population in a file */
-void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE *fpt, double elapsed)
+void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE *fpt, double elapsed, char* instance_name)
 {
     int i, j;
     for (i = 0; i < popsize; i++)
@@ -58,41 +111,9 @@ void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE
         }
     }
     fprintf(fpt, "Total execution time: %.3lf\n", elapsed);
-
-    // write the solution closest to (0,0) to csv file
-
-    qsort(pop->ind, popsize, sizeof(individual), compar);
-
-    individual *best_ind = &(pop->ind[0]);
-
-    FILE *studentsFile = fopen("../studentsFile.csv", "w");
-    FILE *coursesFile = fopen("../coursesFile.csv", "w");
-
-    fprintf(studentsFile, "id_student;id_course\n");
-    fprintf(coursesFile, "id_course;id_activity;id_room;id_timeslot\n");
-
-    for (i = 0; i < pi->nm_Students; i++)
-        for (j = 0; j < pi->Cs[i].nm_courses; j++)
-            if (best_ind->student_courses[i][j])
-                fprintf(studentsFile, "%d;%d\n", pi->S[i].id, pi->Cs[i].courses[j].id);
-
-    for (i = 0; i < pi->nm_Courses; i++)
-    {
-        for (j = 0; j < pi->Ac[i].nm_activities; j++)
-        {
-            t_cellTuple cell;
-            size_t act_idx = pi->Ac[i].activity_idx[j];
-            act_in_ind(pi, best_ind, pi->A[act_idx], &cell);
-
-            fprintf(coursesFile, "%d;%s;%d;%s\n", pi->C[i].id, pi->Ac[i].activities[j].id, pi->R[cell.r].id, pi->T[cell.t].ts);
-
-        }
-    }
-
-    fflush(studentsFile);
-    fflush(coursesFile);
-    fclose(studentsFile);
-    fclose(coursesFile);
+    
+    if (REPORT_SOLUTIONS)
+        report_solutions(pi, pop, popsize, instance_name);
 
     return;
 }

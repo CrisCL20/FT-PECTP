@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include <string.h>
 
 #include "global.h"
@@ -65,8 +66,8 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
                     break;
                 }
             }
-
-            can_enroll = sum_array(student_courses[s], pi->Cs[s].nm_courses) <= pi->kmaxs[s];
+            
+            can_enroll = can_enroll && (sum_array(student_courses[s], pi->Cs[s].nm_courses) < pi->kmaxs[s]);
 
             if (!can_enroll)
                 continue;
@@ -83,6 +84,41 @@ void assign_students(individual *ind, problem_instance *pi, int **student_course
         }
     }
     free(act_to_room);
+}
+
+int cmpdesc(const void *a, const void *b) {
+    const t_course_sat* _a = a, *_b = b;
+
+    if (_b->sat > _a->sat)
+        return 1;
+
+    else if (_b->sat < _a->sat)
+        return -1;
+    
+    return 0;
+}
+
+void set_satisfied_demand(problem_instance* pi, individual* ind, int** student_courses) {
+    
+    for (int c = 0; c < pi->nm_Courses; c++)
+        ind->course_sat[c] = (t_course_sat) {
+            .cid = c,
+            .sat = 0,
+        };
+    
+    for (int s = 0; s < pi->nm_Students; s++) {
+        for (int c = 0; c < pi->Cs[s].nm_courses; c++) {
+            ind->course_sat[pi->Cs[s].courses[c].id - 1].sat += student_courses[s][c];
+        }
+    }
+
+    //normalize each course by its corresponding demand
+    for (int c = 0; c < pi->nm_Courses; c++) {
+        ind->course_sat[c].sat = ind->course_sat[c].sat / (pi->Sc[c] - LDBL_MIN);
+    }
+    
+    // sort them in descending order
+    qsort(ind->course_sat, pi->nm_Courses, sizeof(t_course_sat), cmpdesc);
 }
 
 /*Acá la evaluación completa. Deben setearse los valores de obj y constr_violation. */
@@ -114,11 +150,11 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, size_t **gene
         
         }
         // calculate unhappyness percentage
-        long double alpha_s = (long double) counts / pi->Ts[s].nm_timeslots;
+        long double alpha_s = (long double) counts;
         mean_alpha += alpha_s;
     }
 
-    mean_alpha = mean_alpha / pi->nm_Students;
+    // mean_alpha = mean_alpha / pi->nm_Students;
 
     obj[0] = mean_alpha;
 }
@@ -134,11 +170,11 @@ void countCourseRequestsMet(int **students_schedule, double *obj, problem_instan
 
         // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
 
-        long double beta_s = 1 - (long double) met / pi->Cs[i].nm_courses;
+        long double beta_s = pi->Cs[i].nm_courses - (long double) met;
         mean_beta += beta_s;
     }
 
-    mean_beta = mean_beta / pi->nm_Students;
+    // mean_beta = mean_beta / pi->nm_Students;
     // printf("\nObjetivo 2: %ld\n", counts);
     // exit(0);
 
@@ -175,6 +211,7 @@ void test_problem(individual *ind, problem_instance *pi)
     ind->obj[1] = 0;
 
     assign_students(ind, pi, student_courses, student_busy, course_fill, act_to_ts);
+    set_satisfied_demand(pi, ind, student_courses);
     /*objective functions*/
     countTimesRequestsMet(act_to_ts, student_courses, ind->gene, ind->obj, pi);
     countCourseRequestsMet(student_courses, ind->obj, pi);
@@ -182,10 +219,9 @@ void test_problem(individual *ind, problem_instance *pi)
     /*constraint handling*/
     ind->constr_violation = 0;
     check_min_mods(ind, pi, student_courses);
-
+    
     for (int s = 0; s < pi->nm_Students; s++)
     {
-        memcpy(ind->student_courses[s], student_courses[s], pi->Cs[s].nm_courses * sizeof(int));
         free(student_courses[s]);
         free(student_busy[s]);
     }

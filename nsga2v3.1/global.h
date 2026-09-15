@@ -96,10 +96,22 @@ typedef struct
 
 typedef struct
 {
+    size_t cid;
+    size_t* students_timeslots_preferences;
+} t_course_timeslotpref_map;
+
+typedef struct 
+{
+    size_t cid;
+    long double sat;
+} t_course_sat;
+
+typedef struct
+{
     int rank;
     double constr_violation;
     size_t **gene;
-    int **student_courses;
+    t_course_sat *course_sat;
     double *obj;
     double crowd_dist;
 } individual;
@@ -127,6 +139,7 @@ typedef struct
     timeslot_preference *Ts;
     t_color *colors;
     size_t *Sc;
+    size_t *course_timeslotpref_map; /* Size |C|  */
 
     unsigned nm_Students, nm_Courses, nm_Activity, nm_TimeSlots, nm_Rooms;
 } problem_instance;
@@ -142,6 +155,7 @@ extern int nbin;
 extern int nobj;
 extern int ncon;
 extern int popsize;
+extern int n_tslots_to_consider;
 extern double pcross_real;
 extern double pcross_bin;
 extern double pmut_real;
@@ -174,6 +188,7 @@ void printProblemInstance(problem_instance *pi);
 
 char **str_split(char *a_str, const char a_delim);
 int sum_array(int* arr, int size);
+int binarySearch(int arr[], int n, int x);
 int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
 int get_act_idx(problem_instance *pi, t_activity a);
 int get_timeslot_idx(problem_instance *pi, t_timeslot timeslot);
@@ -229,7 +244,7 @@ void test_problem(individual *ind, problem_instance *pi);
 void assign_rank_and_crowding_distance(population *new_pop);
 
 void report_pop(population *pop, FILE *fpt);
-void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE *fpt, double elapsed);
+void report_feasible(problem_instance *pi, population *pop, size_t popsize, FILE *fpt, double elapsed, char* instance_name);
 void report_ind(individual *ind, FILE *fpt);
 void report_objectives(size_t gen, population* pop, size_t popsize, FILE* fpt);
 void verify_pop(population *pop, problem_instance* pi);

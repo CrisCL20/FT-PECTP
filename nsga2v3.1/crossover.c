@@ -9,12 +9,6 @@
 #include "global.h"
 #include "rand.h"
 
-typedef struct 
-{
-    size_t cid;
-    long double sat;
-} course_demand;
-
 int is_timeslot_free(problem_instance* pi, individual* ind, size_t t, size_t course_idx, size_t act_idx) {
 
     for (int a = 0; a < pi->Ac[course_idx].nm_activities; a++) {
@@ -127,36 +121,9 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
     
 }
 
-void set_satisfied_demand(problem_instance* pi, individual* ind, course_demand *course_enrollments) {
-    for (int s = 0; s < pi->nm_Students; s++) {
-        for (int c = 0; c < pi->Cs[s].nm_courses; c++) {
-            course_enrollments[pi->Cs[s].courses[c].id - 1].sat += ind->student_courses[s][c];
-        }
-    }
-
-    //normalize each course by its corresponding demand
-    for (int c = 0; c < pi->nm_Courses; c++) {
-        course_enrollments[c].sat = course_enrollments[c].sat / (pi->Sc[c] - LDBL_MIN);
-    }
-}
-
-int cmpdesc(const void *a, const void *b) {
-    const course_demand* _a = a, *_b = b;
-
-    if (_b->sat > _a->sat)
-        return 1;
-
-    else if (_b->sat < _a->sat)
-        return -1;
-    
-    return 0;
-}
-
-void setup_courses_for_child(problem_instance* pi, course_demand* satisfied_demand_dom, size_t* courses_pdom, size_t* courses_psub, size_t npdom) {
+void setup_courses_for_child(problem_instance* pi, t_course_sat* satisfied_demand_dom, size_t* courses_pdom, size_t* courses_psub, size_t npdom) {
     
     /* sort dominant parent satisfaction in descending order */
-
-    qsort(satisfied_demand_dom,pi->nm_Courses, sizeof(course_demand), cmpdesc);
 
     int *used_courses_dom = (int *) calloc(pi->nm_Courses,sizeof(int));
     for (int c = 0; c < npdom; c++) {
@@ -180,41 +147,20 @@ void crossover(individual *parent1, individual *parent2, individual *child1, ind
     {
         size_t p = rnd(1, pi->nm_Courses - 2);
 
-        /* sort courses based on accomplished demands */
-
-        course_demand* satisfied_demand_p1 = (course_demand *) calloc(pi->nm_Courses, sizeof(course_demand));
-        course_demand* satisfied_demand_p2 = (course_demand *) calloc(pi->nm_Courses, sizeof(course_demand));
-
-        for (int c = 0; c < pi->nm_Courses; c++) {
-            satisfied_demand_p1[c] = (course_demand) {
-                .cid = c,
-                .sat = 0,
-            };
-            satisfied_demand_p2[c] = (course_demand) {
-                .cid = c,
-                .sat = 0,
-            };
-        }
-
-        set_satisfied_demand(pi, parent1, satisfied_demand_p1);
-        set_satisfied_demand(pi, parent2, satisfied_demand_p2);
-
         /* procedure for child 1 */
         size_t courses_p1_ch1[p];
         size_t courses_p2_ch1[pi->nm_Courses - p];
         
-        setup_courses_for_child(pi, satisfied_demand_p1, courses_p1_ch1, courses_p2_ch1, p);
+        setup_courses_for_child(pi, parent1->course_sat, courses_p1_ch1, courses_p2_ch1, p);
         inherit_parents(pi, parent1, parent2, child1, p, pi->nm_Courses - p, courses_p1_ch1, courses_p2_ch1);
         
         /* procedure for child 2 */
         size_t courses_p1_ch2[pi->nm_Courses - p];
         size_t courses_p2_ch2[p];
         
-        setup_courses_for_child(pi, satisfied_demand_p2, courses_p2_ch2, courses_p1_ch2, p);
+        setup_courses_for_child(pi, parent2->course_sat, courses_p2_ch2, courses_p1_ch2, p);
         inherit_parents(pi,parent2, parent1, child2, p, pi->nm_Courses - p, courses_p2_ch2, courses_p1_ch2);
 
-        free(satisfied_demand_p1);
-        free(satisfied_demand_p2);
     }
 
     else

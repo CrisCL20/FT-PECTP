@@ -5,15 +5,19 @@
 #include <math.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
 #include "global.h"
 #include "rand.h"
+
+#define OUTPUTFILENAME_LENGTH 256
 
 int nreal;
 int nbin;
 int nobj;
 int ncon;
 int popsize;
+int n_tslots_to_consider;
 double pcross_real;
 double pcross_bin;
 double pmut_real;
@@ -58,7 +62,7 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        printf("\n Usage ./nsga2r random_seed instance_route popsize ngen nobj pcross_bin pmut_bin pmut_ts_swap pmut_act_swap\n./nsga2r 0.123 b-Instancia14_cap2_relacion7UnoUnoUnoTodosDistintos.dat 100 100 2 0.6 0.01 0.3 0.3\n");
+        printf("\n Usage ./nsga2r random_seed instance_route popsize ngen nobj pcross_bin pmut_bin pmut_ts_swap pmut_act_swap n_tslots_to_consider\n./nsga2r 0.123 b-Instancia14_cap2_relacion7UnoUnoUnoTodosDistintos.dat 100 100 2 0.6 0.01 0.3 0.3 10\n");
         exit(1);
     }
     seed = (double)atof(argv[1]);
@@ -67,19 +71,18 @@ int main(int argc, char **argv)
         printf("\n Entered seed value is wrong, seed value must be in (0,1) \n");
         exit(1);
     }
-    fpt1 = fopen("initial_pop.out", "w");
-    fpt2 = fopen("final_pop.out", "w");
-    fpt3 = fopen("best_pop.out", "w");
-    fpt4 = fopen("all_pop.out", "w");
-    fpt5 = fopen("params.out", "w");
-    fpt6 = fopen("generation_report.csv", "w");
-    fprintf(fpt1, "# This file contains the data of initial population\n");
-    fprintf(fpt2, "# This file contains the data of final population\n");
-    fprintf(fpt3, "# This file contains the data of final feasible population (if found)\n");
-    fprintf(fpt4, "# This file contains the data of all generations\n");
-    fprintf(fpt5, "# This file contains information about inputs as read by the program\n");
 
     char *instance_route = argv[2];
+    char *ssc;
+    int l = 0;
+    char* stem = instance_route;
+    ssc = strstr(stem, "/");
+    do{
+        l = strlen(ssc) + 1;
+        stem = &stem[strlen(stem)-l+2];
+        ssc = strstr(stem, "/");
+    }while(ssc);
+
     // printf("Reading instance file %s...\n", instance_route);
     readInputFile(instance_route, pi);
     // printf("DONE\n");
@@ -136,6 +139,55 @@ int main(int argc, char **argv)
         printf("\n Entered value of probability  of mutation of binary variables is out of bounds, hence exiting \n");
         exit(1);
     }
+    
+    n_tslots_to_consider = atoi(argv[10]);
+    if (n_tslots_to_consider < 1)
+    {
+        printf("\n Number of timeslots to consider entered is : %d", n_tslots_to_consider);
+        printf("\n Number of timeslots to consider must be at least 1, hence exiting \n");
+        exit(1);
+    }
+    if (n_tslots_to_consider > (int)pi->nm_TimeSlots)
+    {
+        printf("\n Number of timeslots to consider (%d) exceeds |T| (%u), clamping to %u\n",
+                n_tslots_to_consider, pi->nm_TimeSlots, pi->nm_TimeSlots);
+        n_tslots_to_consider = (int)pi->nm_TimeSlots;
+    }
+    
+    char best_pop_out_file[OUTPUTFILENAME_LENGTH];
+    int cx = snprintf(best_pop_out_file, sizeof(best_pop_out_file), "best_pop_%s_s%.2f_pc%.2f_pm%.2f.out", stem, seed, pcross_bin, pmut_bin);
+    if (cx < 0) {
+      fprintf(stderr, "Could not format best pop output file.\n");
+      exit(EXIT_FAILURE);
+    }
+    
+    char final_pop_out_file[OUTPUTFILENAME_LENGTH];
+    cx = snprintf(final_pop_out_file, sizeof(final_pop_out_file), "final_pop_%s_s%.2f_pc%.2f_pm%.2f.out", stem, seed, pcross_bin, pmut_bin);
+    if (cx < 0) {
+      fprintf(stderr, "Could not format final pop output file.\n");
+      exit(EXIT_FAILURE);
+    }
+    
+    char convergence_filename[OUTPUTFILENAME_LENGTH];
+    cx = snprintf(convergence_filename, sizeof(convergence_filename), "convergence_%s_s%.2f_pc%.2f_pm%.2f.csv", stem, seed, pcross_bin, pmut_bin);
+    if (cx < 0) {
+      fprintf(stderr, "Could not format final pop output file.\n");
+      exit(EXIT_FAILURE);
+    }
+
+    printf("%s\n", convergence_filename);
+    
+    fpt1 = fopen("initial_pop.out", "w");
+    fpt2 = fopen(final_pop_out_file, "w");
+    fpt3 = fopen(best_pop_out_file, "w");
+    fpt4 = fopen("all_pop.out", "w");
+    fpt5 = fopen("params.out", "w");
+    fpt6 = fopen(convergence_filename, "w");
+    fprintf(fpt1, "# This file contains the data of initial population\n");
+    fprintf(fpt2, "# This file contains the data of final population\n");
+    fprintf(fpt3, "# This file contains the data of final feasible population (if found)\n");
+    fprintf(fpt4, "# This file contains the data of all generations\n");
+    fprintf(fpt5, "# This file contains information about inputs as read by the program\n");
 
     printf("\n Input data successfully entered, now performing initialization \n");
     fprintf(fpt5, "\n Population size = %d", popsize);
@@ -143,26 +195,9 @@ int main(int argc, char **argv)
     fprintf(fpt5, "\n Number of objective functions = %d", nobj);
 
     fprintf(fpt5, "\n Number of binary variables = %d", nbin);
-    if (nbin != 0)
-    {
-        for (i = 0; i < nbin; i++)
-        {
-            fprintf(fpt5, "\n Number of bits for binary variable %d = %d", i + 1, nbits[i]);
-            fprintf(fpt5, "\n Lower limit of binary variable %d = %e", i + 1, min_binvar[i]);
-            fprintf(fpt5, "\n Upper limit of binary variable %d = %e", i + 1, max_binvar[i]);
-        }
-        fprintf(fpt5, "\n Probability of crossover of binary variable = %e", pcross_bin);
-        fprintf(fpt5, "\n Probability of mutation of binary variable = %e", pmut_bin);
-    }
     fprintf(fpt5, "\n Seed for random number generator = %e", seed);
     bitlength = 0;
-    if (nbin != 0)
-    {
-        for (i = 0; i < nbin; i++)
-        {
-            bitlength += nbits[i];
-        }
-    }
+    
     fprintf(fpt1, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n", nobj, ncon, nreal, bitlength);
     fprintf(fpt2, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n", nobj, ncon, nreal, bitlength);
     fprintf(fpt3, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n", nobj, ncon, nreal, bitlength);
@@ -223,7 +258,7 @@ int main(int argc, char **argv)
     double elapsed = (double)(toc - tic) / CLOCKS_PER_SEC;
     printf("\n Generations finished, now reporting solutions");
     report_pop(parent_pop, fpt2);
-    report_feasible(pi, parent_pop, popsize, fpt3, elapsed);
+    report_feasible(pi, parent_pop, popsize, fpt3, elapsed, instance_route);
     if (nreal != 0)
     {
         fprintf(fpt5, "\n Number of crossover of real variable = %d", nrealcross);

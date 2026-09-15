@@ -205,6 +205,8 @@ void readTimeSlots(FILE *fh, problem_instance *pi)
     char *token;
     char line[4096];
     fgets(line, sizeof(line), fh);
+    
+    removeSemicolon(line);
 
     if (debug)
         printf("Line: %s\n", line);

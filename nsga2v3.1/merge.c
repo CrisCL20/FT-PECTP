@@ -39,9 +39,8 @@ void copy_ind(individual *ind1, individual *ind2)
         for (int t = 0; t < g_pi->nm_TimeSlots; t++)
             ind2->gene[r][t] = ind1->gene[r][t];
     
-    for (int s = 0; s < g_pi->nm_Students; s++)
-        for (int c = 0; c < g_pi->Cs[s].nm_courses; c++)
-            ind2->student_courses[s][c] = ind1->student_courses[s][c];
+    for (int c = 0; c < g_pi->nm_Courses; c++)
+            ind2->course_sat[c] = ind1->course_sat[c];
     
     /*
     if (ncon!=0)
