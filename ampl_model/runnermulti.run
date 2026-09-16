@@ -10,8 +10,8 @@ option solver "./gurobi" ;
 # option gurobi_options 'outlev 1 logfreq 1 timing 1' ;
 # option presolve 10 ;
 # option show_stats 1 ;
-#option gurobi_options 'timelim = 3600' ;
-option gurobi_options 'threads=4';
+option gurobi_options 'timelim = 3600' ;
+#option gurobi_options 'threads=4' 'timelim = 10800';
 #option gurobi_options 'timelim=3600 threads=4 mipgap=0.05 nonconvex=2';
 #option gentimes 1 ;
 
@@ -187,113 +187,15 @@ for {gg in ejecuciones}{
   ##########################################################################
   
   display FO;
-  # printf "Matriz de los salones por actividades\n";
+  printf "Matriz sparse (salon, timeslot) [act]\n";
 
-  # for {r in R} {
-  #   printf "R%s ", r;
-  #   for {a in A, t in T: x[a,r,t] > 0.5} 
-  #       printf "A%s (%s) ", a, t;
-  #   printf "\n";
-  # }
-  # printf "\n";
-
-  # printf "Matriz de los salones por actividades\n";
-
-  # for {r in R} {
-  #   printf "R%s:", r;
-  #   for {a in A: yR[a,r] > 0.5}
-  #       printf "A: %s, ", a;
-  #   printf "\n";
-  # }
-  # printf "\n";
-
-  #printf "Matriz sparse de los estudiantes por clase\n";
-
-  #for {s in S} {
-  #  printf "S%s ", s;
-  #  for {c in C, t in T: yC[s,c] > 0.5 and yT[c,t] > 0.5}
-  #    printf "C%s (%s) ", c, t;
-  #  printf "\n";
-  #}
-  #printf "\n";
-
-  # printf "Matriz de los estudiantes por ramos\n";
-  # for {s in S} {
-  #   printf "S%s ", s;
-  #   for {c in C: yC[s,c] > 0.5}
-  #     printf "C%s ", c;
-  #   printf "\n";
-  #   for {a in A, t in T: yA[s,a] > 0.5 and yT[a,t] > 0.5}
-  #     printf "A%s (%s) |", a, t ;
-  #   printf "\n";
-
-  # }
-  # printf "\n";
-
-  # printf "Matriz de los estudiantes por horario\n";
-  # for {s in S} {
-  #   printf "S%s ", s;
-  #   for {t in T, a in A: tau[s,a,t] > 0.5}
-  #     printf " A: %s en t: %s  |", a, t ;
-  #   printf "\n";
-  # }
-  # printf "\n";
-
-  # printf "Horarios\n";
-  # for {t in T}{
-  #   printf "    %s", t;
-  # }
-  # printf "\n";
-  # for {r in R} {
-  #   printf "R%s : ", r;
-  #   for {t in T}{
-  #     if(sum{a in A} x[a,r,t]) > 0.5 then{
-  #       for {a in A : x[a,r,t] > 0.5}{
-  #         printf "%s - \t", a;
-  #       }
-  #     }
-  #     else
-  #       printf " - \t";
-
-  #   }
-  #   printf "\n";
-  # }
-  # printf "\n";
-
-  # printf "Detalle preferencias estudiantes \n";
-  # for {t in T}{
-  #   printf "    %s", t;
-  # }
-  # printf "\n";
-  # for {s in S} {
-  #   printf "S%s ", s;
-  #   for {t in T}{
-  #     if (sum{a in A} tau[s,a,t]) > 0.5 then {
-  #       for {a in A: tau[s,a,t] > 0.5} {
-  #         printf "%s \t", a;
-  #       }
-  #     }
-  #     else
-  #       printf " - \t";
-  #   }
-  #   printf "\n";
-  # }
-  # printf "\n";
-
-  for {c in C} {
-    if yC[1,c] > 0.5 then {
-      printf "Estudiante 1 atiende al curso %s\n", c;
-    }
+  for {r in R} {
+    for {a in A, t in T: x[a,r,t] > 0.5} 
+        printf "(%s, %s) [%s] ", r, t, a;
+    printf "\n";
   }
-
-  for {a in A} {
-    for {t in T} {
-      if tau[1,a,t] > 0.5 then {
-        printf "Estudiante 1 atiende actividad %s en bloque %s", a, t;
-      }
-    }
-  }
-
+  printf "\n";
+  
   display FO1 ;
   
   ##########################################################################
