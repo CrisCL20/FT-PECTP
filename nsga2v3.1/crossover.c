@@ -9,19 +9,6 @@
 #include "global.h"
 #include "rand.h"
 
-int is_timeslot_free(problem_instance* pi, individual* ind, size_t t, size_t course_idx, size_t act_idx) {
-
-    for (int a = 0; a < pi->Ac[course_idx].nm_activities; a++) {
-        if (a == act_idx) continue;
-        size_t other_idx = pi->Ac[course_idx].activity_idx[a];
-        for (int r = 0; r < pi->nm_Rooms; r++)
-            if (ind->gene[r][t] == other_idx)
-                return 0;
-    }
-
-    return 1;
-}
-
 void inherit_parents(problem_instance* pi, individual* parent1, individual* parent2, individual* child, size_t n_courses_p1, size_t n_courses_p2, size_t* courses_p1, size_t* courses_p2){
 
     // inherit courses from p1 to ch1
@@ -46,16 +33,18 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
 
     // fill courses of p2 to ch1
     for (c = 0; c < n_courses_p2; c++) {
+        int *is_timeslot_free = (int *) calloc(pi->nm_TimeSlots, sizeof(int));
         for (int a = 0; a < pi->Ac[courses_p2[c]].nm_activities; a++) {
             size_t act_idx = pi->Ac[courses_p2[c]].activity_idx[a];
             act_in_ind(pi,parent2,pi->Ac[courses_p2[c]].activities[a],&act_cell);
             if (
-                child->gene[act_cell.r][act_cell.t] == EMPTY_ACT
-                && is_timeslot_free(pi, child, act_cell.t, courses_p2[c], a)
+                (child->gene[act_cell.r][act_cell.t] == EMPTY_ACT)
+                && (is_timeslot_free[act_cell.t] == 0)
                 && !busy_r_t[act_cell.r][act_cell.t]
             ) {
                 child->gene[act_cell.r][act_cell.t] = act_idx;
                 busy_r_t[act_cell.r][act_cell.t] = 1;
+                is_timeslot_free[act_cell.t] = 1;
                 continue;
             }
 
@@ -64,12 +53,13 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
             for (int r = 0; r < pi->Ra[act_idx].nm_rooms; r++){
                 if (
                     child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] == EMPTY_ACT
-                    && is_timeslot_free(pi,child,act_cell.t,courses_p2[c],a)
+                    && (is_timeslot_free[act_cell.t] == 0)
                     && !busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t]
                 ){
                     child->gene[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] = act_idx;
                     assigned = 1;
                     busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][act_cell.t] = 1;
+                    is_timeslot_free[act_cell.t] = 1;
                     break;
                 }
             }
@@ -80,12 +70,13 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
             for (int t = 0; t < pi->nm_TimeSlots; t++) {
                 if (
                     child->gene[act_cell.r][t] == EMPTY_ACT
-                    && is_timeslot_free(pi,child,t,courses_p2[c],a)
+                    && is_timeslot_free[t] == 0
                     && !busy_r_t[act_cell.r][t]
                 ) {
                     child->gene[act_cell.r][t] = act_idx;
                     assigned = 1;
                     busy_r_t[act_cell.r][t] = 1;
+                    is_timeslot_free[t] = 1;
                     break;
                 }
             }
@@ -96,12 +87,13 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
                 for (int t = 0; t < pi->nm_TimeSlots; t++) {
                     if (
                         child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] == EMPTY_ACT
-                        && is_timeslot_free(pi,child,t,courses_p2[c],a)
+                        && is_timeslot_free[t] == 0
                         && !busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][t]
                     ){
                         child->gene[pi->Ra[act_idx].rooms[r].id - 1][t] = act_idx;
                         assigned = 1;
                         busy_r_t[pi->Ra[act_idx].rooms[r].id - 1][t] = 1;
+                        is_timeslot_free[t] = 1;
                         break;
                     }
                 }
@@ -111,8 +103,8 @@ void inherit_parents(problem_instance* pi, individual* parent1, individual* pare
             if (!assigned)
                 printf("Could not assign activity %s.\n", pi->Ac[courses_p2[c]].activities[a].id);
             
-            
         }
+        free(is_timeslot_free);    
     }
     
     for (int r = 0; r < pi->nm_Rooms; r++)

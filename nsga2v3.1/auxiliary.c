@@ -136,6 +136,22 @@ size_t get_course_activity(problem_instance *pi, t_activity act)
     return 0;
 }
 
+size_t get_course(problem_instance* pi, int act) {
+    int c, a;
+    for (c = 0; c < pi->nm_Courses; c++)
+    {
+        for (a = 0; a < pi->Ac[c].nm_activities; a++)
+        {
+            if (strcmp(pi->Ac[c].activities[a].id, pi->A[act].id) == 0)
+            {
+                return pi->C[c].id;
+            }
+        }
+    }
+
+    return 0;
+}
+
 int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid)
 {
     int c;

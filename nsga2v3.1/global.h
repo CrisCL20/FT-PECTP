@@ -193,6 +193,7 @@ int calculate_ts_idx(unsigned d, unsigned b1, unsigned T);
 int get_act_idx(problem_instance *pi, t_activity a);
 int get_timeslot_idx(problem_instance *pi, t_timeslot timeslot);
 size_t get_course_activity(problem_instance *pi, t_activity act);
+size_t get_course(problem_instance* pi, int act);
 int course_in_student_preference(problem_instance *pi, int s_idx, size_t cid);
 int timeslot_in_student_preference(problem_instance *pi, int s_idx, t_timeslot timeslot);
 void get_most_conflicted_free_timeslot(problem_instance *pi, individual *ind, timeslot_counter *ts_counter);

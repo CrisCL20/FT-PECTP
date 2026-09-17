@@ -1,25 +1,21 @@
 #!/bin/bash
 
-instance=$1
-instance_code=$2
-popsize=$3
-gens=$4
+cd nsga2v3.1
+mkdir -p logs
+workers=4
 
-mkdir nsga_results_${instance_code}
-
-cd nsga2-gnuplot-v1.1.6_+Instancia
+INSTANCE_FILEPATH=$1
 
 seeds=("0.01" "0.05" "0.125" "0.232" "0.345" "0.463" "0.587" "0.712" "0.852" "0.999")
-p_muts=("0.7" "0.8" "0.85" "0.9" "0.95" "0.97" "0.99")
-nobj="2"
-pcross="0.95"
+nobj=2
+popsize=500
+gens=10000
+pc=0.9
+pm=0.2
+pm_ts_swap=0.6
+pm_schedule=0.6
+top_tslots=5
 
-for seed in ${seeds[@]}; do
-    for p_mut in ${p_muts[@]}; do
-        ./nsga2r ${seed} ${instance} ${popsize} ${gens} ${nobj} ${pcross} $p_mut 
-        mv best_pop.out ../nsga_results_${instance_code}/best_pop_i${instance}_s${seed}_pmut_${p_mut}.out
-        files+=(../nsga_results_${instance_code}/best_pop_i${instance}_s${seed}_pmut_${p_mut}.out)
-        
-    done
-done
-
+parallel -j ${workers} --bar \
+    "./nsga2r {1} ${INSTANCE_FILEPATH} ${popsize} ${gens} ${nobj} ${pc} ${pm} ${pm_ts_swap} ${pm_schedule} ${top_tslots} > logs/out_\$(basename ${INSTANCE_FILEPATH} .dat)_s{1}.log 2>&1" \
+    ::: "${seeds[@]}" 

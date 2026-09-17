@@ -8,6 +8,9 @@
 #include "global.h"
 #include "rand.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE // for qsort_r
+#endif 
 #define SWAP(x, y)        \
     do                    \
     {                     \
@@ -196,6 +199,131 @@ void hc_swap(individual *ind, problem_instance *pi)
     free(student_busy_in_ts);
 }
 
+void timeslot_swap(problem_instance* pi, individual* ind, int t1, int t2) {
+    for (int r = 0; r < pi->nm_Rooms; r++) {
+        SWAP(ind->gene[r][t1], ind->gene[r][t2]);
+    }
+}
+
+int compare_activities(const void* a, const void* b, void* arg) {
+    int a1 = *(const int*) a;
+    int a2 = *(const int*) b;
+    const problem_instance* pi = (const problem_instance*) arg;
+
+    size_t c1 = get_course(pi, a1);
+    size_t c2 = get_course(pi, a2);
+
+    if (pi->Sc[c1] < pi->Sc[c2]) return 1;
+    else if (pi->Sc[c1] > pi->Sc[c2]) return -1;
+    return 0;
+}
+
+void schedule_change(problem_instance* pi, individual* ind, int t1, int t2, timeslot_counter* ts_counter, timeslot_counter* best_tslots) {
+        
+    t_cellTuple act_cell;
+    int worst_ts_acts[pi->nm_Rooms];
+    int idx = 0;
+
+    for (int r = 0; r < pi->nm_Rooms; r++)
+        if (ind->gene[r][t1] != EMPTY_ACT)
+            worst_ts_acts[idx++] = ind->gene[r][t1];
+    
+    if (idx == 0) {
+        return;
+    }
+
+    // sort activities of the worst timeslot based on the demand of the course
+    qsort_r(worst_ts_acts, idx, sizeof(int), compare_activities, (void *) pi);
+    
+    int id_act = worst_ts_acts[0];
+    if (!act_in_ind(pi, ind, pi->A[id_act], &act_cell)) {
+        return;
+    }
+
+    size_t id_course = get_course(pi, id_act) - 1;
+
+    /* mark timeslots from the other activities belonging to the same course as the chosen one */
+    int *flag_tslots = (int *)calloc(pi->nm_TimeSlots, sizeof(int));
+    flag_tslots[t1] = 1;
+    int a, t, r;
+    for (a = 0; a < pi->Ac[id_course].nm_activities; a++)
+    {
+        size_t a_idx = pi->Ac[id_course].activity_idx[a];
+        for (t = 0; t < pi->nm_TimeSlots; t++)
+            for (r = 0; r < pi->nm_Rooms; r++)
+                if (ind->gene[r][t] == a_idx && t != act_cell.t)
+                    flag_tslots[t] = 1;
+    }
+
+    if (!flag_tslots[t2] && ind->gene[act_cell.r][t2] == EMPTY_ACT) {
+        ind->gene[act_cell.r][t2] = id_act;
+        ind->gene[act_cell.r][t1] = EMPTY_ACT;
+        return;
+    }
+
+    // try to move id_act to some available and feasible space in t2
+    int moved = 0, count = 0;
+    int *ts_tabu = (int*) calloc(pi->nm_TimeSlots, sizeof(int));
+
+    // if t2 is already infeasible, perform RWS until is not
+    if (flag_tslots[t2]) ts_tabu[t2] = 1;
+    while (flag_tslots[t2] && count < pi->nm_TimeSlots){
+        t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
+        count++;
+        if (count >= n_tslots_to_consider)
+            t2 = (t2+1) % pi->nm_TimeSlots;
+    }
+
+    count = 0;
+    int attempts = 0;
+    
+    while (!moved && attempts < pi->nm_TimeSlots * 2)
+    {
+        attempts++;
+        if (t2 == act_cell.t) {
+            t2 = (t2 + 1) % pi->nm_TimeSlots;
+            continue;
+        }
+        // first try in the same room...
+        if (t2 != act_cell.t && ind->gene[act_cell.r][t2] == EMPTY_ACT)
+        {
+            ind->gene[act_cell.r][t2] = ind->gene[act_cell.r][act_cell.t];
+            ind->gene[act_cell.r][act_cell.t] = EMPTY_ACT;
+            moved = 1;
+            break;
+        }
+
+        // if it cant be done, try another room...
+        for (int r = 0; r < pi->Ra[id_act].nm_rooms; r++) {
+            int room_idx = pi->Ra[id_act].rooms[r].id - 1;
+            if (room_idx != act_cell.r && ind->gene[room_idx][t2] == EMPTY_ACT){
+                ind->gene[pi->Ra[id_act].rooms[r].id - 1][t2] = ind->gene[act_cell.r][act_cell.t];
+                ind->gene[act_cell.r][act_cell.t] = EMPTY_ACT;
+                moved = 1;
+                break;
+            }
+        }
+
+        if (moved) break;
+
+        // if all that fails, update t2 and add the previuos value to tabu list
+        ts_tabu[t2] = 1;
+        int loop_ward = 0;
+        while ((flag_tslots[t2] || ts_tabu[t2]) && loop_ward < pi->nm_TimeSlots) {
+            t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
+            if (count >= n_tslots_to_consider)
+                t2 = (t2+1) % pi->nm_TimeSlots; 
+            count++;
+            loop_ward++;
+        }
+
+
+    }
+
+    free(flag_tslots);
+    free(ts_tabu);
+}
+
 /* Function to perform mutation of an individual */
 void mutation_ind(individual *ind, problem_instance *pi)
 {
@@ -226,114 +354,11 @@ void mutation_ind(individual *ind, problem_instance *pi)
 
     if (coin <= pmut_ts_swap)
     {
-        // swap t1 with t2
-        for (int r = 0; r < pi->nm_Rooms; r++)
-        {
-            size_t tmp = ind->gene[r][t1];
-            ind->gene[r][t1] = ind->gene[r][t2];
-            ind->gene[r][t2] = tmp;
-        }
-        
+        timeslot_swap(pi, ind, t1, t2);
     }
     else if (coin <= pmut_act_swap)
     {
-        // move a random activity from t1 to t2
-        
-        t_cellTuple act_cell;
-        int worst_ts_acts[pi->nm_Rooms];
-        int idx = 0;
-
-        for (int r = 0; r < pi->nm_Rooms; r++)
-            if (ind->gene[r][t1] != EMPTY_ACT)
-                worst_ts_acts[idx++] = ind->gene[r][t1];
-        
-        if (idx == 0) {
-            free(ts_counter);
-            return;
-        }
-        
-        int id_act = worst_ts_acts[rnd(0, idx - 1)];
-        if (!act_in_ind(pi, ind, pi->A[id_act], &act_cell)) {
-            free(ts_counter);
-            return;
-        }
-
-        size_t id_course = get_course_activity(pi, pi->A[id_act]) - 1;
-
-        /* mark timeslots from the other activities belonging to the same course as the chosen one */
-        int *flag_tslots = (int *)calloc(pi->nm_TimeSlots, sizeof(int));
-        flag_tslots[t1] = 1;
-        int a, t, r;
-        for (a = 0; a < pi->Ac[id_course].nm_activities; a++)
-        {
-            size_t a_idx = pi->Ac[id_course].activity_idx[a];
-            for (t = 0; t < pi->nm_TimeSlots; t++)
-                for (r = 0; r < pi->nm_Rooms; r++)
-                    if (ind->gene[r][t] == a_idx && t != act_cell.t)
-                        flag_tslots[t] = 1;
-        }
-
-        // try to move id_act to some available and feasible space in t2
-        int moved = 0, count = 0;
-        int *ts_tabu = (int*) calloc(pi->nm_TimeSlots, sizeof(int));
-
-        // if t2 is already infeasible, perform RWS until is not
-        if (flag_tslots[t2]) ts_tabu[t2] = 1;
-        while (flag_tslots[t2] && count < pi->nm_TimeSlots){
-            t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
-            count++;
-            if (count >= n_tslots_to_consider)
-                t2 = (t2+1) % pi->nm_TimeSlots;
-        }
-
-        count = 0;
-        int attempts = 0;
-        
-        while (!moved && attempts < pi->nm_TimeSlots * 2)
-        {
-            attempts++;
-            if (t2 == act_cell.t) {
-                t2 = (t2 + 1) % pi->nm_TimeSlots;
-                continue;
-            }
-            // first try in the same room...
-            if (t2 != act_cell.t && ind->gene[act_cell.r][t2] == EMPTY_ACT)
-            {
-                ind->gene[act_cell.r][t2] = ind->gene[act_cell.r][act_cell.t];
-                ind->gene[act_cell.r][act_cell.t] = EMPTY_ACT;
-                moved = 1;
-                break;
-            }
-
-            // if it cant be done, try another room...
-            for (int r = 0; r < pi->Ra[id_act].nm_rooms; r++) {
-                int room_idx = pi->Ra[id_act].rooms[r].id - 1;
-                if (room_idx != act_cell.r && ind->gene[room_idx][t2] == EMPTY_ACT){
-                    ind->gene[pi->Ra[id_act].rooms[r].id - 1][t2] = ind->gene[act_cell.r][act_cell.t];
-                    ind->gene[act_cell.r][act_cell.t] = EMPTY_ACT;
-                    moved = 1;
-                    break;
-                }
-            }
-
-            if (moved) break;
-
-            // if all that fails, update t2 and add the previuos value to tabu list
-            ts_tabu[t2] = 1;
-            int loop_ward = 0;
-            while ((flag_tslots[t2] || ts_tabu[t2]) && loop_ward < pi->nm_TimeSlots) {
-                t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
-                if (count >= n_tslots_to_consider)
-                    t2 = (t2+1) % pi->nm_TimeSlots; 
-                count++;
-                loop_ward++;
-            }
-
-
-        }
-
-        free(flag_tslots);
-        free(ts_tabu);
+        schedule_change(pi, ind, t1, t2, ts_counter, best_tslots);
     }
 
     else
