@@ -27,7 +27,7 @@ void removeSemicolon(char *line)
 int countWords(char *line)
 {
     int words;
-    char linet[4096], *token;
+    char linet[65536], *token;
     strcpy(linet, line);
 
     words = 0;
@@ -48,7 +48,7 @@ void readStudents(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -92,7 +92,7 @@ void readActivities(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -132,7 +132,7 @@ void readCourses(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -168,7 +168,7 @@ void readRooms(FILE *fh, problem_instance *pi)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -203,7 +203,7 @@ void readTimeSlots(FILE *fh, problem_instance *pi)
 {
     int debug = 0, id = 0, i = 0;
     char *token;
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
     
     removeSemicolon(line);
@@ -242,7 +242,7 @@ void readCourseActivities(FILE *fh, problem_instance *pi, unsigned cid)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
@@ -283,7 +283,7 @@ void readCoursePreference(FILE *fh, problem_instance *pi, unsigned sid)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
@@ -324,7 +324,7 @@ void readAdequateRooms(FILE *fh, problem_instance *pi, unsigned aid)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
@@ -360,7 +360,7 @@ void readTimeSlotPreference(FILE *fh, problem_instance *pi, unsigned sid)
     int debug = 0, id = 0;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     removeSemicolon(line);
@@ -407,7 +407,7 @@ void readRoomCapacity(FILE *fh, problem_instance *pi)
     int debug = 0, i = 0, rcap;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -441,7 +441,7 @@ void ReadActivityLimit(FILE *fh, problem_instance *pi)
     int debug = 0, i = 0, clim;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -474,7 +474,7 @@ void readKmin(FILE *fh, problem_instance *pi)
     int debug = 0, i = 0, sid, kmin;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
@@ -512,7 +512,7 @@ void readKmax(FILE *fh, problem_instance *pi)
     int debug = 0, i = 0, sid, kmax;
     char *token;
 
-    char line[4096];
+    char line[65536];
     fgets(line, sizeof(line), fh);
 
     if (debug)
