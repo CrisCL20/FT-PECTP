@@ -560,6 +560,25 @@ void set_student_courses(problem_instance *pi) {
         pi->Sc[pi->Cs[s].courses[c].id - 1]++;
 }
 
+void normalize_course_ids(problem_instance *pi)
+{
+    /* translate student references while C[] still holds the original ids */
+    for (int s = 0; s < pi->nm_Students; s++)
+        for (int c = 0; c < pi->Cs[s].nm_courses; c++)
+        {
+            int orig = pi->Cs[s].courses[c].id;
+            for (int i = 0; i < pi->nm_Courses; i++)
+                if (pi->C[i].id == orig)
+                {
+                    pi->Cs[s].courses[c].id = i + 1;   /* 1-based dense id */
+                    break;
+                }
+        }
+
+    for (int i = 0; i < pi->nm_Courses; i++)
+        pi->C[i].id = i + 1;
+}
+
 int readInputFile(char *filePath, problem_instance *pi)
 {
     int debug = 0, i = 0;
@@ -704,6 +723,7 @@ int readInputFile(char *filePath, problem_instance *pi)
         printf("END\n");
 
     set_colors(pi);
+    normalize_course_ids(pi);
     set_student_courses(pi);
 
     /*************/
