@@ -19,4 +19,4 @@ top_tslots=5
 parallel -j ${workers} --bar \
     "./nsga2r {1} {2} ${popsize} ${gens} ${nobj} ${pc} ${pm} ${pm_ts_swap} ${pm_schedule} ${top_tslots} > logs/out_\$(basename {2} .dat)_s{1}.log 2>&1" \
     ::: "${seeds[@]}" \
-    ::: "${INSTANCES_FILEPATH}"
+    ::: "${INSTANCES_FILEPATH[@]}"
