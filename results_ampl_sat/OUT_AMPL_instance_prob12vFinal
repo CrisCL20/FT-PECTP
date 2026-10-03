@@ -1,0 +1,6 @@
+  Objetivo ::::::: 1
+Error at _cmdno 9 executing "solve" command
+(file runnermulti_instance_prob12.run, line 39, offset 1101):
+error processing set Ac[907]:
+	Ac[907] contains 1813, which is not
+	within A;
