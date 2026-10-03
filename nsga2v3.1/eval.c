@@ -150,11 +150,11 @@ void countTimesRequestsMet(int *act_to_ts, int **student_schedule, size_t **gene
         
         }
         // calculate unhappyness percentage
-        long double alpha_s = (long double) counts;
+        long double alpha_s = (long double) counts / pi->Ts[s].nm_timeslots;
         mean_alpha += alpha_s;
     }
 
-    // mean_alpha = mean_alpha / pi->nm_Students;
+    mean_alpha = mean_alpha / pi->nm_Students;
 
     obj[0] = mean_alpha;
 }
@@ -170,11 +170,11 @@ void countCourseRequestsMet(int **students_schedule, double *obj, problem_instan
 
         // printf("Request met for student %d: %d\n ", pi->S[i].id, met);
 
-        long double beta_s = pi->Cs[i].nm_courses - (long double) met;
+        long double beta_s = (long double) met / pi->Cs[i].nm_courses;
         mean_beta += beta_s;
     }
 
-    // mean_beta = mean_beta / pi->nm_Students;
+    mean_beta = mean_beta / pi->nm_Students;
     // printf("\nObjetivo 2: %ld\n", counts);
     // exit(0);
 
