@@ -350,13 +350,11 @@ void mutation_ind(individual *ind, problem_instance *pi)
     int t1 = roulette_timeslot(worst_tslots, n_tslots_to_consider);
     int t2 = roulette_timeslot(best_tslots, n_tslots_to_consider);
 
-    double coin = randomperc();
-
-    if (coin <= pmut_ts_swap)
+    if (randomperc() <= pmut_ts_swap)
     {
         timeslot_swap(pi, ind, t1, t2);
     }
-    else if (coin <= pmut_act_swap)
+    else if (randomperc() <= pmut_act_swap)
     {
         schedule_change(pi, ind, t1, t2, ts_counter, best_tslots);
     }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dirInstances="instances_parsed"
+dirInstances="simulated_instances"
 dirNSGA="../nsga2v3.1"
 dirhv="../hv-1.3-src"
 
@@ -10,6 +10,8 @@ evaluaciones=1000000
 # Inicialización de variables
 pm=0
 pc=0
+pm_ts_swap=0.7
+pm_act_swap=0.3
 instance=""
 execution_params=()
 
@@ -50,6 +52,24 @@ while [ $# -gt 0 ]; do
                 exit 1
             fi
             ;;
+        -pm_ts_swap)
+            if [ $# -gt 1 ]; then
+                pm_ts_swap="$2"
+                shift 2
+            else
+                echo "Error: -pc requiere un valor"
+                exit 1
+            fi
+            ;;
+        -pm_act_swap)
+            if [ $# -gt 1 ]; then
+                pm_act_swap="$2"
+                shift 2
+            else
+                echo "Error: -pc requiere un valor"
+                exit 1
+            fi
+            ;;
         *)
             # Si el argumento es numérico o una cadena vacía, lo añadimos a la lista de parámetros de ejecución
             if [[ "$flag" =~ ^[0-9]+(\.[0-9]+)?$ ]] || [ "$flag" = "" ]; then
@@ -66,12 +86,11 @@ done
 # Calcular mi, número de objetivos y parámetros
 p=500
 gen=10000
+n_tslots=5
 mi=$(awk "BEGIN {printf \"%d\",(${evaluaciones}/${p})}")
 echo "valor de mi: ${mi}"
 no=2 # número de objetivos
-pm_ts_swap=0.7
-pm_act_swap=0.3
-params="${p} ${gen} ${no} ${pc} ${pm} ${pm_ts_swap} ${pm_act_swap}"
+params="${p} ${gen} ${no} ${pc} ${pm} ${pm_ts_swap} ${pm_act_swap} ${n_tslots}"
 echo "Parámetros: ${params}"
 
 screen=salida
@@ -79,20 +98,20 @@ screen2=salida2
 
 # Borrar archivo de salida anterior
 rm -rf ${screen}
-
+rm -f best_pop_${instance}_s*.out
 # Ejecutar NSGA2
-echo "./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${instance} ${params} > out/${screen}"
-./${dirNSGA}/nsga2r 0.${seed} ${dirNSGA}/${instance} ${params} > ${screen}
+echo "./${dirNSGA}/nsga2r 0.${seed} ${dirInstances}/${instance} ${params} > ${screen}"
+./${dirNSGA}/nsga2r 0.${seed} ${dirInstances}/${instance} ${params} > ${screen}
 
 # Buscar óptimo en archivo
 
 optimo=0
 pr1=0
 pr2=0
-# nombreinstancia hv pr1 pr2
+# nombreinstancia pr1 pr2 hv
 while read -r line || [[ -n "$line" ]]; do
     line=$(echo "$line" | tr -d '\r')
-    read -r name val_opt val_pr1 val_pr2 <<< "$line"
+    read -r name val_pr1 val_pr2 val_opt <<< "$line"
     
     echo ${name}
     if [[ ${instance} == ${name} ]]; then
@@ -106,15 +125,18 @@ done < "optimos.txt"
 # Calcular hv y guardar en quality
 echo ${pr1}
 echo ${pr2}
-factor=2
+factor=1
 name=$(echo ${instance} | awk '{gsub(/.dat/, ""); print}' )
-pr1=$(awk "BEGIN {printf \"%.1f\",${pr1}*${factor} }" | sed 's/,/./')
-pr2=$(awk "BEGIN {printf \"%.1f\",${pr2}*${factor} }" | sed 's/,/./')
+pr1=$(awk "BEGIN {printf \"%.10g\",${pr1}*${factor} }" | sed 's/,/./')
+pr2=$(awk "BEGIN {printf \"%.10g\",${pr2}*${factor} }" | sed 's/,/./')
 echo ${pr1}
 echo ${pr2}
 
-echo "./${dirhv}/hv -r \"${pr1} ${pr2}\" solutions_${name}.out > ${screen2}"
-./${dirhv}/hv -r "${pr1} ${pr2}" solutions_${name}.out > ${screen2}
+bestpop=$(ls -t best_pop_${instance}_s*.out 2>/dev/null | head -1)
+awk '!/^#/ && $1 != "Total" {print $1, $2}' "$bestpop" > solutions_nsga2_${name}.out
+
+echo "./${dirhv}/hv -r \"${pr1} ${pr2}\" solutions_nsga2_${name}.out > ${screen2}"
+./${dirhv}/hv -r "${pr1} ${pr2}" solutions_nsga2_${name}.out > ${screen2}
 
 echo ${screen2}
 
